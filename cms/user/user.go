@@ -40,6 +40,6 @@ var (
 
 type Repository interface {
 	Store(user *UserModel) error
-	Find(id TrackingID) (*UserModel, error)
+	Find(id string) (*UserModel, error)
 	FindAll() []*UserModel
 }

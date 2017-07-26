@@ -1,9 +1,11 @@
-// Package booking provides the use-case of booking a cargo. Used by views
+// Package usering provides the use-case of booking a cargo. Used by views
 // facing an administrator.
-package booking
+package usering
 
 import (
 	"errors"
+
+	"github.com/geneseeq/authorize-system/cms/user"
 )
 
 // ErrInvalidArgument is returned when one or more arguments are invalid.
@@ -54,7 +56,14 @@ func NewService(users user.Repository) Service {
 // }
 
 func (s *service) GetUser(id string) error {
-	return s.users.Find(id)
+	if id == "" {
+		return User{}, ErrInvalidArgument
+	}
+	c, error := s.users.Find(id)
+	if err != nil {
+		return User{}, err
+	}
+	return c
 }
 
 // func (s *service) GetAllUser() ([]User, error) {

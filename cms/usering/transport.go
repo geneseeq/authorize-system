@@ -8,10 +8,9 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/geneseeq/authorize-system/cms/user"
 	kitlog "github.com/go-kit/kit/log"
 	kithttp "github.com/go-kit/kit/transport/http"
-
-	"github.com/go-kit/kit/examples/shipping/cargo"
 )
 
 // MakeHandler returns a handler for the booking service.
@@ -61,7 +60,7 @@ type errorer interface {
 // encode errors from business-logic
 func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 	switch err {
-	case cargo.ErrUnknown:
+	case user.ErrUnknown:
 		w.WriteHeader(http.StatusNotFound)
 	case ErrInvalidArgument:
 		w.WriteHeader(http.StatusBadRequest)

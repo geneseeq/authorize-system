@@ -1,4 +1,4 @@
-package booking
+package usering
 
 import (
 	"time"
