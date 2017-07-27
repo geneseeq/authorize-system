@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"net/http"
@@ -28,10 +27,10 @@ func main() {
 		addr  = envString("PORT", defaultPort)
 		rsurl = envString("ROUTINGSERVICE_URL", defaultRoutingServiceURL)
 
-		httpAddr          = flag.String("http.addr", ":"+addr, "HTTP listen address")
-		routingServiceURL = flag.String("service.routing", rsurl, "routing service URL")
+		httpAddr = flag.String("http.addr", ":"+addr, "HTTP listen address")
+		//routingServiceURL = flag.String("service.routing", rsurl, "routing service URL")
 		//ctx为空
-		ctx = context.Background()
+		//ctx = context.Background()
 	)
 
 	flag.Parse()
