@@ -15,12 +15,12 @@ type userResponse struct {
 	Err     error `json:"error,omitempty"`
 }
 
-func (r bookCargoResponse) error() error { return r.Err }
+func (r userResponse) error() error { return r.Err }
 
 func makeGetUserEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(getUserRequest)
 		result, err := s.GetUser(req.ID)
-		return userResponse{content: result, Err: err}, nil
+		return userResponse{content: &result, Err: err}, nil
 	}
 }

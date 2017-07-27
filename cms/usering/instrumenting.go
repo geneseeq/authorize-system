@@ -30,7 +30,7 @@ func NewInstrumentingService(counter metrics.Counter, latency metrics.Histogram,
 // 	return s.Service.Store(user)
 // }
 
-func (s *instrumentingService) GetUser(id string) (User, err error) {
+func (s *instrumentingService) GetUser(id string) (user User, err error) {
 	defer func(begin time.Time) {
 		s.requestCount.With("method", "load").Add(1)
 		s.requestLatency.With("method", "load").Observe(time.Since(begin).Seconds())

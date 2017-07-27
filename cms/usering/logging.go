@@ -27,7 +27,7 @@ func NewLoggingService(logger log.Logger, s Service) Service {
 // 	return s.Service.PostUser(user)
 // }
 
-func (s *loggingService) GetUser(id string) (User, err error) {
+func (s *loggingService) GetUser(id string) (user User, err error) {
 	defer func(begin time.Time) {
 		s.logger.Log(
 			"method", "load",
