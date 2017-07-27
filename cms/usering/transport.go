@@ -37,7 +37,6 @@ var errBadRoute = errors.New("bad route")
 
 func decodeUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
-	println(vars)
 	id, ok := vars["id"]
 	if !ok {
 		return nil, errBadRoute

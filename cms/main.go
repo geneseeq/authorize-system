@@ -7,6 +7,9 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
+
+	mgo "gopkg.in/mgo.v2"
 
 	"github.com/geneseeq/authorize-system/cms/action"
 	"github.com/geneseeq/authorize-system/cms/usering"
@@ -40,7 +43,9 @@ func main() {
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC)
 
 	var (
-		users = action.NewUserRepository()
+		collection = initMongo()
+		//users = action.NewUserRepository()
+		users = action.NewUserDBRepository(collection)
 	)
 
 	fieldKeys := []string{"method"}
@@ -107,4 +112,17 @@ func envString(env, fallback string) string {
 		return fallback
 	}
 	return e
+}
+
+func initMongo() *mgo.Collection {
+	session, err := mgo.DialWithInfo(&mgo.DialInfo{
+		Addrs:   []string{"127.0.0.1"},
+		Timeout: 60 * time.Second,
+	})
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+	collection := session.DB("test").C("user")
+	return collection
 }
