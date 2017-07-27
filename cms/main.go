@@ -24,8 +24,8 @@ const (
 
 func main() {
 	var (
-		addr  = envString("PORT", defaultPort)
-		rsurl = envString("ROUTINGSERVICE_URL", defaultRoutingServiceURL)
+		addr = envString("PORT", defaultPort)
+		//rsurl = envString("ROUTINGSERVICE_URL", defaultRoutingServiceURL)
 
 		httpAddr = flag.String("http.addr", ":"+addr, "HTTP listen address")
 		//routingServiceURL = flag.String("service.routing", rsurl, "routing service URL")
