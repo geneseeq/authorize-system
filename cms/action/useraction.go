@@ -77,8 +77,8 @@ func (r *userDBRepository) FindAll() []*user.UserModel {
 }
 
 // NewUserDBRepository returns a new instance of a in-memory cargo repository.
-func NewUserDBRepository(collection mgo.Collection) user.Repository {
+func NewUserDBRepository(collection *mgo.Collection) user.Repository {
 	return &userDBRepository{
-		coll: &collection,
+		coll: collection,
 	}
 }
