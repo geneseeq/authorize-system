@@ -69,7 +69,7 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	mux.Handle("/user/v1/", usering.MakeHandler(bs, httpLogger))
+	mux.Handle("/usering/v1/", usering.MakeHandler(bs, httpLogger))
 
 	http.Handle("/", accessControl(mux))
 	http.Handle("/metrics", promhttp.Handler())

@@ -8,23 +8,26 @@ import (
 	"github.com/pborman/uuid"
 )
 
+// TrackingID is not use
 type TrackingID string
 
+// UserModel is user struct
 type UserModel struct {
-	TrackingID TrackingID
-	Type       int
-	Number     string
-	Username   string
-	Gneder     bool
-	Status     int
-	Validity   bool
-	Vip        bool
-	Buildin    bool
+	ID       string
+	Type     int
+	Number   string
+	Username string
+	Gneder   bool
+	Status   int
+	Validity bool
+	Vip      bool
+	Buildin  bool
 }
 
-func New(id TrackingID) *UserModel {
+// New is create instance
+func New(id string) *UserModel {
 	return &UserModel{
-		TrackingID: id,
+		ID: id,
 	}
 }
 
@@ -34,10 +37,12 @@ func NextTrackingID() TrackingID {
 	return TrackingID(strings.Split(strings.ToUpper(uuid.New()), "-")[0])
 }
 
+// ErrUnknown is unkown user error
 var (
 	ErrUnknown = errors.New("unknown user")
 )
 
+// Repository is user interface
 type Repository interface {
 	Store(user *UserModel) error
 	Find(id string) (*UserModel, error)

@@ -28,14 +28,14 @@ type Service interface {
 // User is a user base info
 type User struct {
 	ID       string `json:"id"`
-	Type     int    `json:"type"` //"type":"医生/教师/个人/员工/企业"
-	Number   string `json:"number"`
-	Username string `json:"username"`
-	Gneder   bool   `json:"gender"`
-	Status   int    `json:"status"`
-	Validity bool   `json:"validity"`
-	Vip      bool   `json:"vip"`
-	Buildin  bool   `json:"buildin"`
+	Type     int    `json:"type,omitempty"` //"type":"医生/教师/个人/员工/企业"
+	Number   string `json:"number,omitempty"`
+	Username string `json:"username,omitempty"`
+	Gneder   bool   `json:"gender,omitempty"`
+	Status   int    `json:"status,omitempty"`
+	Validity bool   `json:"validity,omitempty"`
+	Vip      bool   `json:"vip,omitempty"`
+	Buildin  bool   `json:"buildin,omitempty"`
 }
 
 type service struct {
@@ -55,15 +55,15 @@ func NewService(users user.Repository) Service {
 // 	return s.users.Store(u)
 // }
 
-func (s *service) GetUser(id string) error {
+func (s *service) GetUser(id string) (User, error) {
 	if id == "" {
 		return User{}, ErrInvalidArgument
 	}
 	c, error := s.users.Find(id)
-	if err != nil {
-		return User{}, err
+	if error != nil {
+		return User{}, error
 	}
-	return c
+	return assemble(c), nil
 }
 
 // func (s *service) GetAllUser() ([]User, error) {
@@ -83,3 +83,16 @@ func (s *service) GetUser(id string) error {
 // 	u := user.New(id)
 // 	return s.users.Store(u)
 // }
+func assemble(c *user.UserModel) User {
+	return User{
+		ID:       c.ID,
+		Type:     c.Type,
+		Number:   c.Number,
+		Username: c.Username,
+		Gneder:   c.Gneder,
+		Status:   c.Status,
+		Validity: c.Validity,
+		Vip:      c.Vip,
+		Buildin:  c.Buildin,
+	}
+}

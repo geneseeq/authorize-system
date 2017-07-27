@@ -28,7 +28,7 @@ func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
 	)
 	r := mux.NewRouter()
 
-	r.Handle("/user/{id}", getUserHandler).Methods("GET")
+	r.Handle("/usering/v1/user/{id}", getUserHandler).Methods("GET")
 
 	return r
 }
@@ -37,7 +37,7 @@ var errBadRoute = errors.New("bad route")
 
 func decodeUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
-	id, ok := vars["id"]
+	id, ok := vars["ID"]
 	if !ok {
 		return nil, errBadRoute
 	}

@@ -3,33 +3,35 @@ package action
 
 import (
 	"sync"
+
+	"github.com/geneseeq/authorize-system/cms/user"
 )
 
 type userRepository struct {
 	mtx   sync.RWMutex
-	users map[user.TrackingID]*user.UserModel
+	users map[string]*user.UserModel
 }
 
-func (r *userRepository) Store(c *users.UserModel) error {
+func (r *userRepository) Store(c *user.UserModel) error {
 	r.mtx.Lock()
 	defer r.mtx.Unlock()
-	r.users[c.TrackingID] = c
+	r.users[c.ID] = c
 	return nil
 }
 
-func (r *userRepository) Find(id users.TrackingID) (*users.UserModel, error) {
+func (r *userRepository) Find(id string) (*user.UserModel, error) {
 	r.mtx.RLock()
 	defer r.mtx.RUnlock()
 	if val, ok := r.users[id]; ok {
 		return val, nil
 	}
-	return nil, users.ErrUnknown
+	return nil, user.ErrUnknown
 }
 
-func (r *userRepository) FindAll() []*users.UserModel {
+func (r *userRepository) FindAll() []*user.UserModel {
 	r.mtx.RLock()
 	defer r.mtx.RUnlock()
-	c := make([]*users.UserModel, 0, len(r.users))
+	c := make([]*user.UserModel, 0, len(r.users))
 	for _, val := range r.users {
 		c = append(c, val)
 	}
@@ -39,6 +41,6 @@ func (r *userRepository) FindAll() []*users.UserModel {
 // NewUserRepository returns a new instance of a in-memory cargo repository.
 func NewUserRepository() user.Repository {
 	return &userRepository{
-		users: make(map[user.TrackingID]*user.UserModel),
+		users: make(map[string]*user.UserModel),
 	}
 }
