@@ -63,7 +63,7 @@ func (r *userDBRepository) Find(id string) (*user.UserModel, error) {
 	r.mtx.RLock()
 	defer r.mtx.RUnlock()
 	result := user.UserModel{}
-	err := r.coll.Find(bson.M{"ID": id}).One(&result)
+	err := r.coll.Find(bson.M{"id": id}).One(&result)
 	if err != nil {
 		return &result, err
 	}

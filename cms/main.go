@@ -42,8 +42,18 @@ func main() {
 	logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC)
 
+	session, err := mgo.DialWithInfo(&mgo.DialInfo{
+		Addrs:   []string{"192.168.0.61:27016"},
+		Timeout: 60 * time.Second,
+	})
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	collection := session.DB("test").C("user")
+
 	var (
-		collection = initMongo()
 		//users = action.NewUserRepository()
 		users = action.NewUserDBRepository(collection)
 	)
@@ -116,7 +126,7 @@ func envString(env, fallback string) string {
 
 func initMongo() *mgo.Collection {
 	session, err := mgo.DialWithInfo(&mgo.DialInfo{
-		Addrs:   []string{"127.0.0.1"},
+		Addrs:   []string{"192.168.0.61:27016"},
 		Timeout: 60 * time.Second,
 	})
 	if err != nil {
@@ -124,5 +134,6 @@ func initMongo() *mgo.Collection {
 	}
 	defer session.Close()
 	collection := session.DB("test").C("user")
+	println(collection)
 	return collection
 }
