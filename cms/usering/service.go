@@ -61,7 +61,7 @@ func (s *service) GetUser(id string) (User, error) {
 	}
 	c, error := s.users.Find(id)
 	if error != nil {
-		return User{}, error
+		return User{}, ErrNotFound
 	}
 	return assemble(c), nil
 }

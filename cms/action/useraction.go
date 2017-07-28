@@ -65,9 +65,9 @@ func (r *userDBRepository) Find(id string) (*user.UserModel, error) {
 	result := user.UserModel{}
 	err := r.coll.Find(bson.M{"id": id}).One(&result)
 	if err != nil {
-		return &result, err
+		return nil, user.ErrUnknown
 	}
-	return nil, user.ErrUnknown
+	return &result, nil
 }
 
 func (r *userDBRepository) FindAll() []*user.UserModel {

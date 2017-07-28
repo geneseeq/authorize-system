@@ -87,7 +87,6 @@ func main() {
 
 	http.Handle("/", accessControl(mux))
 	http.Handle("/metrics", promhttp.Handler())
-
 	errs := make(chan error, 2)
 	go func() {
 		logger.Log("transport", "http", "address", *httpAddr, "msg", "listening")
@@ -124,16 +123,16 @@ func envString(env, fallback string) string {
 	return e
 }
 
-func initMongo() *mgo.Collection {
-	session, err := mgo.DialWithInfo(&mgo.DialInfo{
-		Addrs:   []string{"192.168.0.61:27016"},
-		Timeout: 60 * time.Second,
-	})
-	if err != nil {
-		panic(err)
-	}
-	defer session.Close()
-	collection := session.DB("test").C("user")
-	println(collection)
-	return collection
-}
+// func initMongo() *mgo.Collection {
+// 	session, err := mgo.DialWithInfo(&mgo.DialInfo{
+// 		Addrs:   []string{"192.168.0.61:27016"},
+// 		Timeout: 60 * time.Second,
+// 	})
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	defer session.Close()
+// 	collection := session.DB("test").C("user")
+// 	println(collection)
+// 	return collection
+// }
