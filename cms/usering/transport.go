@@ -104,7 +104,14 @@ func decodePutUserRequest(_ context.Context, r *http.Request) (interface{}, erro
 	if !ok {
 		return nil, errBadRoute
 	}
-	return putUserRequest{ID: string(id)}, nil
+	var user User
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		return nil, err
+	}
+	return putUserRequest{
+		ID:   id,
+		User: user,
+	}, nil
 }
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
