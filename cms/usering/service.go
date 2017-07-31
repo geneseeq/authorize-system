@@ -20,9 +20,9 @@ var (
 type Service interface {
 	GetUser(id string) (User, error)
 	PostUser(user User) error
-	// GetAllUser() ([]User, error)
+	GetAllUser() ([]User, error)
 	// PutUser(id user.TrackingID, user User) error
-	// DeleteUser(id user.TrackingID) error
+	DeleteUser(id string) error
 }
 
 // User is a user base info
@@ -65,11 +65,13 @@ func (s *service) GetUser(id string) (User, error) {
 	return usermodelToUser(c), nil
 }
 
-// func (s *service) GetAllUser() ([]User, error) {
-// 	uid := user.NextTrackingID()
-// 	u := user.New(id)
-// 	return s.users.Store(u)
-// }
+func (s *service) GetAllUser() ([]User, error) {
+	var result []User
+	for _, c := range s.users.FindAll() {
+		result = append(result, usermodelToUser(c))
+	}
+	return result, nil
+}
 
 // func (s *service) PutUser(user User) error {
 // 	uid := user.NextTrackingID()
@@ -77,11 +79,16 @@ func (s *service) GetUser(id string) (User, error) {
 // 	return s.users.Store(u)
 // }
 
-// func (s *service) DeleteUser(user User) error {
-// 	uid := user.NextTrackingID()
-// 	u := user.New(id)
-// 	return s.users.Store(u)
-// }
+func (s *service) DeleteUser(id string) error {
+	if id == "" {
+		return ErrInvalidArgument
+	}
+	error := s.users.Remove(id)
+	if error != nil {
+		return ErrNotFound
+	}
+	return nil
+}
 func userToUsermodel(u User) *user.UserModel {
 
 	return &user.UserModel{

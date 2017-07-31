@@ -3,15 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
-	"time"
-
-	mgo "gopkg.in/mgo.v2"
 
 	"github.com/geneseeq/authorize-system/cms/action"
 	"github.com/geneseeq/authorize-system/cms/usering"
@@ -20,7 +15,6 @@ import (
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -43,19 +37,6 @@ func checkErr(err error) {
 	}
 }
 
-func initCfg() (string, error) {
-	content, _ := ioutil.ReadFile("conf.yaml")
-	mongoCfg := DB{}
-	err := yaml.Unmarshal(content, &mongoCfg)
-	if err != nil {
-		return "", err
-	}
-	address := strings.Join([]string{
-		mongoCfg.Mongo.Host, ":", mongoCfg.Mongo.Port,
-	}, "")
-	return address, nil
-}
-
 func main() {
 	var (
 		addr     = envString("PORT", defaultPort)
@@ -68,19 +49,8 @@ func main() {
 	logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC)
 
-	address, err := initCfg()
-	checkErr(err)
-	session, err := mgo.DialWithInfo(&mgo.DialInfo{
-		Addrs:   []string{address},
-		Timeout: 60 * time.Second,
-	})
-	checkErr(err)
-	defer session.Close()
-
-	collection := session.DB("test").C("user")
-
 	var (
-		users = action.NewUserDBRepository(collection)
+		users = action.NewUserDBRepository("test", "user")
 	)
 
 	fieldKeys := []string{"method"}

@@ -39,15 +39,15 @@ func (s *loggingService) GetUser(id string) (user User, err error) {
 	return s.Service.GetUser(id)
 }
 
-// func (s *loggingService) GetAllUser() ([]User, error) {
-// 	defer func(begin time.Time) {
-// 		s.logger.Log(
-// 			"method", "request_routes",
-// 			"took", time.Since(begin),
-// 		)
-// 	}(time.Now())
-// 	return s.Service.GetAllUser()
-// }
+func (s *loggingService) GetAllUser() ([]User, error) {
+	defer func(begin time.Time) {
+		s.logger.Log(
+			"method", "request_routes",
+			"took", time.Since(begin),
+		)
+	}(time.Now())
+	return s.Service.GetAllUser()
+}
 
 // func (s *loggingService) PutUser(id string, user User) (err error) {
 // 	defer func(begin time.Time) {
@@ -61,13 +61,13 @@ func (s *loggingService) GetUser(id string) (user User, err error) {
 // 	return s.Service.PutUser(id, user)
 // }
 
-// func (s *loggingService) DeleteUser(user User) (err error) {
-// 	defer func(begin time.Time) {
-// 		s.logger.Log(
-// 			"method", "change_destination",
-// 			"took", time.Since(begin),
-// 			"err", err,
-// 		)
-// 	}(time.Now())
-// 	return s.Service.DeleteUser(user)
-// }
+func (s *loggingService) DeleteUser(id string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Log(
+			"method", "change_destination",
+			"took", time.Since(begin),
+			"err", err,
+		)
+	}(time.Now())
+	return s.Service.DeleteUser(id)
+}

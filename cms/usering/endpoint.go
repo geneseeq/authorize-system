@@ -10,6 +10,12 @@ type getUserRequest struct {
 	ID string
 }
 
+type deleteUserRequest struct {
+	ID string
+}
+
+type listUserRequest struct{}
+
 type postUserRequest struct {
 	User User
 }
@@ -39,10 +45,31 @@ func makeGetUserEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
+func makeGetAllUserEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		_ = request.(listUserRequest)
+		result, err := s.GetAllUser()
+		// var users []User
+		// users = append(users, result)
+		return userResponse{User: result, Err: err}, nil
+	}
+}
+
 func makePostUserEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(postUserRequest)
 		err := s.PostUser(req.User)
+		if err == nil {
+			return postUserResponse{Err: err, Status: 200, Content: "sucessed"}, nil
+		}
+		return postUserResponse{Err: err, Status: 300, Content: "sucessed"}, nil
+	}
+}
+
+func makeDeleteUserEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(deleteUserRequest)
+		err := s.DeleteUser(req.ID)
 		if err == nil {
 			return postUserResponse{Err: err, Status: 200, Content: "sucessed"}, nil
 		}

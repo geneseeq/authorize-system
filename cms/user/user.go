@@ -48,4 +48,5 @@ type Repository interface {
 	Store(user *UserModel) error
 	Find(id string) (*UserModel, error)
 	FindAll() []*UserModel
+	Remove(id string) error
 }

@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/geneseeq/authorize-system/cms/user"
-	"gopkg.in/mgo.v2"
+	"github.com/geneseeq/authorize-system/db"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -18,6 +18,12 @@ func (r *userRepository) Store(c *user.UserModel) error {
 	r.mtx.Lock()
 	defer r.mtx.Unlock()
 	r.users[c.ID] = c
+	return nil
+}
+
+func (r *userRepository) Remove(id string) error {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
 	return nil
 }
 
@@ -48,22 +54,29 @@ func NewUserRepository() user.Repository {
 }
 
 type userDBRepository struct {
-	mtx  sync.RWMutex
-	coll *mgo.Collection
+	mtx        sync.RWMutex
+	collection string
+	db         string
 }
 
 func (r *userDBRepository) Store(c *user.UserModel) error {
 	r.mtx.Lock()
 	defer r.mtx.Unlock()
-	err := r.coll.Insert(c)
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
+	err := con.Insert(c)
 	return err
 }
 
 func (r *userDBRepository) Find(id string) (*user.UserModel, error) {
 	r.mtx.RLock()
 	defer r.mtx.RUnlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
 	result := user.UserModel{}
-	err := r.coll.Find(bson.M{"id": id}).One(&result)
+	err := con.Find(bson.M{"id": id}).One(&result)
 	if err != nil {
 		return nil, user.ErrUnknown
 	}
@@ -73,12 +86,31 @@ func (r *userDBRepository) Find(id string) (*user.UserModel, error) {
 func (r *userDBRepository) FindAll() []*user.UserModel {
 	r.mtx.RLock()
 	defer r.mtx.RUnlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
+	var result []*user.UserModel
+	con.Find(nil).All(&result)
+	return result
+}
+
+func (r *userDBRepository) Remove(id string) error {
+	r.mtx.RLock()
+	defer r.mtx.RUnlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
+	err := con.Remove(bson.M{"id": id})
+	if err != nil {
+		return user.ErrUnknown
+	}
 	return nil
 }
 
 // NewUserDBRepository returns a new instance of a in-memory cargo repository.
-func NewUserDBRepository(collection *mgo.Collection) user.Repository {
+func NewUserDBRepository(db string, collection string) user.Repository {
 	return &userDBRepository{
-		coll: collection,
+		db:         db,
+		collection: collection,
 	}
 }

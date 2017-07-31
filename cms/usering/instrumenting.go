@@ -39,14 +39,14 @@ func (s *instrumentingService) GetUser(id string) (user User, err error) {
 	return s.Service.GetUser(id)
 }
 
-// func (s *instrumentingService) GetAllUser() []User {
-// 	defer func(begin time.Time) {
-// 		s.requestCount.With("method", "request_routes").Add(1)
-// 		s.requestLatency.With("method", "request_routes").Observe(time.Since(begin).Seconds())
-// 	}(time.Now())
+func (s *instrumentingService) GetAllUser() ([]User, error) {
+	defer func(begin time.Time) {
+		s.requestCount.With("method", "request_routes").Add(1)
+		s.requestLatency.With("method", "request_routes").Observe(time.Since(begin).Seconds())
+	}(time.Now())
 
-// 	return s.Service.GetAllUser()
-// }
+	return s.Service.GetAllUser()
+}
 
 // func (s *instrumentingService) PutUser(id string, user User) (err error) {
 // 	defer func(begin time.Time) {
@@ -57,11 +57,11 @@ func (s *instrumentingService) GetUser(id string) (user User, err error) {
 // 	return s.Service.PutUser(id, user)
 // }
 
-// func (s *instrumentingService) DeleteUser(id string) (err error) {
-// 	defer func(begin time.Time) {
-// 		s.requestCount.With("method", "change_destination").Add(1)
-// 		s.requestLatency.With("method", "change_destination").Observe(time.Since(begin).Seconds())
-// 	}(time.Now())
+func (s *instrumentingService) DeleteUser(id string) (err error) {
+	defer func(begin time.Time) {
+		s.requestCount.With("method", "change_destination").Add(1)
+		s.requestLatency.With("method", "change_destination").Observe(time.Since(begin).Seconds())
+	}(time.Now())
 
-// 	return s.Service.DeleteUser(id)
-// }
+	return s.Service.DeleteUser(id)
+}
