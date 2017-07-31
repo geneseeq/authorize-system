@@ -10,6 +10,18 @@ type getUserRequest struct {
 	ID string
 }
 
+type postUserRequest struct {
+	User User
+}
+
+type postUserResponse struct {
+	//omitempty表示字段值为空，则不输出到json串
+	Status  int    `json:"status"`
+	Content string `json:"content"`
+	Err     error  `json:"err,omitempty"`
+}
+
+// userResponse User must equal User type
 type userResponse struct {
 	User []User `json:"content,omitempty"`
 	Err  error  `json:"error,omitempty"`
@@ -24,5 +36,16 @@ func makeGetUserEndpoint(s Service) endpoint.Endpoint {
 		var users []User
 		users = append(users, result)
 		return userResponse{User: users, Err: err}, nil
+	}
+}
+
+func makePostUserEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(postUserRequest)
+		err := s.PostUser(req.User)
+		if err == nil {
+			return postUserResponse{Err: err, Status: 200, Content: "sucessed"}, nil
+		}
+		return postUserResponse{Err: err, Status: 300, Content: "sucessed"}, nil
 	}
 }

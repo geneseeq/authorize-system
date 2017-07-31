@@ -19,7 +19,7 @@ var (
 // Service is the interface that provides booking methods.
 type Service interface {
 	GetUser(id string) (User, error)
-	// PostUser(user User) error
+	PostUser(user User) error
 	// GetAllUser() ([]User, error)
 	// PutUser(id user.TrackingID, user User) error
 	// DeleteUser(id user.TrackingID) error
@@ -31,6 +31,7 @@ type User struct {
 	Type     int    `json:"type,omitempty"` //"type":"医生/教师/个人/员工/企业"
 	Number   string `json:"number,omitempty"`
 	Username string `json:"username,omitempty"`
+	Tele     string `json:"telephone,omitempty"`
 	Gneder   bool   `json:"gender,omitempty"`
 	Status   int    `json:"status,omitempty"`
 	Validity bool   `json:"validity,omitempty"`
@@ -49,11 +50,9 @@ func NewService(users user.Repository) Service {
 	}
 }
 
-// func (s *service) PostUser(user User) error {
-// 	uid := user.NextTrackingID()
-// 	u := user.New(user.ID)
-// 	return s.users.Store(u)
-// }
+func (s *service) PostUser(u User) error {
+	return s.users.Store(userToUsermodel(u))
+}
 
 func (s *service) GetUser(id string) (User, error) {
 	if id == "" {
@@ -63,7 +62,7 @@ func (s *service) GetUser(id string) (User, error) {
 	if error != nil {
 		return User{}, ErrNotFound
 	}
-	return assemble(c), nil
+	return usermodelToUser(c), nil
 }
 
 // func (s *service) GetAllUser() ([]User, error) {
@@ -83,7 +82,22 @@ func (s *service) GetUser(id string) (User, error) {
 // 	u := user.New(id)
 // 	return s.users.Store(u)
 // }
-func assemble(c *user.UserModel) User {
+func userToUsermodel(u User) *user.UserModel {
+
+	return &user.UserModel{
+		ID:       u.ID,
+		Type:     u.Type,
+		Number:   u.Number,
+		Username: u.Username,
+		Gneder:   u.Gneder,
+		Status:   u.Status,
+		Validity: u.Validity,
+		Vip:      u.Vip,
+		Buildin:  u.Buildin,
+	}
+}
+
+func usermodelToUser(c *user.UserModel) User {
 	return User{
 		ID:       c.ID,
 		Type:     c.Type,

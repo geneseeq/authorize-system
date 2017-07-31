@@ -21,14 +21,14 @@ func NewInstrumentingService(counter metrics.Counter, latency metrics.Histogram,
 	}
 }
 
-// func (s *instrumentingService) PostUser(user User) error {
-// 	defer func(begin time.Time) {
-// 		s.requestCount.With("method", "book").Add(1)
-// 		s.requestLatency.With("method", "book").Observe(time.Since(begin).Seconds())
-// 	}(time.Now())
+func (s *instrumentingService) PostUser(user User) error {
+	defer func(begin time.Time) {
+		s.requestCount.With("method", "book").Add(1)
+		s.requestLatency.With("method", "book").Observe(time.Since(begin).Seconds())
+	}(time.Now())
 
-// 	return s.Service.Store(user)
-// }
+	return s.Service.PostUser(user)
+}
 
 func (s *instrumentingService) GetUser(id string) (user User, err error) {
 	defer func(begin time.Time) {

@@ -16,16 +16,16 @@ func NewLoggingService(logger log.Logger, s Service) Service {
 	return &loggingService{logger, s}
 }
 
-// func (s *loggingService) PostUser(user User) (err error) {
-// 	defer func(begin time.Time) {
-// 		s.logger.Log(
-// 			"method", "user",
-// 			"took", time.Since(begin),
-// 			"err", err,
-// 		)
-// 	}(time.Now())
-// 	return s.Service.PostUser(user)
-// }
+func (s *loggingService) PostUser(user User) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Log(
+			"method", "user",
+			"took", time.Since(begin),
+			"err", err,
+		)
+	}(time.Now())
+	return s.Service.PostUser(user)
+}
 
 func (s *loggingService) GetUser(id string) (user User, err error) {
 	defer func(begin time.Time) {

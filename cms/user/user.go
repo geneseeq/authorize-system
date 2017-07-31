@@ -9,7 +9,7 @@ import (
 )
 
 // TrackingID is not use
-type TrackingID string
+// type TrackingID string
 
 // UserModel is user struct
 type UserModel struct {
@@ -17,6 +17,7 @@ type UserModel struct {
 	Type     int
 	Number   string
 	Username string
+	Tele     string
 	Gneder   bool
 	Status   int
 	Validity bool
@@ -33,8 +34,8 @@ func New(id string) *UserModel {
 
 // NextTrackingID generates a new tracking ID.
 // TODO: Move to infrastructure(?)
-func NextTrackingID() TrackingID {
-	return TrackingID(strings.Split(strings.ToUpper(uuid.New()), "-")[0])
+func NextTrackingID() string {
+	return strings.Split(strings.ToUpper(uuid.New()), "-")[0]
 }
 
 // ErrUnknown is unkown user error

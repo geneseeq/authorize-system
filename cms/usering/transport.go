@@ -22,26 +22,42 @@ func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
 
 	getUserHandler := kithttp.NewServer(
 		makeGetUserEndpoint(bs),
-		decodeUserRequest,
+		decodeGetUserRequest,
+		encodeResponse,
+		opts...,
+	)
+
+	addUserHandler := kithttp.NewServer(
+		makePostUserEndpoint(bs),
+		decodePostUserRequest,
 		encodeResponse,
 		opts...,
 	)
 	r := mux.NewRouter()
 
 	r.Handle("/usering/v1/user/{id}", getUserHandler).Methods("GET")
+	r.Handle("/usering/v1/user", addUserHandler).Methods("POST")
 
 	return r
 }
 
 var errBadRoute = errors.New("bad route")
 
-func decodeUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
+func decodeGetUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
 	id, ok := vars["id"]
 	if !ok {
 		return nil, errBadRoute
 	}
 	return getUserRequest{ID: string(id)}, nil
+}
+
+func decodePostUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var req postUserRequest
+	if e := json.NewDecoder(r.Body).Decode(&req.User); e != nil {
+		return nil, e
+	}
+	return req, nil
 }
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
