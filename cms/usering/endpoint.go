@@ -14,6 +14,11 @@ type deleteUserRequest struct {
 	ID string
 }
 
+type putUserRequest struct {
+	ID   string
+	User User
+}
+
 type listUserRequest struct{}
 
 type postUserRequest struct {
@@ -70,6 +75,17 @@ func makeDeleteUserEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(deleteUserRequest)
 		err := s.DeleteUser(req.ID)
+		if err == nil {
+			return postUserResponse{Err: err, Status: 200, Content: "sucessed"}, nil
+		}
+		return postUserResponse{Err: err, Status: 300, Content: "sucessed"}, nil
+	}
+}
+
+func makePutUserEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(putUserRequest)
+		err := s.PutUser(req.ID, req.User)
 		if err == nil {
 			return postUserResponse{Err: err, Status: 200, Content: "sucessed"}, nil
 		}

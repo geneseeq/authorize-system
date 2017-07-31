@@ -46,6 +46,14 @@ func (r *userRepository) FindAll() []*user.UserModel {
 	return c
 }
 
+func (r *userRepository) Update(id string, u *user.UserModel) error {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	return nil
+}
+
 // NewUserRepository returns a new instance of a in-memory cargo repository.
 func NewUserRepository() user.Repository {
 	return &userRepository{
@@ -105,6 +113,16 @@ func (r *userDBRepository) Remove(id string) error {
 		return user.ErrUnknown
 	}
 	return nil
+}
+
+func (r *userDBRepository) Update(id string, u *user.UserModel) error {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
+	err := con.Update(bson.M{"id": id}, u)
+	return err
 }
 
 // NewUserDBRepository returns a new instance of a in-memory cargo repository.

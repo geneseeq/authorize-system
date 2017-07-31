@@ -49,17 +49,17 @@ func (s *loggingService) GetAllUser() ([]User, error) {
 	return s.Service.GetAllUser()
 }
 
-// func (s *loggingService) PutUser(id string, user User) (err error) {
-// 	defer func(begin time.Time) {
-// 		s.logger.Log(
-// 			"method", "assign_to_route",
-// 			"tracking_id", id,
-// 			"took", time.Since(begin),
-// 			"err", err,
-// 		)
-// 	}(time.Now())
-// 	return s.Service.PutUser(id, user)
-// }
+func (s *loggingService) PutUser(id string, user User) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Log(
+			"method", "assign_to_route",
+			"tracking_id", id,
+			"took", time.Since(begin),
+			"err", err,
+		)
+	}(time.Now())
+	return s.Service.PutUser(id, user)
+}
 
 func (s *loggingService) DeleteUser(id string) (err error) {
 	defer func(begin time.Time) {

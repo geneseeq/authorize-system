@@ -50,6 +50,7 @@ func main() {
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC)
 
 	var (
+		// set db and collection
 		users = action.NewUserDBRepository("test", "user")
 	)
 

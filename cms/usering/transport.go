@@ -48,11 +48,19 @@ func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
 		opts...,
 	)
 
+	updateUserHandler := kithttp.NewServer(
+		makePutUserEndpoint(bs),
+		decodePutUserRequest,
+		encodeResponse,
+		opts...,
+	)
+
 	r := mux.NewRouter()
 
 	r.Handle("/usering/v1/user/{id}", getUserHandler).Methods("GET")
 	r.Handle("/usering/v1/user", getAllUserHandler).Methods("GET")
 	r.Handle("/usering/v1/user", addUserHandler).Methods("POST")
+	r.Handle("/usering/v1/user/{id}", updateUserHandler).Methods("PUT")
 	r.Handle("/usering/v1/user/{id}", deleteUserHandler).Methods("DELETE")
 
 	return r
@@ -88,6 +96,15 @@ func decodeDeleteUserRequest(_ context.Context, r *http.Request) (interface{}, e
 		return nil, errBadRoute
 	}
 	return deleteUserRequest{ID: string(id)}, nil
+}
+
+func decodePutUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	vars := mux.Vars(r)
+	id, ok := vars["id"]
+	if !ok {
+		return nil, errBadRoute
+	}
+	return putUserRequest{ID: string(id)}, nil
 }
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {

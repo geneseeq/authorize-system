@@ -21,7 +21,7 @@ type Service interface {
 	GetUser(id string) (User, error)
 	PostUser(user User) error
 	GetAllUser() ([]User, error)
-	// PutUser(id user.TrackingID, user User) error
+	PutUser(id string, user User) error
 	DeleteUser(id string) error
 }
 
@@ -73,11 +73,14 @@ func (s *service) GetAllUser() ([]User, error) {
 	return result, nil
 }
 
-// func (s *service) PutUser(user User) error {
-// 	uid := user.NextTrackingID()
-// 	u := user.New(id)
-// 	return s.users.Store(u)
-// }
+func (s *service) PutUser(id string, user User) error {
+	_, err := s.GetUser(id)
+	if err != nil {
+		return ErrInconsistentIDs
+	}
+	err = s.users.Update(id, userToUsermodel(user))
+	return err
+}
 
 func (s *service) DeleteUser(id string) error {
 	if id == "" {

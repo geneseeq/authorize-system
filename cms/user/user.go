@@ -49,4 +49,5 @@ type Repository interface {
 	Find(id string) (*UserModel, error)
 	FindAll() []*UserModel
 	Remove(id string) error
+	Update(id string, user *UserModel) error
 }

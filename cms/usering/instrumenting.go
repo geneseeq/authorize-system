@@ -48,14 +48,14 @@ func (s *instrumentingService) GetAllUser() ([]User, error) {
 	return s.Service.GetAllUser()
 }
 
-// func (s *instrumentingService) PutUser(id string, user User) (err error) {
-// 	defer func(begin time.Time) {
-// 		s.requestCount.With("method", "assign_to_route").Add(1)
-// 		s.requestLatency.With("method", "assign_to_route").Observe(time.Since(begin).Seconds())
-// 	}(time.Now())
+func (s *instrumentingService) PutUser(id string, user User) (err error) {
+	defer func(begin time.Time) {
+		s.requestCount.With("method", "assign_to_route").Add(1)
+		s.requestLatency.With("method", "assign_to_route").Observe(time.Since(begin).Seconds())
+	}(time.Now())
 
-// 	return s.Service.PutUser(id, user)
-// }
+	return s.Service.PutUser(id, user)
+}
 
 func (s *instrumentingService) DeleteUser(id string) (err error) {
 	defer func(begin time.Time) {
