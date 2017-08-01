@@ -55,6 +55,13 @@ func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
 		opts...,
 	)
 
+	deleteMultiUserHandler := kithttp.NewServer(
+		makeDeleteMultiUserEndpoint(bs),
+		decodeDeleteMultiUserRequest,
+		encodeResponse,
+		opts...,
+	)
+
 	r := mux.NewRouter()
 
 	r.Handle("/usering/v1/user/{id}", getUserHandler).Methods("GET")
@@ -62,6 +69,7 @@ func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
 	r.Handle("/usering/v1/user", addUserHandler).Methods("POST")
 	r.Handle("/usering/v1/user/{id}", updateUserHandler).Methods("PUT")
 	r.Handle("/usering/v1/user/{id}", deleteUserHandler).Methods("DELETE")
+	r.Handle("/usering/v1/user", deleteMultiUserHandler).Methods("DELETE")
 
 	return r
 }
@@ -96,6 +104,15 @@ func decodeDeleteUserRequest(_ context.Context, r *http.Request) (interface{}, e
 		return nil, errBadRoute
 	}
 	return deleteUserRequest{ID: string(id)}, nil
+}
+
+func decodeDeleteMultiUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
+
+	var req deleteMutliUserRequest
+	if e := json.NewDecoder(r.Body).Decode(&req.ListId); e != nil {
+		return nil, e
+	}
+	return req, nil
 }
 
 func decodePutUserRequest(_ context.Context, r *http.Request) (interface{}, error) {

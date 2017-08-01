@@ -71,3 +71,14 @@ func (s *loggingService) DeleteUser(id string) (err error) {
 	}(time.Now())
 	return s.Service.DeleteUser(id)
 }
+
+func (s *loggingService) DeleteMultiUser(listid []string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Log(
+			"method", "change_destination",
+			"took", time.Since(begin),
+			"err", err,
+		)
+	}(time.Now())
+	return s.Service.DeleteMultiUser(listid)
+}

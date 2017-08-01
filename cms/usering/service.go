@@ -23,6 +23,7 @@ type Service interface {
 	GetAllUser() ([]User, error)
 	PutUser(id string, user User) error
 	DeleteUser(id string) error
+	DeleteMultiUser(listid []string) error
 }
 
 // User is a user base info
@@ -95,6 +96,20 @@ func (s *service) DeleteUser(id string) error {
 	}
 	return nil
 }
+
+func (s *service) DeleteMultiUser(listid []string) error {
+	if len(listid) == 0 {
+		return ErrInvalidArgument
+	}
+	for _, id := range listid {
+		error := s.users.Remove(id)
+		if error != nil {
+			return ErrNotFound
+		}
+	}
+	return nil
+}
+
 func userToUsermodel(u User) *user.UserModel {
 
 	return &user.UserModel{

@@ -65,3 +65,12 @@ func (s *instrumentingService) DeleteUser(id string) (err error) {
 
 	return s.Service.DeleteUser(id)
 }
+
+func (s *instrumentingService) DeleteMultiUser(listid []string) (err error) {
+	defer func(begin time.Time) {
+		s.requestCount.With("method", "change_destination").Add(1)
+		s.requestLatency.With("method", "change_destination").Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	return s.Service.DeleteMultiUser(listid)
+}
