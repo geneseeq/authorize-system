@@ -27,16 +27,19 @@ type Service interface {
 
 // User is a user base info
 type User struct {
-	ID       string `json:"id"`
-	Type     int    `json:"type,omitempty"` //"type":"医生/教师/个人/员工/企业"
-	Number   string `json:"number,omitempty"`
-	Username string `json:"username,omitempty"`
-	Tele     string `json:"telephone,omitempty"`
-	Gneder   bool   `json:"gender,omitempty"`
-	Status   int    `json:"status,omitempty"`
-	Validity bool   `json:"validity,omitempty"`
-	Vip      bool   `json:"vip,omitempty"`
-	Buildin  bool   `json:"buildin,omitempty"`
+	ID             string `json:"id"`
+	Type           int    `json:"type,omitempty"` //"type":"医生/教师/个人/员工/企业"
+	Number         string `json:"number,omitempty"`
+	Username       string `json:"username,omitempty"`
+	Tele           string `json:"tele,omitempty"`
+	Gneder         bool   `json:"gender,omitempty"`
+	Status         int    `json:"status,omitempty"`
+	Validity       bool   `json:"validity,omitempty"`
+	Vip            bool   `json:"vip,omitempty"`
+	Buildin        bool   `json:"buildin,omitempty"`
+	Create_user_id string `json:"create_user_id,omitempty"`
+	Create_time    string `json:"create_time,omitempty"`
+	Avatar         string `json:"avatar,omitempty"`
 }
 
 type service struct {
@@ -95,28 +98,36 @@ func (s *service) DeleteUser(id string) error {
 func userToUsermodel(u User) *user.UserModel {
 
 	return &user.UserModel{
-		ID:       u.ID,
-		Type:     u.Type,
-		Number:   u.Number,
-		Username: u.Username,
-		Gneder:   u.Gneder,
-		Status:   u.Status,
-		Validity: u.Validity,
-		Vip:      u.Vip,
-		Buildin:  u.Buildin,
+		ID:             u.ID,
+		Type:           u.Type,
+		Number:         u.Number,
+		Username:       u.Username,
+		Gneder:         u.Gneder,
+		Tele:           u.Tele,
+		Status:         u.Status,
+		Validity:       u.Validity,
+		Vip:            u.Vip,
+		Buildin:        u.Buildin,
+		Create_user_id: u.Create_user_id,
+		Create_time:    u.Create_time,
+		Avatar:         u.Avatar,
 	}
 }
 
 func usermodelToUser(c *user.UserModel) User {
 	return User{
-		ID:       c.ID,
-		Type:     c.Type,
-		Number:   c.Number,
-		Username: c.Username,
-		Gneder:   c.Gneder,
-		Status:   c.Status,
-		Validity: c.Validity,
-		Vip:      c.Vip,
-		Buildin:  c.Buildin,
+		ID:             c.ID,
+		Type:           c.Type,
+		Number:         c.Number,
+		Username:       c.Username,
+		Gneder:         c.Gneder,
+		Tele:           c.Tele,
+		Status:         c.Status,
+		Validity:       c.Validity,
+		Vip:            c.Vip,
+		Buildin:        c.Buildin,
+		Create_user_id: c.Create_user_id,
+		Create_time:    c.Create_time,
+		Avatar:         c.Avatar,
 	}
 }

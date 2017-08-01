@@ -13,16 +13,19 @@ import (
 
 // UserModel is user struct
 type UserModel struct {
-	ID       string
-	Type     int
-	Number   string
-	Username string
-	Tele     string
-	Gneder   bool
-	Status   int
-	Validity bool
-	Vip      bool
-	Buildin  bool
+	ID             string
+	Type           int
+	Number         string
+	Username       string
+	Tele           string
+	Gneder         bool
+	Status         int
+	Validity       bool
+	Vip            bool
+	Buildin        bool
+	Create_user_id string
+	Create_time    string
+	Avatar         string
 }
 
 // New is create instance
