@@ -28,8 +28,8 @@ type UserModel struct {
 	Avatar         string
 }
 
-// New is create instance
-func New(id string) *UserModel {
+// NewUser is create instance
+func NewUser(id string) *UserModel {
 	return &UserModel{
 		ID: id,
 	}

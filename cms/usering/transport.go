@@ -55,6 +55,13 @@ func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
 		opts...,
 	)
 
+	updateMultiUserHandler := kithttp.NewServer(
+		makePutMultiUserEndpoint(bs),
+		decodePutMultiUserRequest,
+		encodeResponse,
+		opts...,
+	)
+
 	deleteMultiUserHandler := kithttp.NewServer(
 		makeDeleteMultiUserEndpoint(bs),
 		decodeDeleteMultiUserRequest,
@@ -64,12 +71,13 @@ func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
 
 	r := mux.NewRouter()
 
-	r.Handle("/usering/v1/user/{id}", getUserHandler).Methods("GET")
-	r.Handle("/usering/v1/user", getAllUserHandler).Methods("GET")
-	r.Handle("/usering/v1/user", addUserHandler).Methods("POST")
-	r.Handle("/usering/v1/user/{id}", updateUserHandler).Methods("PUT")
-	r.Handle("/usering/v1/user/{id}", deleteUserHandler).Methods("DELETE")
-	r.Handle("/usering/v1/user", deleteMultiUserHandler).Methods("DELETE")
+	r.Handle("/v1/user/{id}", getUserHandler).Methods("GET")
+	r.Handle("/v1/user", getAllUserHandler).Methods("GET")
+	r.Handle("/v1/user", addUserHandler).Methods("POST")
+	r.Handle("/v1/user/{id}", updateUserHandler).Methods("PUT")
+	r.Handle("/v1/user", updateMultiUserHandler).Methods("PUT")
+	r.Handle("/v1/user/{id}", deleteUserHandler).Methods("DELETE")
+	r.Handle("/v1/user", deleteMultiUserHandler).Methods("DELETE")
 
 	return r
 }
@@ -129,6 +137,14 @@ func decodePutUserRequest(_ context.Context, r *http.Request) (interface{}, erro
 		ID:   id,
 		User: user,
 	}, nil
+}
+
+func decodePutMultiUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var req postUserRequest
+	if err := json.NewDecoder(r.Body).Decode(&req.User); err != nil {
+		return nil, err
+	}
+	return req, nil
 }
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {

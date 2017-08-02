@@ -19,28 +19,29 @@ var (
 // Service is the interface that provides booking methods.
 type Service interface {
 	GetUser(id string) (User, error)
-	PostUser(user User) error
+	PostUser(user []User) ([]string, error)
 	GetAllUser() ([]User, error)
 	PutUser(id string, user User) error
 	DeleteUser(id string) error
-	DeleteMultiUser(listid []string) error
+	DeleteMultiUser(listid []string) ([]string, error)
+	PutMultiUser(user []User) ([]string, error)
 }
 
 // User is a user base info
 type User struct {
 	ID             string `json:"id"`
-	Type           int    `json:"type,omitempty"` //"type":"医生/教师/个人/员工/企业"
-	Number         string `json:"number,omitempty"`
-	Username       string `json:"username,omitempty"`
-	Tele           string `json:"tele,omitempty"`
-	Gneder         bool   `json:"gender,omitempty"`
-	Status         int    `json:"status,omitempty"`
-	Validity       bool   `json:"validity,omitempty"`
-	Vip            bool   `json:"vip,omitempty"`
-	Buildin        bool   `json:"buildin,omitempty"`
-	Create_user_id string `json:"create_user_id,omitempty"`
-	Create_time    string `json:"create_time,omitempty"`
-	Avatar         string `json:"avatar,omitempty"`
+	Type           int    `json:"type"` //"type":"医生/教师/个人/员工/企业"
+	Number         string `json:"number"`
+	Username       string `json:"username"`
+	Tele           string `json:"tele"`
+	Gneder         bool   `json:"gender"`
+	Status         int    `json:"status"`
+	Validity       bool   `json:"validity"`
+	Vip            bool   `json:"vip"`
+	Buildin        bool   `json:"buildin"`
+	Create_user_id string `json:"create_user_id"`
+	Create_time    string `json:"create_time"`
+	Avatar         string `json:"avatar"`
 }
 
 type service struct {
@@ -54,8 +55,17 @@ func NewService(users user.Repository) Service {
 	}
 }
 
-func (s *service) PostUser(u User) error {
-	return s.users.Store(userToUsermodel(u))
+func (s *service) PostUser(u []User) ([]string, error) {
+	var ids []string
+	for _, user := range u {
+		err := s.users.Store(userToUsermodel(user))
+		if err != nil {
+			return ids, err
+		} else {
+			ids = append(ids, user.ID)
+		}
+	}
+	return ids, nil
 }
 
 func (s *service) GetUser(id string) (User, error) {
@@ -86,6 +96,25 @@ func (s *service) PutUser(id string, user User) error {
 	return err
 }
 
+func (s *service) PutMultiUser(u []User) ([]string, error) {
+	var ids []string
+	for _, user := range u {
+		if len(user.ID) == 0 {
+			return ids, ErrInvalidArgument
+		}
+		_, err := s.GetUser(user.ID)
+		if err != nil {
+			return ids, ErrInconsistentIDs
+		}
+		err = s.users.Update(user.ID, userToUsermodel(user))
+		if err != nil {
+			return ids, err
+		}
+		ids = append(ids, user.ID)
+	}
+	return ids, nil
+}
+
 func (s *service) DeleteUser(id string) error {
 	if id == "" {
 		return ErrInvalidArgument
@@ -97,17 +126,19 @@ func (s *service) DeleteUser(id string) error {
 	return nil
 }
 
-func (s *service) DeleteMultiUser(listid []string) error {
+func (s *service) DeleteMultiUser(listid []string) ([]string, error) {
+	var ids []string
 	if len(listid) == 0 {
-		return ErrInvalidArgument
+		return ids, ErrInvalidArgument
 	}
 	for _, id := range listid {
 		error := s.users.Remove(id)
 		if error != nil {
-			return ErrNotFound
+			return ids, ErrNotFound
 		}
+		ids = append(ids, id)
 	}
-	return nil
+	return ids, nil
 }
 
 func userToUsermodel(u User) *user.UserModel {

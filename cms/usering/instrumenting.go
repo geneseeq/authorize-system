@@ -21,7 +21,7 @@ func NewInstrumentingService(counter metrics.Counter, latency metrics.Histogram,
 	}
 }
 
-func (s *instrumentingService) PostUser(user User) error {
+func (s *instrumentingService) PostUser(user []User) ([]string, error) {
 	defer func(begin time.Time) {
 		s.requestCount.With("method", "book").Add(1)
 		s.requestLatency.With("method", "book").Observe(time.Since(begin).Seconds())
@@ -57,6 +57,15 @@ func (s *instrumentingService) PutUser(id string, user User) (err error) {
 	return s.Service.PutUser(id, user)
 }
 
+func (s *instrumentingService) PutMultiUser(user []User) (ids []string, err error) {
+	defer func(begin time.Time) {
+		s.requestCount.With("method", "assign_to_route").Add(1)
+		s.requestLatency.With("method", "assign_to_route").Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	return s.Service.PutMultiUser(user)
+}
+
 func (s *instrumentingService) DeleteUser(id string) (err error) {
 	defer func(begin time.Time) {
 		s.requestCount.With("method", "change_destination").Add(1)
@@ -66,7 +75,7 @@ func (s *instrumentingService) DeleteUser(id string) (err error) {
 	return s.Service.DeleteUser(id)
 }
 
-func (s *instrumentingService) DeleteMultiUser(listid []string) (err error) {
+func (s *instrumentingService) DeleteMultiUser(listid []string) (ids []string, err error) {
 	defer func(begin time.Time) {
 		s.requestCount.With("method", "change_destination").Add(1)
 		s.requestLatency.With("method", "change_destination").Observe(time.Since(begin).Seconds())

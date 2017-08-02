@@ -9,33 +9,19 @@ import (
 	"syscall"
 
 	"github.com/geneseeq/authorize-system/cms/action"
+	"github.com/geneseeq/authorize-system/cms/grouping"
 	"github.com/geneseeq/authorize-system/cms/usering"
 
 	"github.com/go-kit/kit/log"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	
 )
 
 const (
 	defaultPort              = "8080"
-	defaultRoutingServiceURL = "http://localhost:7878"
 )
-
-type Mongo struct {
-	Host string `yaml:"host"`
-	Port string `yaml:"port"`
-}
-
-type DB struct {
-	Mongo Mongo `yaml:"mongo"`
-}
-
-func checkErr(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
 
 func main() {
 	var (
@@ -51,38 +37,64 @@ func main() {
 
 	var (
 		// set db and collection
+		groups  = action.NewGroupDBRepository("test", "groups")
 		users = action.NewUserDBRepository("test", "user")
+
 	)
 
 	fieldKeys := []string{"method"}
 
-	var bs usering.Service
-	bs = usering.NewService(users)
-	bs = usering.NewLoggingService(log.With(logger, "component", "usering"), bs)
-	bs = usering.NewInstrumentingService(
+	var gs grouping.Service
+	gs = grouping.NewService(groups)
+	gs = grouping.NewLoggingService(log.With(logger, "component", "grouping"), gs)
+	gs = grouping.NewInstrumentingService(
 		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
 			Namespace: "api",
-			Subsystem: "booking_service",
+			Subsystem: "grouping_service",
 			Name:      "request_count",
 			Help:      "Number of requests received.",
 		}, fieldKeys),
 		kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
 			Namespace: "api",
-			Subsystem: "booking_service",
+			Subsystem: "grouping_service",
 			Name:      "request_latency_microseconds",
 			Help:      "Total duration of requests in microseconds.",
 		}, fieldKeys),
-		bs,
+		gs,
 	)
+
+	var us usering.Service
+	us = usering.NewService(users)
+	us = usering.NewLoggingService(log.With(logger, "component", "usering"), us)
+	us = usering.NewInstrumentingService(
+		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
+			Namespace: "api",
+			Subsystem: "usering_service",
+			Name:      "request_count",
+			Help:      "Number of requests received.",
+		}, fieldKeys),
+		kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
+			Namespace: "api",
+			Subsystem: "usering_service",
+			Name:      "request_latency_microseconds",
+			Help:      "Total duration of requests in microseconds.",
+		}, fieldKeys),
+		us,
+	)
+
+
 
 	httpLogger := log.With(logger, "component", "http")
 
 	mux := http.NewServeMux()
 
-	mux.Handle("/usering/v1/", usering.MakeHandler(bs, httpLogger))
+	mux.Handle("/v1/group/", grouping.MakeHandler(gs, httpLogger))
+	mux.Handle("/v1/user/", usering.MakeHandler(us, httpLogger))
+
 
 	http.Handle("/", accessControl(mux))
 	http.Handle("/metrics", promhttp.Handler())
+
 	errs := make(chan error, 2)
 	go func() {
 		logger.Log("transport", "http", "address", *httpAddr, "msg", "listening")
