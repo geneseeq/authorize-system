@@ -19,6 +19,7 @@ var (
 // Service is the interface that provides booking methods.
 type Service interface {
 	GetGroup(id string) (Group, error)
+	GetAllGroup() ([]Group, error)
 }
 
 // Group is a user base info
@@ -54,6 +55,14 @@ func (s *service) GetGroup(id string) (Group, error) {
 		return Group{}, ErrNotFound
 	}
 	return groupmodelToGroup(c), nil
+}
+
+func (s *service) GetAllGroup() ([]Group, error) {
+	var result []Group
+	for _, g := range s.groups.FindGroupAll() {
+		result = append(result, groupmodelToGroup(g))
+	}
+	return result, nil
 }
 
 func groupToGroupmodel(g Group) *user.GroupModel {

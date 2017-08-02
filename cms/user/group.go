@@ -23,4 +23,5 @@ func NewGroup(id string) *GroupModel {
 // GroupRepository is user interface
 type GroupRepository interface {
 	Find(id string) (*GroupModel, error)
+	FindGroupAll() []*GroupModel
 }

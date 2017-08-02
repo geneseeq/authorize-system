@@ -27,3 +27,13 @@ func (s *loggingService) GetGroup(id string) (group Group, err error) {
 	}(time.Now())
 	return s.Service.GetGroup(id)
 }
+
+func (s *loggingService) GetAllGroup() ([]Group, error) {
+	defer func(begin time.Time) {
+		s.logger.Log(
+			"method", "request_routes",
+			"took", time.Since(begin),
+		)
+	}(time.Now())
+	return s.Service.GetAllGroup()
+}

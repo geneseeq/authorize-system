@@ -28,6 +28,17 @@ func (r *groupDBRepository) Find(id string) (*user.GroupModel, error) {
 	return &result, nil
 }
 
+func (r *groupDBRepository) FindGroupAll() []*user.GroupModel {
+	r.mtx.RLock()
+	defer r.mtx.RUnlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
+	var result []*user.GroupModel
+	con.Find(nil).All(&result)
+	return result
+}
+
 // NewGroupDBRepository returns a new instance of a in-memory cargo repository.
 func NewGroupDBRepository(db string, collection string) user.GroupRepository {
 	return &groupDBRepository{

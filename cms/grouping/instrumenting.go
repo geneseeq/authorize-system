@@ -29,3 +29,12 @@ func (s *instrumentingService) GetGroup(id string) (group Group, err error) {
 
 	return s.Service.GetGroup(id)
 }
+
+func (s *instrumentingService) GetAllGroup() ([]Group, error) {
+	defer func(begin time.Time) {
+		s.requestCount.With("method", "request_routes").Add(1)
+		s.requestLatency.With("method", "request_routes").Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	return s.Service.GetAllGroup()
+}

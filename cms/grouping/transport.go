@@ -26,10 +26,17 @@ func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
 		encodeResponse,
 		opts...,
 	)
+	getAllGroupHandler := kithttp.NewServer(
+		makeGetAllGroupEndpoint(bs),
+		decodeGetAllGroupRequest,
+		encodeResponse,
+		opts...,
+	)
 
 	r := mux.NewRouter()
 
 	r.Handle("/v1/group/{id}", getGroupHandler).Methods("GET")
+	r.Handle("/v1/group", getAllGroupHandler).Methods("GET")
 
 	return r
 }
@@ -45,6 +52,9 @@ func decodeGetGroupRequest(_ context.Context, r *http.Request) (interface{}, err
 	return getGroupRequest{ID: string(id)}, nil
 }
 
+func decodeGetAllGroupRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	return listGroupRequest{}, nil
+}
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	if e, ok := response.(errorer); ok && e.error() != nil {
