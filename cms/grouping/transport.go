@@ -35,8 +35,8 @@ func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
 
 	r := mux.NewRouter()
 
-	r.Handle("/v1/group/{id}", getGroupHandler).Methods("GET")
-	r.Handle("/v1/group", getAllGroupHandler).Methods("GET")
+	r.Handle("/grouping/v1/group/{id}", getGroupHandler).Methods("GET")
+	r.Handle("/grouping/v1/group", getAllGroupHandler).Methods("GET")
 
 	return r
 }

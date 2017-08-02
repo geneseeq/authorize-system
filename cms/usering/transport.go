@@ -71,13 +71,13 @@ func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
 
 	r := mux.NewRouter()
 
-	r.Handle("/v1/user/{id}", getUserHandler).Methods("GET")
-	r.Handle("/v1/user", getAllUserHandler).Methods("GET")
-	r.Handle("/v1/user", addUserHandler).Methods("POST")
-	r.Handle("/v1/user/{id}", updateUserHandler).Methods("PUT")
-	r.Handle("/v1/user", updateMultiUserHandler).Methods("PUT")
-	r.Handle("/v1/user/{id}", deleteUserHandler).Methods("DELETE")
-	r.Handle("/v1/user", deleteMultiUserHandler).Methods("DELETE")
+	r.Handle("/usering/v1/user/{id}", getUserHandler).Methods("GET")
+	r.Handle("/usering/v1/user", getAllUserHandler).Methods("GET")
+	r.Handle("/usering/v1/user", addUserHandler).Methods("POST")
+	r.Handle("/usering/v1/user/{id}", updateUserHandler).Methods("PUT")
+	r.Handle("/usering/v1/user", updateMultiUserHandler).Methods("PUT")
+	r.Handle("/usering/v1/user/{id}", deleteUserHandler).Methods("DELETE")
+	r.Handle("/usering/v1/user", deleteMultiUserHandler).Methods("DELETE")
 
 	return r
 }

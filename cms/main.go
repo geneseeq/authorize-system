@@ -16,11 +16,10 @@ import (
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	
 )
 
 const (
-	defaultPort              = "8080"
+	defaultPort = "8080"
 )
 
 func main() {
@@ -37,9 +36,8 @@ func main() {
 
 	var (
 		// set db and collection
-		groups  = action.NewGroupDBRepository("test", "groups")
-		users = action.NewUserDBRepository("test", "user")
-
+		groups = action.NewGroupDBRepository("test", "groups")
+		users  = action.NewUserDBRepository("test", "user")
 	)
 
 	fieldKeys := []string{"method"}
@@ -82,15 +80,12 @@ func main() {
 		us,
 	)
 
-
-
 	httpLogger := log.With(logger, "component", "http")
 
 	mux := http.NewServeMux()
 
-	mux.Handle("/v1/group/", grouping.MakeHandler(gs, httpLogger))
-	mux.Handle("/v1/user/", usering.MakeHandler(us, httpLogger))
-
+	mux.Handle("/grouping/v1/", grouping.MakeHandler(gs, httpLogger))
+	mux.Handle("/usering/v1/", usering.MakeHandler(us, httpLogger))
 
 	http.Handle("/", accessControl(mux))
 	http.Handle("/metrics", promhttp.Handler())
