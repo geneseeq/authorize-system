@@ -62,6 +62,16 @@ func (r *groupDBRepository) Remove(id string) error {
 	return nil
 }
 
+func (r *groupDBRepository) Update(id string, g *user.GroupModel) error {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
+	err := con.Update(bson.M{"id": id}, g)
+	return err
+}
+
 // NewGroupDBRepository returns a new instance of a in-memory cargo repository.
 func NewGroupDBRepository(db string, collection string) user.GroupRepository {
 	return &groupDBRepository{

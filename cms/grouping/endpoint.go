@@ -24,6 +24,11 @@ type postGroupRequest struct {
 	Group []Group
 }
 
+type putGroupRequest struct {
+	ID    string
+	Group Group
+}
+
 // groupResponse User must equal User type
 type groupResponse struct {
 	Group []Group `json:"content"`
@@ -88,5 +93,16 @@ func makeDeleteMultiGroupEndpoint(s Service) endpoint.Endpoint {
 			return postGroupResponse{SucessedId: ids, Err: err, Status: 200, Content: "delete mutli user sucessed"}, nil
 		}
 		return postGroupResponse{SucessedId: ids, Err: err, Status: 300, Content: "delete mutli user failed"}, nil
+	}
+}
+
+func makePutGroupEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(putGroupRequest)
+		err := s.PutGroup(req.ID, req.Group)
+		if err == nil {
+			return postGroupResponse{Err: err, Status: 200, Content: "update user sucessed"}, nil
+		}
+		return postGroupResponse{Err: err, Status: 300, Content: "update user failed"}, nil
 	}
 }
