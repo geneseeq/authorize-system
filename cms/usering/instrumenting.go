@@ -23,8 +23,8 @@ func NewInstrumentingService(counter metrics.Counter, latency metrics.Histogram,
 
 func (s *instrumentingService) PostUser(user []User) ([]string, error) {
 	defer func(begin time.Time) {
-		s.requestCount.With("method", "book").Add(1)
-		s.requestLatency.With("method", "book").Observe(time.Since(begin).Seconds())
+		s.requestCount.With("method", "user").Add(1)
+		s.requestLatency.With("method", "user").Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
 	return s.Service.PostUser(user)

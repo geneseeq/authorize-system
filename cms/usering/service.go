@@ -14,6 +14,8 @@ var (
 	ErrInconsistentIDs = errors.New("inconsistent IDs")
 	ErrAlreadyExists   = errors.New("already exists")
 	ErrNotFound        = errors.New("not found")
+	ErrExceededMount   = errors.New("exceeded max mount")
+	LimitMaxSum        = 50
 )
 
 // Service is the interface that provides booking methods.
@@ -57,15 +59,19 @@ func NewService(users user.Repository) Service {
 
 func (s *service) PostUser(u []User) ([]string, error) {
 	var ids []string
-	for _, user := range u {
-		err := s.users.Store(userToUsermodel(user))
-		if err != nil {
-			return ids, err
-		} else {
-			ids = append(ids, user.ID)
+	if len(u) < LimitMaxSum {
+		for _, user := range u {
+			err := s.users.Store(userToUsermodel(user))
+			if err != nil {
+				return ids, err
+			} else {
+				ids = append(ids, user.ID)
+			}
 		}
+		return ids, nil
+	} else {
+		return ids, ErrExceededMount
 	}
-	return ids, nil
 }
 
 func (s *service) GetUser(id string) (User, error) {
@@ -98,21 +104,26 @@ func (s *service) PutUser(id string, user User) error {
 
 func (s *service) PutMultiUser(u []User) ([]string, error) {
 	var ids []string
-	for _, user := range u {
-		if len(user.ID) == 0 {
-			return ids, ErrInvalidArgument
+	if len(u) < LimitMaxSum {
+		for _, user := range u {
+			if len(user.ID) == 0 {
+				return ids, ErrInvalidArgument
+			}
+			_, err := s.GetUser(user.ID)
+			if err != nil {
+				return ids, ErrInconsistentIDs
+			}
+			err = s.users.Update(user.ID, userToUsermodel(user))
+			if err != nil {
+				return ids, err
+			}
+			ids = append(ids, user.ID)
 		}
-		_, err := s.GetUser(user.ID)
-		if err != nil {
-			return ids, ErrInconsistentIDs
-		}
-		err = s.users.Update(user.ID, userToUsermodel(user))
-		if err != nil {
-			return ids, err
-		}
-		ids = append(ids, user.ID)
+		return ids, nil
+	} else {
+		return ids, ErrExceededMount
 	}
-	return ids, nil
+
 }
 
 func (s *service) DeleteUser(id string) error {
@@ -131,14 +142,19 @@ func (s *service) DeleteMultiUser(listid []string) ([]string, error) {
 	if len(listid) == 0 {
 		return ids, ErrInvalidArgument
 	}
-	for _, id := range listid {
-		error := s.users.Remove(id)
-		if error != nil {
-			return ids, ErrNotFound
+	if len(listid) < LimitMaxSum {
+		for _, id := range listid {
+			error := s.users.Remove(id)
+			if error != nil {
+				return ids, ErrNotFound
+			}
+			ids = append(ids, id)
 		}
-		ids = append(ids, id)
+		return ids, nil
+	} else {
+		return ids, ErrExceededMount
 	}
-	return ids, nil
+
 }
 
 func userToUsermodel(u User) *user.UserModel {

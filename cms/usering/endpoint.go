@@ -39,7 +39,7 @@ type postUserResponse struct {
 
 // userResponse User must equal User type
 type userResponse struct {
-	User []User `json:"content,omitempty"`
+	User []User `json:"content"`
 	Err  error  `json:"error,omitempty"`
 }
 
@@ -83,6 +83,7 @@ func makeDeleteUserEndpoint(s Service) endpoint.Endpoint {
 		if err == nil {
 			return postUserResponse{Err: err, Status: 200, Content: "delete user sucessed"}, nil
 		}
+
 		return postUserResponse{Err: err, Status: 300, Content: "delete user failed"}, nil
 	}
 }
