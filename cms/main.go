@@ -10,6 +10,7 @@ import (
 
 	"github.com/geneseeq/authorize-system/cms/action"
 	"github.com/geneseeq/authorize-system/cms/grouping"
+	"github.com/geneseeq/authorize-system/cms/roleing"
 	"github.com/geneseeq/authorize-system/cms/usering"
 
 	"github.com/go-kit/kit/log"
@@ -38,6 +39,7 @@ func main() {
 		// set db and collection
 		groups = action.NewGroupDBRepository("test", "groups")
 		users  = action.NewUserDBRepository("test", "user")
+		roles  = action.NewRoleDBRepository("test", "user")
 	)
 
 	fieldKeys := []string{"method"}
@@ -80,12 +82,32 @@ func main() {
 		us,
 	)
 
+	var rs roleing.Service
+	rs = roleing.NewService(roles)
+	rs = roleing.NewLoggingService(log.With(logger, "component", "roleing"), rs)
+	rs = roleing.NewInstrumentingService(
+		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
+			Namespace: "api",
+			Subsystem: "roleing_service",
+			Name:      "request_count",
+			Help:      "Number of requests received.",
+		}, fieldKeys),
+		kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
+			Namespace: "api",
+			Subsystem: "roleing_service",
+			Name:      "request_latency_microseconds",
+			Help:      "Total duration of requests in microseconds.",
+		}, fieldKeys),
+		rs,
+	)
+
 	httpLogger := log.With(logger, "component", "http")
 
 	mux := http.NewServeMux()
 
 	mux.Handle("/grouping/v1/", grouping.MakeHandler(gs, httpLogger))
 	mux.Handle("/usering/v1/", usering.MakeHandler(us, httpLogger))
+	mux.Handle("/roleing/v1/", roleing.MakeHandler(rs, httpLogger))
 
 	http.Handle("/", accessControl(mux))
 	http.Handle("/metrics", promhttp.Handler())

@@ -26,5 +26,5 @@ type GroupRepository interface {
 	Find(id string) (*GroupModel, error)
 	FindGroupAll() []*GroupModel
 	Remove(id string) error
-	Update(id string, user *GroupModel) error
+	Update(id string, group *GroupModel) error
 }
