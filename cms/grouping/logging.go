@@ -82,3 +82,14 @@ func (s *loggingService) PutGroup(id string, group Group) (err error) {
 	}(time.Now())
 	return s.Service.PutGroup(id, group)
 }
+
+func (s *loggingService) PutMultiGroup(group []Group) (ids []string, err error) {
+	defer func(begin time.Time) {
+		s.logger.Log(
+			"method", "assign_to_route",
+			"took", time.Since(begin),
+			"err", err,
+		)
+	}(time.Now())
+	return s.Service.PutMultiGroup(group)
+}

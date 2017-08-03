@@ -24,6 +24,7 @@ type Service interface {
 	DeleteGroup(id string) error
 	DeleteMultiGroup(listid []string) ([]string, error)
 	PutGroup(id string, group Group) error
+	PutMultiGroup(group []Group) ([]string, error)
 }
 
 // Group is a user base info
@@ -115,6 +116,25 @@ func (s *service) PutGroup(id string, group Group) error {
 	}
 	err = s.groups.Update(id, groupToGroupmodel(group))
 	return err
+}
+
+func (s *service) PutMultiGroup(g []Group) ([]string, error) {
+	var ids []string
+	for _, group := range g {
+		if len(group.ID) == 0 {
+			return ids, ErrInvalidArgument
+		}
+		_, err := s.GetGroup(group.ID)
+		if err != nil {
+			return ids, ErrInconsistentIDs
+		}
+		err = s.groups.Update(group.ID, groupToGroupmodel(group))
+		if err != nil {
+			return ids, err
+		}
+		ids = append(ids, group.ID)
+	}
+	return ids, nil
 }
 
 func groupToGroupmodel(g Group) *user.GroupModel {

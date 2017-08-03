@@ -62,6 +62,13 @@ func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
 		opts...,
 	)
 
+	updateMultiGroupHandler := kithttp.NewServer(
+		makePutMultiGroupEndpoint(bs),
+		decodePutMultiGroupRequest,
+		encodeResponse,
+		opts...,
+	)
+
 	r := mux.NewRouter()
 
 	r.Handle("/grouping/v1/group/{id}", getGroupHandler).Methods("GET")
@@ -70,6 +77,7 @@ func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
 	r.Handle("/grouping/v1/group/{id}", deleteGroupHandler).Methods("DELETE")
 	r.Handle("/grouping/v1/group", deleteMultiGroupHandler).Methods("DELETE")
 	r.Handle("/grouping/v1/group/{id}", updateGroupHandler).Methods("PUT")
+	r.Handle("/grouping/v1/group", updateMultiGroupHandler).Methods("PUT")
 	return r
 }
 
@@ -128,6 +136,14 @@ func decodePutGroupRequest(_ context.Context, r *http.Request) (interface{}, err
 		ID:    id,
 		Group: group,
 	}, nil
+}
+
+func decodePutMultiGroupRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var req postGroupRequest
+	if err := json.NewDecoder(r.Body).Decode(&req.Group); err != nil {
+		return nil, err
+	}
+	return req, nil
 }
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {

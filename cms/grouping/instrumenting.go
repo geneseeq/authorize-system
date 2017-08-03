@@ -74,3 +74,12 @@ func (s *instrumentingService) PutGroup(id string, group Group) (err error) {
 
 	return s.Service.PutGroup(id, group)
 }
+
+func (s *instrumentingService) PutMultiGroup(group []Group) (ids []string, err error) {
+	defer func(begin time.Time) {
+		s.requestCount.With("method", "assign_to_route").Add(1)
+		s.requestLatency.With("method", "assign_to_route").Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	return s.Service.PutMultiGroup(group)
+}

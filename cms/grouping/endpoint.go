@@ -106,3 +106,14 @@ func makePutGroupEndpoint(s Service) endpoint.Endpoint {
 		return postGroupResponse{Err: err, Status: 300, Content: "update user failed"}, nil
 	}
 }
+
+func makePutMultiGroupEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(postGroupRequest)
+		ids, err := s.PutMultiGroup(req.Group)
+		if err == nil {
+			return postGroupResponse{SucessedId: ids, Err: err, Status: 200, Content: "update user sucessed"}, nil
+		}
+		return postGroupResponse{SucessedId: ids, Err: err, Status: 300, Content: "update user failed"}, nil
+	}
+}
