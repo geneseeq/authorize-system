@@ -21,6 +21,8 @@ type Service interface {
 	GetGroup(id string) (Group, error)
 	GetAllGroup() ([]Group, error)
 	PostGroup(group []Group) ([]string, error)
+	DeleteGroup(id string) error
+	DeleteMultiGroup(listid []string) ([]string, error)
 }
 
 // Group is a user base info
@@ -75,6 +77,32 @@ func (s *service) PostGroup(g []Group) ([]string, error) {
 		} else {
 			ids = append(ids, group.ID)
 		}
+	}
+	return ids, nil
+}
+
+func (s *service) DeleteGroup(id string) error {
+	if id == "" {
+		return ErrInvalidArgument
+	}
+	error := s.groups.Remove(id)
+	if error != nil {
+		return ErrNotFound
+	}
+	return nil
+}
+
+func (s *service) DeleteMultiGroup(listid []string) ([]string, error) {
+	var ids []string
+	if len(listid) == 0 {
+		return ids, ErrInvalidArgument
+	}
+	for _, id := range listid {
+		error := s.groups.Remove(id)
+		if error != nil {
+			return ids, ErrNotFound
+		}
+		ids = append(ids, id)
 	}
 	return ids, nil
 }

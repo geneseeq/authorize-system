@@ -47,3 +47,21 @@ func (s *instrumentingService) PostGroup(group []Group) ([]string, error) {
 
 	return s.Service.PostGroup(group)
 }
+
+func (s *instrumentingService) DeleteGroup(id string) (err error) {
+	defer func(begin time.Time) {
+		s.requestCount.With("method", "change_destination").Add(1)
+		s.requestLatency.With("method", "change_destination").Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	return s.Service.DeleteGroup(id)
+}
+
+func (s *instrumentingService) DeleteMultiGroup(listid []string) (ids []string, err error) {
+	defer func(begin time.Time) {
+		s.requestCount.With("method", "change_destination").Add(1)
+		s.requestLatency.With("method", "change_destination").Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	return s.Service.DeleteMultiGroup(listid)
+}

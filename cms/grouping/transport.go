@@ -26,15 +26,31 @@ func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
 		encodeResponse,
 		opts...,
 	)
+
 	getAllGroupHandler := kithttp.NewServer(
 		makeGetAllGroupEndpoint(bs),
 		decodeGetAllGroupRequest,
 		encodeResponse,
 		opts...,
 	)
+
 	addGroupHandler := kithttp.NewServer(
 		makePostGroupEndpoint(bs),
 		decodePostGroupRequest,
+		encodeResponse,
+		opts...,
+	)
+
+	deleteGroupHandler := kithttp.NewServer(
+		makeDeleteGroupEndpoint(bs),
+		decodeDeleteGroupRequest,
+		encodeResponse,
+		opts...,
+	)
+
+	deleteMultiGroupHandler := kithttp.NewServer(
+		makeDeleteMultiGroupEndpoint(bs),
+		decodeDeleteMultiGroupRequest,
 		encodeResponse,
 		opts...,
 	)
@@ -44,6 +60,8 @@ func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
 	r.Handle("/grouping/v1/group/{id}", getGroupHandler).Methods("GET")
 	r.Handle("/grouping/v1/group", getAllGroupHandler).Methods("GET")
 	r.Handle("/grouping/v1/group", addGroupHandler).Methods("POST")
+	r.Handle("/grouping/v1/group/{id}", deleteGroupHandler).Methods("DELETE")
+	r.Handle("/grouping/v1/group", deleteMultiGroupHandler).Methods("DELETE")
 	return r
 }
 
@@ -65,6 +83,24 @@ func decodeGetAllGroupRequest(_ context.Context, r *http.Request) (interface{}, 
 func decodePostGroupRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var req postGroupRequest
 	if e := json.NewDecoder(r.Body).Decode(&req.Group); e != nil {
+		return nil, e
+	}
+	return req, nil
+}
+
+func decodeDeleteGroupRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	vars := mux.Vars(r)
+	id, ok := vars["id"]
+	if !ok {
+		return nil, errBadRoute
+	}
+	return deleteGroupRequest{ID: string(id)}, nil
+}
+
+func decodeDeleteMultiGroupRequest(_ context.Context, r *http.Request) (interface{}, error) {
+
+	var req deleteMutliGroupRequest
+	if e := json.NewDecoder(r.Body).Decode(&req.ListId); e != nil {
 		return nil, e
 	}
 	return req, nil

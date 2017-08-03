@@ -10,6 +10,14 @@ type getGroupRequest struct {
 	ID string
 }
 
+type deleteGroupRequest struct {
+	ID string
+}
+
+type deleteMutliGroupRequest struct {
+	ListId []string
+}
+
 type listGroupRequest struct{}
 
 type postGroupRequest struct {
@@ -18,7 +26,7 @@ type postGroupRequest struct {
 
 // groupResponse User must equal User type
 type groupResponse struct {
-	Group []Group `json:"content,omitempty"`
+	Group []Group `json:"content"`
 	Err   error   `json:"error,omitempty"`
 }
 
@@ -26,8 +34,8 @@ type postGroupResponse struct {
 	//omitempty表示字段值为空，则不输出到json串
 	Status     int      `json:"status"`
 	Content    string   `json:"content"`
-	SucessedId []string `json:"sucessedid"`
-	Err        error    `json:"err"`
+	SucessedId []string `json:"sucessedid,omitempty"`
+	Err        error    `json:"err,omitempty"`
 }
 
 func (r groupResponse) error() error { return r.Err }
@@ -58,5 +66,27 @@ func makePostGroupEndpoint(s Service) endpoint.Endpoint {
 			return postGroupResponse{SucessedId: ids, Err: err, Status: 200, Content: "add user sucessed"}, nil
 		}
 		return postGroupResponse{SucessedId: ids, Err: err, Status: 300, Content: "add user failed"}, nil
+	}
+}
+
+func makeDeleteGroupEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(deleteGroupRequest)
+		err := s.DeleteGroup(req.ID)
+		if err == nil {
+			return postGroupResponse{Err: err, Status: 200, Content: "delete user sucessed"}, nil
+		}
+		return postGroupResponse{Err: err, Status: 300, Content: "delete user failed"}, nil
+	}
+}
+
+func makeDeleteMultiGroupEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(deleteMutliGroupRequest)
+		ids, err := s.DeleteMultiGroup(req.ListId)
+		if err == nil {
+			return postGroupResponse{SucessedId: ids, Err: err, Status: 200, Content: "delete mutli user sucessed"}, nil
+		}
+		return postGroupResponse{SucessedId: ids, Err: err, Status: 300, Content: "delete mutli user failed"}, nil
 	}
 }

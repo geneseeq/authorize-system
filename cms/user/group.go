@@ -25,4 +25,5 @@ type GroupRepository interface {
 	Store(group *GroupModel) error
 	Find(id string) (*GroupModel, error)
 	FindGroupAll() []*GroupModel
+	Remove(id string) error
 }

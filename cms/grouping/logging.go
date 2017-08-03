@@ -48,3 +48,25 @@ func (s *loggingService) PostGroup(group []Group) (ids []string, err error) {
 	}(time.Now())
 	return s.Service.PostGroup(group)
 }
+
+func (s *loggingService) DeleteGroup(id string) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Log(
+			"method", "change_destination",
+			"took", time.Since(begin),
+			"err", err,
+		)
+	}(time.Now())
+	return s.Service.DeleteGroup(id)
+}
+
+func (s *loggingService) DeleteMultiGroup(listid []string) (ids []string, err error) {
+	defer func(begin time.Time) {
+		s.logger.Log(
+			"method", "change_destination",
+			"took", time.Since(begin),
+			"err", err,
+		)
+	}(time.Now())
+	return s.Service.DeleteMultiGroup(listid)
+}
