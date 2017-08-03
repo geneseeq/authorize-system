@@ -20,6 +20,7 @@ var (
 type Service interface {
 	GetGroup(id string) (Group, error)
 	GetAllGroup() ([]Group, error)
+	PostGroup(group []Group) ([]string, error)
 }
 
 // Group is a user base info
@@ -63,6 +64,19 @@ func (s *service) GetAllGroup() ([]Group, error) {
 		result = append(result, groupmodelToGroup(g))
 	}
 	return result, nil
+}
+
+func (s *service) PostGroup(g []Group) ([]string, error) {
+	var ids []string
+	for _, group := range g {
+		err := s.groups.Store(groupToGroupmodel(group))
+		if err != nil {
+			return ids, err
+		} else {
+			ids = append(ids, group.ID)
+		}
+	}
+	return ids, nil
 }
 
 func groupToGroupmodel(g Group) *user.GroupModel {

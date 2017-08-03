@@ -38,3 +38,12 @@ func (s *instrumentingService) GetAllGroup() ([]Group, error) {
 
 	return s.Service.GetAllGroup()
 }
+
+func (s *instrumentingService) PostGroup(group []Group) ([]string, error) {
+	defer func(begin time.Time) {
+		s.requestCount.With("method", "book").Add(1)
+		s.requestLatency.With("method", "book").Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	return s.Service.PostGroup(group)
+}
