@@ -13,7 +13,7 @@ type baseRoleRequest struct {
 type listRoleRequest struct{}
 
 type baseMutliRoleRequest struct {
-	ListId []string
+	ListID []string
 }
 
 type putRoleRequest struct {
@@ -33,8 +33,8 @@ type baseResponse struct {
 type roleResponse struct {
 	//omitempty表示字段值为空，则不输出到json串
 	Status     int      `json:"status"`
-	SucessedId []string `json:"sucessedid,omitempty"`
-	FailedId   []string `json:"failedid,omitempty"`
+	SucessedID []string `json:"sucessedid,omitempty"`
+	FailedID   []string `json:"failedid,omitempty"`
 	Err        error    `json:"err,omitempty"`
 }
 
@@ -66,16 +66,16 @@ func makePostRoleEndpoint(s Service) endpoint.Endpoint {
 		sucessedIds, failedIds, err := s.PostRole(req.Role)
 		if err == nil {
 			return roleResponse{
-				SucessedId: sucessedIds,
+				SucessedID: sucessedIds,
 				Err:        err,
 				Status:     200,
-				FailedId:   failedIds}, nil
+				FailedID:   failedIds}, nil
 		}
 		return roleResponse{
-			SucessedId: sucessedIds,
+			SucessedID: sucessedIds,
 			Err:        err,
 			Status:     300,
-			FailedId:   failedIds}, nil
+			FailedID:   failedIds}, nil
 	}
 }
 
@@ -93,19 +93,19 @@ func makeDeleteRoleEndpoint(s Service) endpoint.Endpoint {
 func makeDeleteMultiRoleEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(baseMutliRoleRequest)
-		sucessedIds, failedIds, err := s.DeleteMultiRole(req.ListId)
+		sucessedIds, failedIds, err := s.DeleteMultiRole(req.ListID)
 		if err == nil {
 			return roleResponse{
-				SucessedId: sucessedIds,
+				SucessedID: sucessedIds,
 				Err:        err,
 				Status:     200,
-				FailedId:   failedIds}, nil
+				FailedID:   failedIds}, nil
 		}
 		return roleResponse{
-			SucessedId: sucessedIds,
+			SucessedID: sucessedIds,
 			Err:        err,
 			Status:     300,
-			FailedId:   failedIds}, nil
+			FailedID:   failedIds}, nil
 	}
 }
 
@@ -126,15 +126,15 @@ func makePutMultiRoleEndpoint(s Service) endpoint.Endpoint {
 		sucessedIds, failedIds, err := s.PutMultiRole(req.Role)
 		if err == nil {
 			return roleResponse{
-				SucessedId: sucessedIds,
+				SucessedID: sucessedIds,
 				Err:        err,
 				Status:     200,
-				FailedId:   failedIds}, nil
+				FailedID:   failedIds}, nil
 		}
 		return roleResponse{
-			SucessedId: sucessedIds,
+			SucessedID: sucessedIds,
 			Err:        err,
 			Status:     300,
-			FailedId:   failedIds}, nil
+			FailedID:   failedIds}, nil
 	}
 }

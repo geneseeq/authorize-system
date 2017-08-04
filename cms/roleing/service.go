@@ -5,6 +5,8 @@ package roleing
 import (
 	"errors"
 
+	"time"
+
 	"github.com/geneseeq/authorize-system/cms/user"
 )
 
@@ -29,15 +31,13 @@ type Service interface {
 
 // Role is a user base info
 type Role struct {
-	ID             string `json:"id"`
-	Type           int    `json:"type"` //"type":"医生/教师/个人/员工/企业"
-	Parent         string `json:"parent"`
-	Name           string `json:"name"`
-	Code           string `json:"code"`
-	Alias          string `json:"alias"`
-	Buildin        bool   `json:"buildin"`
-	Create_user_id string `json:"create_user_id"`
-	Create_time    string `json:"create_time"`
+	ID           string    `json:"id"`
+	Type         int       `json:"type"` //"type":"医生/教师/个人/员工/企业"
+	Name         string    `json:"name"`
+	Alias        string    `json:"alias"`
+	Buildin      bool      `json:"buildin"`
+	CreateUserID string    `json:"create_user_id"`
+	CreateTime   time.Time `json:"create_time"`
 }
 
 type service struct {
@@ -77,6 +77,7 @@ func (s *service) PostRole(r []Role) ([]string, []string, error) {
 	var sucessedIds []string
 	var failedIds []string
 	for _, role := range r {
+		role.CreateTime = user.TimeUtcToCst(time.Now())
 		err := s.roles.Store(roleToRolemodel(role))
 		if err != nil {
 			failedIds = append(failedIds, role.ID)
@@ -147,31 +148,27 @@ func (s *service) PutMultiRole(r []Role) ([]string, []string, error) {
 	return sucessedIds, failedIds, nil
 }
 
-func roleToRolemodel(g Role) *user.RoleModel {
+func roleToRolemodel(r Role) *user.RoleModel {
 
 	return &user.RoleModel{
-		ID:             g.ID,
-		Type:           g.Type,
-		Parent:         g.Parent,
-		Name:           g.Name,
-		Code:           g.Code,
-		Alias:          g.Alias,
-		Buildin:        g.Buildin,
-		Create_user_id: g.Create_user_id,
-		Create_time:    g.Create_time,
+		ID:           r.ID,
+		Type:         r.Type,
+		Name:         r.Name,
+		Alias:        r.Alias,
+		Buildin:      r.Buildin,
+		CreateUserID: r.CreateUserID,
+		CreateTime:   r.CreateTime,
 	}
 }
 
-func rolemodelToRole(g *user.RoleModel) Role {
+func rolemodelToRole(r *user.RoleModel) Role {
 	return Role{
-		ID:             g.ID,
-		Type:           g.Type,
-		Parent:         g.Parent,
-		Name:           g.Name,
-		Code:           g.Code,
-		Alias:          g.Alias,
-		Buildin:        g.Buildin,
-		Create_user_id: g.Create_user_id,
-		Create_time:    g.Create_time,
+		ID:           r.ID,
+		Type:         r.Type,
+		Name:         r.Name,
+		Alias:        r.Alias,
+		Buildin:      r.Buildin,
+		CreateUserID: r.CreateUserID,
+		CreateTime:   r.CreateTime,
 	}
 }

@@ -4,28 +4,26 @@ package user
 import (
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/pborman/uuid"
 )
 
-// TrackingID is not use
-// type TrackingID string
-
 // UserModel is user struct
 type UserModel struct {
-	ID             string
-	Type           int
-	Number         string
-	Username       string
-	Tele           string
-	Gneder         bool
-	Status         int
-	Validity       bool
-	Vip            bool
-	Buildin        bool
-	Create_user_id string
-	Create_time    string
-	Avatar         string
+	ID           string
+	Type         int
+	Number       string
+	Username     string
+	Tele         string
+	Gneder       bool
+	Status       int
+	Validity     bool
+	Vip          bool
+	Buildin      bool
+	CreateUserID string
+	CreateTime   time.Time
+	Avatar       string
 }
 
 // NewUser is create instance
@@ -45,6 +43,11 @@ func NextTrackingID() string {
 var (
 	ErrUnknown = errors.New("unknown user")
 )
+
+// TimeUtcToCst is format time
+func TimeUtcToCst(t time.Time) time.Time {
+	return t.Add(time.Hour * time.Duration(8))
+}
 
 // Repository is user interface
 type Repository interface {

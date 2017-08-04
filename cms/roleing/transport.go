@@ -116,7 +116,7 @@ func decodeDeleteRoleRequest(_ context.Context, r *http.Request) (interface{}, e
 func decodeDeleteMultiRoleRequest(_ context.Context, r *http.Request) (interface{}, error) {
 
 	var req baseMutliRoleRequest
-	if e := json.NewDecoder(r.Body).Decode(&req.ListId); e != nil {
+	if e := json.NewDecoder(r.Body).Decode(&req.ListID); e != nil {
 		return nil, e
 	}
 	return req, nil

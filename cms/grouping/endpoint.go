@@ -15,7 +15,7 @@ type deleteGroupRequest struct {
 }
 
 type deleteMutliGroupRequest struct {
-	ListId []string
+	ListID []string
 }
 
 type listGroupRequest struct{}
@@ -90,7 +90,7 @@ func makeDeleteGroupEndpoint(s Service) endpoint.Endpoint {
 func makeDeleteMultiGroupEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(deleteMutliGroupRequest)
-		ids, err := s.DeleteMultiGroup(req.ListId)
+		ids, err := s.DeleteMultiGroup(req.ListID)
 		if err == nil {
 			return postGroupResponse{SucessedId: ids, Err: err, Status: 200, Content: "delete mutli user sucessed"}, nil
 		}

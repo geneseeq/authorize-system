@@ -4,6 +4,7 @@ package usering
 
 import (
 	"errors"
+	"time"
 
 	"github.com/geneseeq/authorize-system/cms/user"
 )
@@ -31,19 +32,19 @@ type Service interface {
 
 // User is a user base info
 type User struct {
-	ID             string `json:"id"`
-	Type           int    `json:"type"` //"type":"医生/教师/个人/员工/企业"
-	Number         string `json:"number"`
-	Username       string `json:"username"`
-	Tele           string `json:"tele"`
-	Gneder         bool   `json:"gender"`
-	Status         int    `json:"status"`
-	Validity       bool   `json:"validity"`
-	Vip            bool   `json:"vip"`
-	Buildin        bool   `json:"buildin"`
-	Create_user_id string `json:"create_user_id"`
-	Create_time    string `json:"create_time"`
-	Avatar         string `json:"avatar"`
+	ID           string    `json:"id"`
+	Type         int       `json:"type"` //"type":"医生/教师/个人/员工/企业"
+	Number       string    `json:"number"`
+	Username     string    `json:"username"`
+	Tele         string    `json:"tele"`
+	Gneder       bool      `json:"gender"`
+	Status       int       `json:"status"`
+	Validity     bool      `json:"validity"`
+	Vip          bool      `json:"vip"`
+	Buildin      bool      `json:"buildin"`
+	CreateUserID string    `json:"create_user_id"`
+	CreateTime   time.Time `json:"create_time"`
+	Avatar       string    `json:"avatar"`
 }
 
 type service struct {
@@ -60,18 +61,17 @@ func NewService(users user.Repository) Service {
 func (s *service) PostUser(u []User) ([]string, error) {
 	var ids []string
 	if len(u) < LimitMaxSum {
-		for _, user := range u {
-			err := s.users.Store(userToUsermodel(user))
+		for _, data := range u {
+			data.CreateTime = user.TimeUtcToCst(time.Now())
+			err := s.users.Store(userToUsermodel(data))
 			if err != nil {
 				return ids, err
-			} else {
-				ids = append(ids, user.ID)
 			}
+			ids = append(ids, data.ID)
 		}
 		return ids, nil
-	} else {
-		return ids, ErrExceededMount
 	}
+	return ids, ErrExceededMount
 }
 
 func (s *service) GetUser(id string) (User, error) {
@@ -105,25 +105,23 @@ func (s *service) PutUser(id string, user User) error {
 func (s *service) PutMultiUser(u []User) ([]string, error) {
 	var ids []string
 	if len(u) < LimitMaxSum {
-		for _, user := range u {
-			if len(user.ID) == 0 {
+		for _, data := range u {
+			if len(data.ID) == 0 {
 				return ids, ErrInvalidArgument
 			}
-			_, err := s.GetUser(user.ID)
+			_, err := s.GetUser(data.ID)
 			if err != nil {
 				return ids, ErrInconsistentIDs
 			}
-			err = s.users.Update(user.ID, userToUsermodel(user))
+			err = s.users.Update(data.ID, userToUsermodel(data))
 			if err != nil {
 				return ids, err
 			}
-			ids = append(ids, user.ID)
+			ids = append(ids, data.ID)
 		}
 		return ids, nil
-	} else {
-		return ids, ErrExceededMount
 	}
-
+	return ids, ErrExceededMount
 }
 
 func (s *service) DeleteUser(id string) error {
@@ -151,45 +149,43 @@ func (s *service) DeleteMultiUser(listid []string) ([]string, error) {
 			ids = append(ids, id)
 		}
 		return ids, nil
-	} else {
-		return ids, ErrExceededMount
 	}
-
+	return ids, ErrExceededMount
 }
 
 func userToUsermodel(u User) *user.UserModel {
 
 	return &user.UserModel{
-		ID:             u.ID,
-		Type:           u.Type,
-		Number:         u.Number,
-		Username:       u.Username,
-		Gneder:         u.Gneder,
-		Tele:           u.Tele,
-		Status:         u.Status,
-		Validity:       u.Validity,
-		Vip:            u.Vip,
-		Buildin:        u.Buildin,
-		Create_user_id: u.Create_user_id,
-		Create_time:    u.Create_time,
-		Avatar:         u.Avatar,
+		ID:           u.ID,
+		Type:         u.Type,
+		Number:       u.Number,
+		Username:     u.Username,
+		Gneder:       u.Gneder,
+		Tele:         u.Tele,
+		Status:       u.Status,
+		Validity:     u.Validity,
+		Vip:          u.Vip,
+		Buildin:      u.Buildin,
+		CreateUserID: u.CreateUserID,
+		CreateTime:   u.CreateTime,
+		Avatar:       u.Avatar,
 	}
 }
 
 func usermodelToUser(c *user.UserModel) User {
 	return User{
-		ID:             c.ID,
-		Type:           c.Type,
-		Number:         c.Number,
-		Username:       c.Username,
-		Gneder:         c.Gneder,
-		Tele:           c.Tele,
-		Status:         c.Status,
-		Validity:       c.Validity,
-		Vip:            c.Vip,
-		Buildin:        c.Buildin,
-		Create_user_id: c.Create_user_id,
-		Create_time:    c.Create_time,
-		Avatar:         c.Avatar,
+		ID:           c.ID,
+		Type:         c.Type,
+		Number:       c.Number,
+		Username:     c.Username,
+		Gneder:       c.Gneder,
+		Tele:         c.Tele,
+		Status:       c.Status,
+		Validity:     c.Validity,
+		Vip:          c.Vip,
+		Buildin:      c.Buildin,
+		CreateUserID: c.CreateUserID,
+		CreateTime:   c.CreateTime,
+		Avatar:       c.Avatar,
 	}
 }

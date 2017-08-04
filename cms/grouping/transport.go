@@ -116,7 +116,7 @@ func decodeDeleteGroupRequest(_ context.Context, r *http.Request) (interface{}, 
 func decodeDeleteMultiGroupRequest(_ context.Context, r *http.Request) (interface{}, error) {
 
 	var req deleteMutliGroupRequest
-	if e := json.NewDecoder(r.Body).Decode(&req.ListId); e != nil {
+	if e := json.NewDecoder(r.Body).Decode(&req.ListID); e != nil {
 		return nil, e
 	}
 	return req, nil

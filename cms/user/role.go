@@ -1,16 +1,18 @@
 package user
 
+import (
+	"time"
+)
+
 // GroupModel is group struct
 type RoleModel struct {
-	Parent         string
-	ID             string
-	Type           int
-	Name           string
-	Code           string
-	Alias          string
-	Buildin        bool
-	Create_user_id string
-	Create_time    string
+	ID           string
+	Type         int
+	Name         string
+	Alias        string
+	Buildin      bool
+	CreateUserID string
+	CreateTime   time.Time
 }
 
 // NewRole is create instance

@@ -4,6 +4,7 @@ package grouping
 
 import (
 	"errors"
+	"time"
 
 	"github.com/geneseeq/authorize-system/cms/user"
 )
@@ -29,15 +30,15 @@ type Service interface {
 
 // Group is a user base info
 type Group struct {
-	ID             string `json:"id"`
-	Type           int    `json:"type"` //"type":"医生/教师/个人/员工/企业"
-	Parent         string `json:"parent"`
-	Name           string `json:"name"`
-	Code           string `json:"code"`
-	Alias          string `json:"alias"`
-	Buildin        bool   `json:"buildin"`
-	Create_user_id string `json:"create_user_id"`
-	Create_time    string `json:"create_time"`
+	ID           string    `json:"id"`
+	Type         int       `json:"type"` //"type":"医生/教师/个人/员工/企业"
+	Parent       string    `json:"parent"`
+	Name         string    `json:"name"`
+	Code         string    `json:"code"`
+	Alias        string    `json:"alias"`
+	Buildin      bool      `json:"buildin"`
+	CreateUserID string    `json:"create_user_id"`
+	CreateTime   time.Time `json:"create_time"`
 }
 
 type service struct {
@@ -73,6 +74,7 @@ func (s *service) GetAllGroup() ([]Group, error) {
 func (s *service) PostGroup(g []Group) ([]string, error) {
 	var ids []string
 	for _, group := range g {
+		group.CreateTime = user.TimeUtcToCst(time.Now())
 		err := s.groups.Store(groupToGroupmodel(group))
 		if err != nil {
 			return ids, err
@@ -140,28 +142,28 @@ func (s *service) PutMultiGroup(g []Group) ([]string, error) {
 func groupToGroupmodel(g Group) *user.GroupModel {
 
 	return &user.GroupModel{
-		ID:             g.ID,
-		Type:           g.Type,
-		Parent:         g.Parent,
-		Name:           g.Name,
-		Code:           g.Code,
-		Alias:          g.Alias,
-		Buildin:        g.Buildin,
-		Create_user_id: g.Create_user_id,
-		Create_time:    g.Create_time,
+		ID:           g.ID,
+		Type:         g.Type,
+		Parent:       g.Parent,
+		Name:         g.Name,
+		Code:         g.Code,
+		Alias:        g.Alias,
+		Buildin:      g.Buildin,
+		CreateUserID: g.CreateUserID,
+		CreateTime:   g.CreateTime,
 	}
 }
 
 func groupmodelToGroup(g *user.GroupModel) Group {
 	return Group{
-		ID:             g.ID,
-		Type:           g.Type,
-		Parent:         g.Parent,
-		Name:           g.Name,
-		Code:           g.Code,
-		Alias:          g.Alias,
-		Buildin:        g.Buildin,
-		Create_user_id: g.Create_user_id,
-		Create_time:    g.Create_time,
+		ID:           g.ID,
+		Type:         g.Type,
+		Parent:       g.Parent,
+		Name:         g.Name,
+		Code:         g.Code,
+		Alias:        g.Alias,
+		Buildin:      g.Buildin,
+		CreateUserID: g.CreateUserID,
+		CreateTime:   g.CreateTime,
 	}
 }
