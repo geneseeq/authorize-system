@@ -20,11 +20,11 @@ var (
 type Service interface {
 	GetRole(id string) (Role, error)
 	GetAllRole() ([]Role, error)
-	PostRole(role []Role) ([]string, error)
+	PostRole(role []Role) ([]string, []string, error)
 	DeleteRole(id string) error
-	// DeleteMultiGroup(listid []string) ([]string, error)
-	// PutGroup(id string, group Group) error
-	// PutMultiGroup(group []Group) ([]string, error)
+	DeleteMultiRole(listid []string) ([]string, []string, error)
+	PutRole(id string, role Role) error
+	PutMultiRole(role []Role) ([]string, []string, error)
 }
 
 // Role is a user base info
@@ -55,8 +55,8 @@ func (s *service) GetRole(id string) (Role, error) {
 	if id == "" {
 		return Role{}, ErrInvalidArgument
 	}
-	r, error := s.roles.Find(id)
-	if error != nil {
+	r, err := s.roles.Find(id)
+	if err != nil {
 		return Role{}, ErrNotFound
 	}
 	return rolemodelToRole(r), nil
@@ -73,72 +73,79 @@ func (s *service) GetAllRole() ([]Role, error) {
 	return result, nil
 }
 
-func (s *service) PostRole(r []Role) ([]string, error) {
-	var ids []string
+func (s *service) PostRole(r []Role) ([]string, []string, error) {
+	var sucessedIds []string
+	var failedIds []string
 	for _, role := range r {
 		err := s.roles.Store(roleToRolemodel(role))
 		if err != nil {
-			return ids, err
+			failedIds = append(failedIds, role.ID)
+			continue
 		} else {
-			ids = append(ids, role.ID)
+			sucessedIds = append(sucessedIds, role.ID)
 		}
 	}
-	return ids, nil
+	return sucessedIds, failedIds, nil
 }
 
 func (s *service) DeleteRole(id string) error {
 	if id == "" {
 		return ErrInvalidArgument
 	}
-	error := s.roles.Remove(id)
-	if error != nil {
+	err := s.roles.Remove(id)
+	if err != nil {
 		return ErrNotFound
 	}
 	return nil
 }
 
-// func (s *service) DeleteMultiGroup(listid []string) ([]string, error) {
-// 	var ids []string
-// 	if len(listid) == 0 {
-// 		return ids, ErrInvalidArgument
-// 	}
-// 	for _, id := range listid {
-// 		error := s.groups.Remove(id)
-// 		if error != nil {
-// 			return ids, ErrNotFound
-// 		}
-// 		ids = append(ids, id)
-// 	}
-// 	return ids, nil
-// }
+func (s *service) DeleteMultiRole(listid []string) ([]string, []string, error) {
+	var sucessedIds []string
+	var failedIds []string
+	if len(listid) == 0 {
+		return nil, nil, ErrInvalidArgument
+	}
+	for _, id := range listid {
+		err := s.roles.Remove(id)
+		if err != nil {
+			failedIds = append(failedIds, id)
+			continue
+		}
+		sucessedIds = append(sucessedIds, id)
+	}
+	return sucessedIds, failedIds, nil
+}
 
-// func (s *service) PutGroup(id string, group Group) error {
-// 	_, err := s.GetGroup(id)
-// 	if err != nil {
-// 		return ErrInconsistentIDs
-// 	}
-// 	err = s.groups.Update(id, groupToGroupmodel(group))
-// 	return err
-// }
+func (s *service) PutRole(id string, role Role) error {
+	_, err := s.GetRole(id)
+	if err != nil {
+		return ErrInconsistentIDs
+	}
+	err = s.roles.Update(id, roleToRolemodel(role))
+	return err
+}
 
-// func (s *service) PutMultiGroup(g []Group) ([]string, error) {
-// 	var ids []string
-// 	for _, group := range g {
-// 		if len(group.ID) == 0 {
-// 			return ids, ErrInvalidArgument
-// 		}
-// 		_, err := s.GetGroup(group.ID)
-// 		if err != nil {
-// 			return ids, ErrInconsistentIDs
-// 		}
-// 		err = s.groups.Update(group.ID, groupToGroupmodel(group))
-// 		if err != nil {
-// 			return ids, err
-// 		}
-// 		ids = append(ids, group.ID)
-// 	}
-// 	return ids, nil
-// }
+func (s *service) PutMultiRole(r []Role) ([]string, []string, error) {
+	var sucessedIds []string
+	var failedIds []string
+	for _, role := range r {
+		if len(role.ID) == 0 {
+			failedIds = append(failedIds, role.ID)
+			continue
+		}
+		_, err := s.GetRole(role.ID)
+		if err != nil {
+			failedIds = append(failedIds, role.ID)
+			continue
+		}
+		err = s.roles.Update(role.ID, roleToRolemodel(role))
+		if err != nil {
+			continue
+		}
+		sucessedIds = append(sucessedIds, role.ID)
+	}
+	return sucessedIds, failedIds, nil
+}
 
 func roleToRolemodel(g Role) *user.RoleModel {
 

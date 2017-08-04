@@ -48,26 +48,26 @@ func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
 		opts...,
 	)
 
-	// deleteMultiGroupHandler := kithttp.NewServer(
-	// 	makeDeleteMultiGroupEndpoint(bs),
-	// 	decodeDeleteMultiGroupRequest,
-	// 	encodeResponse,
-	// 	opts...,
-	// )
+	deleteMultiRoleHandler := kithttp.NewServer(
+		makeDeleteMultiRoleEndpoint(bs),
+		decodeDeleteMultiRoleRequest,
+		encodeResponse,
+		opts...,
+	)
 
-	// updateGroupHandler := kithttp.NewServer(
-	// 	makePutGroupEndpoint(bs),
-	// 	decodePutGroupRequest,
-	// 	encodeResponse,
-	// 	opts...,
-	// )
+	updateRoleHandler := kithttp.NewServer(
+		makePutRoleEndpoint(bs),
+		decodePutRoleRequest,
+		encodeResponse,
+		opts...,
+	)
 
-	// updateMultiGroupHandler := kithttp.NewServer(
-	// 	makePutMultiGroupEndpoint(bs),
-	// 	decodePutMultiGroupRequest,
-	// 	encodeResponse,
-	// 	opts...,
-	// )
+	updateMultiRoleHandler := kithttp.NewServer(
+		makePutMultiRoleEndpoint(bs),
+		decodePutMultiRoleRequest,
+		encodeResponse,
+		opts...,
+	)
 
 	r := mux.NewRouter()
 
@@ -75,9 +75,9 @@ func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
 	r.Handle("/roleing/v1/role", getAllRoleHandler).Methods("GET")
 	r.Handle("/roleing/v1/role", addRoleHandler).Methods("POST")
 	r.Handle("/roleing/v1/role/{id}", deleteRoleHandler).Methods("DELETE")
-	// r.Handle("/grouping/v1/group", deleteMultiGroupHandler).Methods("DELETE")
-	// r.Handle("/grouping/v1/group/{id}", updateGroupHandler).Methods("PUT")
-	// r.Handle("/grouping/v1/group", updateMultiGroupHandler).Methods("PUT")
+	r.Handle("/roleing/v1/role", deleteMultiRoleHandler).Methods("DELETE")
+	r.Handle("/roleing/v1/role/{id}", updateRoleHandler).Methods("PUT")
+	r.Handle("/roleing/v1/role", updateMultiRoleHandler).Methods("PUT")
 	return r
 }
 
@@ -113,38 +113,38 @@ func decodeDeleteRoleRequest(_ context.Context, r *http.Request) (interface{}, e
 	return baseRoleRequest{ID: string(id)}, nil
 }
 
-// func decodeDeleteMultiGroupRequest(_ context.Context, r *http.Request) (interface{}, error) {
+func decodeDeleteMultiRoleRequest(_ context.Context, r *http.Request) (interface{}, error) {
 
-// 	var req deleteMutliGroupRequest
-// 	if e := json.NewDecoder(r.Body).Decode(&req.ListId); e != nil {
-// 		return nil, e
-// 	}
-// 	return req, nil
-// }
+	var req baseMutliRoleRequest
+	if e := json.NewDecoder(r.Body).Decode(&req.ListId); e != nil {
+		return nil, e
+	}
+	return req, nil
+}
 
-// func decodePutGroupRequest(_ context.Context, r *http.Request) (interface{}, error) {
-// 	vars := mux.Vars(r)
-// 	id, ok := vars["id"]
-// 	if !ok {
-// 		return nil, errBadRoute
-// 	}
-// 	var group Group
-// 	if err := json.NewDecoder(r.Body).Decode(&group); err != nil {
-// 		return nil, err
-// 	}
-// 	return putGroupRequest{
-// 		ID:    id,
-// 		Group: group,
-// 	}, nil
-// }
+func decodePutRoleRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	vars := mux.Vars(r)
+	id, ok := vars["id"]
+	if !ok {
+		return nil, errBadRoute
+	}
+	var role Role
+	if err := json.NewDecoder(r.Body).Decode(&role); err != nil {
+		return nil, err
+	}
+	return putRoleRequest{
+		ID:   id,
+		Role: role,
+	}, nil
+}
 
-// func decodePutMultiGroupRequest(_ context.Context, r *http.Request) (interface{}, error) {
-// 	var req postGroupRequest
-// 	if err := json.NewDecoder(r.Body).Decode(&req.Group); err != nil {
-// 		return nil, err
-// 	}
-// 	return req, nil
-// }
+func decodePutMultiRoleRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var req postRoleRequest
+	if err := json.NewDecoder(r.Body).Decode(&req.Role); err != nil {
+		return nil, err
+	}
+	return req, nil
+}
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	if e, ok := response.(errorer); ok && e.error() != nil {

@@ -45,6 +45,8 @@ type userResponse struct {
 
 func (r userResponse) error() error { return r.Err }
 
+func (r postUserResponse) error() error { return r.Err }
+
 func makeGetUserEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(getUserRequest)

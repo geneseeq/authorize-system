@@ -45,6 +45,8 @@ type postGroupResponse struct {
 
 func (r groupResponse) error() error { return r.Err }
 
+func (r postGroupResponse) error() error { return r.Err }
+
 func makeGetGroupEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(getGroupRequest)

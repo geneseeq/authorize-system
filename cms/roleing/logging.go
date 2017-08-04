@@ -38,10 +38,10 @@ func (s *loggingService) GetAllRole() ([]Role, error) {
 	return s.Service.GetAllRole()
 }
 
-func (s *loggingService) PostRole(role []Role) (ids []string, err error) {
+func (s *loggingService) PostRole(role []Role) (sucessedIds []string, failedIds []string, err error) {
 	defer func(begin time.Time) {
 		s.logger.Log(
-			"method", "group",
+			"method", "post",
 			"took", time.Since(begin),
 			"err", err,
 		)
@@ -52,7 +52,7 @@ func (s *loggingService) PostRole(role []Role) (ids []string, err error) {
 func (s *loggingService) DeleteRole(id string) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Log(
-			"method", "change_destination",
+			"method", "delete",
 			"took", time.Since(begin),
 			"err", err,
 		)
@@ -60,36 +60,36 @@ func (s *loggingService) DeleteRole(id string) (err error) {
 	return s.Service.DeleteRole(id)
 }
 
-// func (s *loggingService) DeleteMultiGroup(listid []string) (ids []string, err error) {
-// 	defer func(begin time.Time) {
-// 		s.logger.Log(
-// 			"method", "change_destination",
-// 			"took", time.Since(begin),
-// 			"err", err,
-// 		)
-// 	}(time.Now())
-// 	return s.Service.DeleteMultiGroup(listid)
-// }
+func (s *loggingService) DeleteMultiRole(listid []string) (sucessedIds []string, failedIds []string, err error) {
+	defer func(begin time.Time) {
+		s.logger.Log(
+			"method", "change_destination",
+			"took", time.Since(begin),
+			"err", err,
+		)
+	}(time.Now())
+	return s.Service.DeleteMultiRole(listid)
+}
 
-// func (s *loggingService) PutGroup(id string, group Group) (err error) {
-// 	defer func(begin time.Time) {
-// 		s.logger.Log(
-// 			"method", "assign_to_route",
-// 			"tracking_id", id,
-// 			"took", time.Since(begin),
-// 			"err", err,
-// 		)
-// 	}(time.Now())
-// 	return s.Service.PutGroup(id, group)
-// }
+func (s *loggingService) PutRole(id string, role Role) (err error) {
+	defer func(begin time.Time) {
+		s.logger.Log(
+			"method", "assign_to_route",
+			"tracking_id", id,
+			"took", time.Since(begin),
+			"err", err,
+		)
+	}(time.Now())
+	return s.Service.PutRole(id, role)
+}
 
-// func (s *loggingService) PutMultiGroup(group []Group) (ids []string, err error) {
-// 	defer func(begin time.Time) {
-// 		s.logger.Log(
-// 			"method", "assign_to_route",
-// 			"took", time.Since(begin),
-// 			"err", err,
-// 		)
-// 	}(time.Now())
-// 	return s.Service.PutMultiGroup(group)
-// }
+func (s *loggingService) PutMultiRole(role []Role) (sucessedIds []string, failedIds []string, err error) {
+	defer func(begin time.Time) {
+		s.logger.Log(
+			"method", "assign_to_route",
+			"took", time.Since(begin),
+			"err", err,
+		)
+	}(time.Now())
+	return s.Service.PutMultiRole(role)
+}
