@@ -37,9 +37,9 @@ func main() {
 
 	var (
 		// set db and collection
-		groups = action.NewGroupDBRepository("test", "groups")
-		users  = action.NewUserDBRepository("test", "user")
-		roles  = action.NewRoleDBRepository("test", "user")
+		groups = action.NewGroupDBRepository("test", "group_infos")
+		users  = action.NewUserDBRepository("test", "user_infos")
+		roles  = action.NewRoleDBRepository("test", "role_infos")
 	)
 
 	fieldKeys := []string{"method"}

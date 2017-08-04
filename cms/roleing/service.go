@@ -19,9 +19,9 @@ var (
 // Service is the interface that provides booking methods.
 type Service interface {
 	GetRole(id string) (Role, error)
-	// GetAllGroup() ([]Group, error)
-	// PostGroup(group []Group) ([]string, error)
-	// DeleteGroup(id string) error
+	GetAllRole() ([]Role, error)
+	PostRole(role []Role) ([]string, error)
+	DeleteRole(id string) error
 	// DeleteMultiGroup(listid []string) ([]string, error)
 	// PutGroup(id string, group Group) error
 	// PutMultiGroup(group []Group) ([]string, error)
@@ -62,37 +62,40 @@ func (s *service) GetRole(id string) (Role, error) {
 	return rolemodelToRole(r), nil
 }
 
-// func (s *service) GetAllGroup() ([]Group, error) {
-// 	var result []Group
-// 	for _, g := range s.groups.FindGroupAll() {
-// 		result = append(result, groupmodelToGroup(g))
-// 	}
-// 	return result, nil
-// }
+func (s *service) GetAllRole() ([]Role, error) {
+	var result []Role
+	for _, g := range s.roles.FindRoleAll() {
+		result = append(result, rolemodelToRole(g))
+	}
+	if len(result) == 0 {
+		return result, ErrNotFound
+	}
+	return result, nil
+}
 
-// func (s *service) PostGroup(g []Group) ([]string, error) {
-// 	var ids []string
-// 	for _, group := range g {
-// 		err := s.groups.Store(groupToGroupmodel(group))
-// 		if err != nil {
-// 			return ids, err
-// 		} else {
-// 			ids = append(ids, group.ID)
-// 		}
-// 	}
-// 	return ids, nil
-// }
+func (s *service) PostRole(r []Role) ([]string, error) {
+	var ids []string
+	for _, role := range r {
+		err := s.roles.Store(roleToRolemodel(role))
+		if err != nil {
+			return ids, err
+		} else {
+			ids = append(ids, role.ID)
+		}
+	}
+	return ids, nil
+}
 
-// func (s *service) DeleteGroup(id string) error {
-// 	if id == "" {
-// 		return ErrInvalidArgument
-// 	}
-// 	error := s.groups.Remove(id)
-// 	if error != nil {
-// 		return ErrNotFound
-// 	}
-// 	return nil
-// }
+func (s *service) DeleteRole(id string) error {
+	if id == "" {
+		return ErrInvalidArgument
+	}
+	error := s.roles.Remove(id)
+	if error != nil {
+		return ErrNotFound
+	}
+	return nil
+}
 
 // func (s *service) DeleteMultiGroup(listid []string) ([]string, error) {
 // 	var ids []string

@@ -33,7 +33,7 @@ type postUserResponse struct {
 	//omitempty表示字段值为空，则不输出到json串
 	Status     int      `json:"status"`
 	Content    string   `json:"content"`
-	SucessedId []string `json:"sucessedid"`
+	SucessedId []string `json:"sucessedid,omitempty"`
 	Err        error    `json:"err,omitempty"`
 }
 

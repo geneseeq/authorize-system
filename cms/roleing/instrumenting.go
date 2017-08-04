@@ -30,32 +30,32 @@ func (s *instrumentingService) GetRole(id string) (role Role, err error) {
 	return s.Service.GetRole(id)
 }
 
-// func (s *instrumentingService) GetAllGroup() ([]Group, error) {
-// 	defer func(begin time.Time) {
-// 		s.requestCount.With("method", "request_routes").Add(1)
-// 		s.requestLatency.With("method", "request_routes").Observe(time.Since(begin).Seconds())
-// 	}(time.Now())
+func (s *instrumentingService) GetAllRole() ([]Role, error) {
+	defer func(begin time.Time) {
+		s.requestCount.With("method", "request_routes").Add(1)
+		s.requestLatency.With("method", "request_routes").Observe(time.Since(begin).Seconds())
+	}(time.Now())
 
-// 	return s.Service.GetAllGroup()
-// }
+	return s.Service.GetAllRole()
+}
 
-// func (s *instrumentingService) PostGroup(group []Group) ([]string, error) {
-// 	defer func(begin time.Time) {
-// 		s.requestCount.With("method", "book").Add(1)
-// 		s.requestLatency.With("method", "book").Observe(time.Since(begin).Seconds())
-// 	}(time.Now())
+func (s *instrumentingService) PostRole(role []Role) ([]string, error) {
+	defer func(begin time.Time) {
+		s.requestCount.With("method", "book").Add(1)
+		s.requestLatency.With("method", "book").Observe(time.Since(begin).Seconds())
+	}(time.Now())
 
-// 	return s.Service.PostGroup(group)
-// }
+	return s.Service.PostRole(role)
+}
 
-// func (s *instrumentingService) DeleteGroup(id string) (err error) {
-// 	defer func(begin time.Time) {
-// 		s.requestCount.With("method", "change_destination").Add(1)
-// 		s.requestLatency.With("method", "change_destination").Observe(time.Since(begin).Seconds())
-// 	}(time.Now())
+func (s *instrumentingService) DeleteRole(id string) (err error) {
+	defer func(begin time.Time) {
+		s.requestCount.With("method", "change_destination").Add(1)
+		s.requestLatency.With("method", "change_destination").Observe(time.Since(begin).Seconds())
+	}(time.Now())
 
-// 	return s.Service.DeleteGroup(id)
-// }
+	return s.Service.DeleteRole(id)
+}
 
 // func (s *instrumentingService) DeleteMultiGroup(listid []string) (ids []string, err error) {
 // 	defer func(begin time.Time) {
