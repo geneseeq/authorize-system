@@ -97,7 +97,9 @@ func (r *userRelationRoleRepository) Update(id string, g *user.RoleRelationModel
 		result.RoleID = append(result.RoleID, g.RoleID...)
 		tmpDict := map[string]string{}
 		for _, v := range result.RoleID {
-			tmpDict[v] = "true"
+			if v != "" {
+				tmpDict[v] = "true"
+			}
 		}
 		for key, _ := range tmpDict {
 			newRoleID = append(newRoleID, key)

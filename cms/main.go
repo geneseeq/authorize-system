@@ -8,15 +8,13 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/geneseeq/authorize-system/cms/action"
 	"github.com/geneseeq/authorize-system/cms/association"
 	"github.com/geneseeq/authorize-system/cms/grouping"
 	"github.com/geneseeq/authorize-system/cms/roleing"
+	"github.com/geneseeq/authorize-system/cms/route"
 	"github.com/geneseeq/authorize-system/cms/usering"
 
 	"github.com/go-kit/kit/log"
-	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
-	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -36,91 +34,12 @@ func main() {
 	logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC)
 
-	var (
-		// set db and collection
-		groups    = action.NewGroupDBRepository("test", "group_infos")
-		users     = action.NewUserDBRepository("test", "user_infos")
-		roles     = action.NewRoleDBRepository("test", "role_infos")
-		relations = action.NewUserRelationRoleRepository("test", "user_own_roles")
-	)
-
 	fieldKeys := []string{"method"}
 
-	var gs grouping.Service
-	gs = grouping.NewService(groups)
-	gs = grouping.NewLoggingService(log.With(logger, "component", "grouping"), gs)
-	gs = grouping.NewInstrumentingService(
-		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
-			Namespace: "api",
-			Subsystem: "grouping_service",
-			Name:      "request_count",
-			Help:      "Number of requests received.",
-		}, fieldKeys),
-		kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
-			Namespace: "api",
-			Subsystem: "grouping_service",
-			Name:      "request_latency_microseconds",
-			Help:      "Total duration of requests in microseconds.",
-		}, fieldKeys),
-		gs,
-	)
-
-	var us usering.Service
-	us = usering.NewService(users)
-	us = usering.NewLoggingService(log.With(logger, "component", "usering"), us)
-	us = usering.NewInstrumentingService(
-		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
-			Namespace: "api",
-			Subsystem: "usering_service",
-			Name:      "request_count",
-			Help:      "Number of requests received.",
-		}, fieldKeys),
-		kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
-			Namespace: "api",
-			Subsystem: "usering_service",
-			Name:      "request_latency_microseconds",
-			Help:      "Total duration of requests in microseconds.",
-		}, fieldKeys),
-		us,
-	)
-
-	var rs roleing.Service
-	rs = roleing.NewService(roles)
-	rs = roleing.NewLoggingService(log.With(logger, "component", "roleing"), rs)
-	rs = roleing.NewInstrumentingService(
-		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
-			Namespace: "api",
-			Subsystem: "roleing_service",
-			Name:      "request_count",
-			Help:      "Number of requests received.",
-		}, fieldKeys),
-		kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
-			Namespace: "api",
-			Subsystem: "roleing_service",
-			Name:      "request_latency_microseconds",
-			Help:      "Total duration of requests in microseconds.",
-		}, fieldKeys),
-		rs,
-	)
-
-	var as association.Service
-	as = association.NewService(relations)
-	as = association.NewLoggingService(log.With(logger, "component", "association"), as)
-	as = association.NewInstrumentingService(
-		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
-			Namespace: "api",
-			Subsystem: "association_service",
-			Name:      "request_count",
-			Help:      "Number of requests received.",
-		}, fieldKeys),
-		kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
-			Namespace: "api",
-			Subsystem: "association_service",
-			Name:      "request_latency_microseconds",
-			Help:      "Total duration of requests in microseconds.",
-		}, fieldKeys),
-		as,
-	)
+	gs := route.InitGroupRouter(logger, fieldKeys)
+	as := route.InitRelationRouter(logger, fieldKeys)
+	us := route.InitUserRouter(logger, fieldKeys)
+	rs := route.InitRoleRouter(logger, fieldKeys)
 
 	httpLogger := log.With(logger, "component", "http")
 
