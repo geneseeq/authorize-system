@@ -9,6 +9,7 @@ import (
 	"syscall"
 
 	"github.com/geneseeq/authorize-system/cms/action"
+	"github.com/geneseeq/authorize-system/cms/association"
 	"github.com/geneseeq/authorize-system/cms/grouping"
 	"github.com/geneseeq/authorize-system/cms/roleing"
 	"github.com/geneseeq/authorize-system/cms/usering"
@@ -101,6 +102,25 @@ func main() {
 		rs,
 	)
 
+	var as association.Service
+	as = association.NewService(roles)
+	as = association.NewLoggingService(log.With(logger, "component", "association"), as)
+	as = association.NewInstrumentingService(
+		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
+			Namespace: "api",
+			Subsystem: "association_service",
+			Name:      "request_count",
+			Help:      "Number of requests received.",
+		}, fieldKeys),
+		kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
+			Namespace: "api",
+			Subsystem: "association_service",
+			Name:      "request_latency_microseconds",
+			Help:      "Total duration of requests in microseconds.",
+		}, fieldKeys),
+		as,
+	)
+
 	httpLogger := log.With(logger, "component", "http")
 
 	mux := http.NewServeMux()
@@ -108,6 +128,7 @@ func main() {
 	mux.Handle("/grouping/v1/", grouping.MakeHandler(gs, httpLogger))
 	mux.Handle("/usering/v1/", usering.MakeHandler(us, httpLogger))
 	mux.Handle("/roleing/v1/", roleing.MakeHandler(rs, httpLogger))
+	mux.Handle("/association/v1/", association.MakeHandler(as, httpLogger))
 
 	http.Handle("/", accessControl(mux))
 	http.Handle("/metrics", promhttp.Handler())
