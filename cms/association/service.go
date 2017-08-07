@@ -4,7 +4,6 @@ package association
 
 import (
 	"errors"
-
 	"time"
 
 	"github.com/geneseeq/authorize-system/cms/user"
@@ -20,74 +19,78 @@ var (
 
 // Service is the interface that provides booking methods.
 type Service interface {
-	GetRole(id string) (Role, error)
-	// GetAllRole() ([]Role, error)
-	// PostRole(role []Role) ([]string, []string, error)
+	GetRoleFromUser(id string) (Role, error)
+	GetAllRole() ([]Role, error)
+	PostRole(role []Role) ([]string, []string, error)
 	// DeleteRole(id string) error
-	// DeleteMultiRole(listid []string) ([]string, []string, error)
+	DeleteMultiRole([]Role) ([]string, []string, error)
 	// PutRole(id string, role Role) error
-	// PutMultiRole(role []Role) ([]string, []string, error)
+	PutMultiRole([]Role) ([]string, []string, error)
 }
+
+// RoleIDList is a role id list
+// type RoleIDList struct {
+// 	RoleID []string
+// }
 
 // Role is a user base info
 type Role struct {
 	ID           string    `json:"id"`
-	Type         int       `json:"type"` //"type":"医生/教师/个人/员工/企业"
-	Name         string    `json:"name"`
-	Alias        string    `json:"alias"`
+	UserID       string    `json:"user_id"`
+	RoleID       []string  `json:"role_id"`
 	Buildin      bool      `json:"buildin"`
 	CreateUserID string    `json:"create_user_id"`
 	CreateTime   time.Time `json:"create_time"`
 }
 
 type service struct {
-	roles user.RoleRepository
+	roles user.RelationRepository
 }
 
 // NewService creates a booking service with necessary dependencies.
-func NewService(roles user.RoleRepository) Service {
+func NewService(roles user.RelationRepository) Service {
 	return &service{
 		roles: roles,
 	}
 }
 
-func (s *service) GetRole(id string) (Role, error) {
+func (s *service) GetRoleFromUser(id string) (Role, error) {
 	if id == "" {
 		return Role{}, ErrInvalidArgument
 	}
-	r, err := s.roles.Find(id)
+	r, err := s.roles.FindFromUser(id)
 	if err != nil {
 		return Role{}, ErrNotFound
 	}
 	return rolemodelToRole(r), nil
 }
 
-// func (s *service) GetAllRole() ([]Role, error) {
-// 	var result []Role
-// 	for _, g := range s.roles.FindRoleAll() {
-// 		result = append(result, rolemodelToRole(g))
-// 	}
-// 	if len(result) == 0 {
-// 		return result, ErrNotFound
-// 	}
-// 	return result, nil
-// }
+func (s *service) GetAllRole() ([]Role, error) {
+	var result []Role
+	for _, g := range s.roles.FindAllFromUser() {
+		result = append(result, rolemodelToRole(g))
+	}
+	if len(result) == 0 {
+		return result, ErrNotFound
+	}
+	return result, nil
+}
 
-// func (s *service) PostRole(r []Role) ([]string, []string, error) {
-// 	var sucessedIds []string
-// 	var failedIds []string
-// 	for _, role := range r {
-// 		role.CreateTime = user.TimeUtcToCst(time.Now())
-// 		err := s.roles.Store(roleToRolemodel(role))
-// 		if err != nil {
-// 			failedIds = append(failedIds, role.ID)
-// 			continue
-// 		} else {
-// 			sucessedIds = append(sucessedIds, role.ID)
-// 		}
-// 	}
-// 	return sucessedIds, failedIds, nil
-// }
+func (s *service) PostRole(r []Role) ([]string, []string, error) {
+	var sucessedIds []string
+	var failedIds []string
+	for _, role := range r {
+		role.CreateTime = user.TimeUtcToCst(time.Now())
+		err := s.roles.Store(roleToRolemodel(role))
+		if err != nil {
+			failedIds = append(failedIds, role.UserID)
+			continue
+		} else {
+			sucessedIds = append(sucessedIds, role.UserID)
+		}
+	}
+	return sucessedIds, failedIds, nil
+}
 
 // func (s *service) DeleteRole(id string) error {
 // 	if id == "" {
@@ -100,22 +103,22 @@ func (s *service) GetRole(id string) (Role, error) {
 // 	return nil
 // }
 
-// func (s *service) DeleteMultiRole(listid []string) ([]string, []string, error) {
-// 	var sucessedIds []string
-// 	var failedIds []string
-// 	if len(listid) == 0 {
-// 		return nil, nil, ErrInvalidArgument
-// 	}
-// 	for _, id := range listid {
-// 		err := s.roles.Remove(id)
-// 		if err != nil {
-// 			failedIds = append(failedIds, id)
-// 			continue
-// 		}
-// 		sucessedIds = append(sucessedIds, id)
-// 	}
-// 	return sucessedIds, failedIds, nil
-// }
+func (s *service) DeleteMultiRole(role []Role) ([]string, []string, error) {
+	var sucessedIds []string
+	var failedIds []string
+	if len(role) == 0 {
+		return nil, nil, ErrInvalidArgument
+	}
+	for _, value := range role {
+		err := s.roles.Remove(value.UserID, value.RoleID)
+		if err != nil {
+			failedIds = append(failedIds, value.UserID)
+			continue
+		}
+		sucessedIds = append(sucessedIds, value.UserID)
+	}
+	return sucessedIds, failedIds, nil
+}
 
 // func (s *service) PutRole(id string, role Role) error {
 // 	_, err := s.GetRole(id)
@@ -126,47 +129,44 @@ func (s *service) GetRole(id string) (Role, error) {
 // 	return err
 // }
 
-// func (s *service) PutMultiRole(r []Role) ([]string, []string, error) {
-// 	var sucessedIds []string
-// 	var failedIds []string
-// 	for _, role := range r {
-// 		if len(role.ID) == 0 {
-// 			failedIds = append(failedIds, role.ID)
-// 			continue
-// 		}
-// 		_, err := s.GetRole(role.ID)
-// 		if err != nil {
-// 			failedIds = append(failedIds, role.ID)
-// 			continue
-// 		}
-// 		err = s.roles.Update(role.ID, roleToRolemodel(role))
-// 		if err != nil {
-// 			continue
-// 		}
-// 		sucessedIds = append(sucessedIds, role.ID)
-// 	}
-// 	return sucessedIds, failedIds, nil
-// }
+func (s *service) PutMultiRole(role []Role) ([]string, []string, error) {
+	var sucessedIds []string
+	var failedIds []string
+	if len(role) == 0 {
+		return nil, nil, ErrInvalidArgument
+	}
+	for _, value := range role {
+		if len(value.UserID) == 0 {
+			failedIds = append(failedIds, value.UserID)
+			continue
+		}
+		err := s.roles.Update(value.UserID, roleToRolemodel(value))
+		if err != nil {
+			failedIds = append(failedIds, value.UserID)
+			continue
+		}
+		sucessedIds = append(sucessedIds, value.UserID)
+	}
+	return sucessedIds, failedIds, nil
+}
 
-func roleToRolemodel(r Role) *user.RoleModel {
+func roleToRolemodel(r Role) *user.RoleRelationModel {
 
-	return &user.RoleModel{
+	return &user.RoleRelationModel{
 		ID:           r.ID,
-		Type:         r.Type,
-		Name:         r.Name,
-		Alias:        r.Alias,
+		UserID:       r.UserID,
+		RoleID:       r.RoleID,
 		Buildin:      r.Buildin,
 		CreateUserID: r.CreateUserID,
 		CreateTime:   r.CreateTime,
 	}
 }
 
-func rolemodelToRole(r *user.RoleModel) Role {
+func rolemodelToRole(r *user.RoleRelationModel) Role {
 	return Role{
 		ID:           r.ID,
-		Type:         r.Type,
-		Name:         r.Name,
-		Alias:        r.Alias,
+		UserID:       r.UserID,
+		RoleID:       r.RoleID,
 		Buildin:      r.Buildin,
 		CreateUserID: r.CreateUserID,
 		CreateTime:   r.CreateTime,

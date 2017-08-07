@@ -16,7 +16,7 @@ func NewLoggingService(logger log.Logger, s Service) Service {
 	return &loggingService{logger, s}
 }
 
-func (s *loggingService) GetRole(id string) (role Role, err error) {
+func (s *loggingService) GetRoleFromUser(id string) (role Role, err error) {
 	defer func(begin time.Time) {
 		s.logger.Log(
 			"method", "load",
@@ -25,29 +25,29 @@ func (s *loggingService) GetRole(id string) (role Role, err error) {
 			"err", err,
 		)
 	}(time.Now())
-	return s.Service.GetRole(id)
+	return s.Service.GetRoleFromUser(id)
 }
 
-// func (s *loggingService) GetAllRole() ([]Role, error) {
-// 	defer func(begin time.Time) {
-// 		s.logger.Log(
-// 			"method", "request_routes",
-// 			"took", time.Since(begin),
-// 		)
-// 	}(time.Now())
-// 	return s.Service.GetAllRole()
-// }
+func (s *loggingService) GetAllRole() ([]Role, error) {
+	defer func(begin time.Time) {
+		s.logger.Log(
+			"method", "request_routes",
+			"took", time.Since(begin),
+		)
+	}(time.Now())
+	return s.Service.GetAllRole()
+}
 
-// func (s *loggingService) PostRole(role []Role) (sucessedIds []string, failedIds []string, err error) {
-// 	defer func(begin time.Time) {
-// 		s.logger.Log(
-// 			"method", "post",
-// 			"took", time.Since(begin),
-// 			"err", err,
-// 		)
-// 	}(time.Now())
-// 	return s.Service.PostRole(role)
-// }
+func (s *loggingService) PostRole(role []Role) (sucessedIds []string, failedIds []string, err error) {
+	defer func(begin time.Time) {
+		s.logger.Log(
+			"method", "post",
+			"took", time.Since(begin),
+			"err", err,
+		)
+	}(time.Now())
+	return s.Service.PostRole(role)
+}
 
 // func (s *loggingService) DeleteRole(id string) (err error) {
 // 	defer func(begin time.Time) {
@@ -60,16 +60,16 @@ func (s *loggingService) GetRole(id string) (role Role, err error) {
 // 	return s.Service.DeleteRole(id)
 // }
 
-// func (s *loggingService) DeleteMultiRole(listid []string) (sucessedIds []string, failedIds []string, err error) {
-// 	defer func(begin time.Time) {
-// 		s.logger.Log(
-// 			"method", "change_destination",
-// 			"took", time.Since(begin),
-// 			"err", err,
-// 		)
-// 	}(time.Now())
-// 	return s.Service.DeleteMultiRole(listid)
-// }
+func (s *loggingService) DeleteMultiRole(role []Role) (sucessedIds []string, failedIds []string, err error) {
+	defer func(begin time.Time) {
+		s.logger.Log(
+			"method", "change_destination",
+			"took", time.Since(begin),
+			"err", err,
+		)
+	}(time.Now())
+	return s.Service.DeleteMultiRole(role)
+}
 
 // func (s *loggingService) PutRole(id string, role Role) (err error) {
 // 	defer func(begin time.Time) {
@@ -83,13 +83,13 @@ func (s *loggingService) GetRole(id string) (role Role, err error) {
 // 	return s.Service.PutRole(id, role)
 // }
 
-// func (s *loggingService) PutMultiRole(role []Role) (sucessedIds []string, failedIds []string, err error) {
-// 	defer func(begin time.Time) {
-// 		s.logger.Log(
-// 			"method", "assign_to_route",
-// 			"took", time.Since(begin),
-// 			"err", err,
-// 		)
-// 	}(time.Now())
-// 	return s.Service.PutMultiRole(role)
-// }
+func (s *loggingService) PutMultiRole(role []Role) (sucessedIds []string, failedIds []string, err error) {
+	defer func(begin time.Time) {
+		s.logger.Log(
+			"method", "assign_to_route",
+			"took", time.Since(begin),
+			"err", err,
+		)
+	}(time.Now())
+	return s.Service.PutMultiRole(role)
+}

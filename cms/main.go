@@ -38,9 +38,10 @@ func main() {
 
 	var (
 		// set db and collection
-		groups = action.NewGroupDBRepository("test", "group_infos")
-		users  = action.NewUserDBRepository("test", "user_infos")
-		roles  = action.NewRoleDBRepository("test", "role_infos")
+		groups    = action.NewGroupDBRepository("test", "group_infos")
+		users     = action.NewUserDBRepository("test", "user_infos")
+		roles     = action.NewRoleDBRepository("test", "role_infos")
+		relations = action.NewUserRelationRoleRepository("test", "user_own_roles")
 	)
 
 	fieldKeys := []string{"method"}
@@ -103,7 +104,7 @@ func main() {
 	)
 
 	var as association.Service
-	as = association.NewService(roles)
+	as = association.NewService(relations)
 	as = association.NewLoggingService(log.With(logger, "component", "association"), as)
 	as = association.NewInstrumentingService(
 		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
