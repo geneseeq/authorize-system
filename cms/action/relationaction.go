@@ -8,6 +8,10 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+////////////////////////////////////////////
+//user & role relation
+////////////////////////////////////////////
+
 type userRelationRoleRepository struct {
 	mtx        sync.RWMutex
 	collection string
@@ -116,6 +120,240 @@ func (r *userRelationRoleRepository) Update(id string, g *user.RoleRelationModel
 // NewUserRelationRoleRepository returns a new instance of a in-memory cargo repository.
 func NewUserRelationRoleRepository(db string, collection string) user.RelationRepository {
 	return &userRelationRoleRepository{
+		db:         db,
+		collection: collection,
+	}
+}
+
+////////////////////////////////////////////
+//group & role relation
+////////////////////////////////////////////
+
+type groupRoleRelationRoleRepository struct {
+	mtx        sync.RWMutex
+	collection string
+	db         string
+}
+
+func (r *groupRoleRelationRoleRepository) FindFromGroup(id string) (*user.GroupRelationModel, error) {
+	r.mtx.RLock()
+	defer r.mtx.RUnlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
+	result := user.GroupRelationModel{}
+	err := con.Find(bson.M{"groupid": id}).One(&result)
+	if err != nil {
+		return nil, user.ErrUnknown
+	}
+	return &result, nil
+}
+
+func (r *groupRoleRelationRoleRepository) FindAllFromGroup() []*user.GroupRelationModel {
+	r.mtx.RLock()
+	defer r.mtx.RUnlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
+	var result []*user.GroupRelationModel
+	con.Find(nil).All(&result)
+	return result
+}
+
+func (r *groupRoleRelationRoleRepository) Store(g *user.GroupRelationModel) error {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
+	err := con.Insert(g)
+	return err
+}
+
+func (r *groupRoleRelationRoleRepository) Remove(group_id string, g *user.GroupRelationModel) error {
+	r.mtx.RLock()
+	defer r.mtx.RUnlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
+	result := user.GroupRelationModel{}
+	err := con.Find(bson.M{"groupid": group_id}).One(&result)
+	if err != nil {
+		return user.ErrUnknown
+	}
+	var newRoleID []string
+	if result.RoleID != nil {
+		tmpDict := map[string]string{}
+		for _, v := range result.RoleID {
+			tmpDict[v] = "true"
+		}
+		for _, v := range g.RoleID {
+			delete(tmpDict, v)
+		}
+		for key, _ := range tmpDict {
+			newRoleID = append(newRoleID, key)
+		}
+		result.RoleID = newRoleID
+	}
+	err = con.Update(bson.M{"groupid": group_id}, result)
+	if err != nil {
+		return user.ErrUnknown
+	}
+	return nil
+}
+
+func (r *groupRoleRelationRoleRepository) Update(id string, g *user.GroupRelationModel) error {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
+	result := user.GroupRelationModel{}
+	err := con.Find(bson.M{"groupid": g.GroupID}).One(&result)
+	if err != nil {
+		return user.ErrUnknown
+	}
+	var newRoleID []string
+	if result.RoleID != nil {
+		result.RoleID = append(result.RoleID, g.RoleID...)
+		tmpDict := map[string]string{}
+		for _, v := range result.RoleID {
+			if v != "" {
+				tmpDict[v] = "true"
+			}
+		}
+		for key, _ := range tmpDict {
+			newRoleID = append(newRoleID, key)
+		}
+		result.RoleID = newRoleID
+	}
+	err = con.Update(bson.M{"groupid": g.GroupID}, result)
+	if err != nil {
+		return user.ErrUnknown
+	}
+	return err
+}
+
+// NewUserRelationRoleRepository returns a new instance of a in-memory cargo repository.
+func NewGroupRoleRelationRoleRepository(db string, collection string) user.GroupRelationRepository {
+	return &groupRoleRelationRoleRepository{
+		db:         db,
+		collection: collection,
+	}
+}
+
+////////////////////////////////////////////
+//group & user relation
+////////////////////////////////////////////
+
+type groupUserRelationRoleRepository struct {
+	mtx        sync.RWMutex
+	collection string
+	db         string
+}
+
+func (r *groupUserRelationRoleRepository) FindFromGroup(id string) (*user.GroupRelationModel, error) {
+	r.mtx.RLock()
+	defer r.mtx.RUnlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
+	result := user.GroupRelationModel{}
+	err := con.Find(bson.M{"groupid": id}).One(&result)
+	if err != nil {
+		return nil, user.ErrUnknown
+	}
+	return &result, nil
+}
+
+func (r *groupUserRelationRoleRepository) FindAllFromGroup() []*user.GroupRelationModel {
+	r.mtx.RLock()
+	defer r.mtx.RUnlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
+	var result []*user.GroupRelationModel
+	con.Find(nil).All(&result)
+	return result
+}
+
+func (r *groupUserRelationRoleRepository) Store(g *user.GroupRelationModel) error {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
+	err := con.Insert(g)
+	return err
+}
+
+func (r *groupUserRelationRoleRepository) Remove(group_id string, g *user.GroupRelationModel) error {
+	r.mtx.RLock()
+	defer r.mtx.RUnlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
+	result := user.GroupRelationModel{}
+	err := con.Find(bson.M{"groupid": group_id}).One(&result)
+	if err != nil {
+		return user.ErrUnknown
+	}
+	var newUserID []string
+	if result.UserID != nil {
+		tmpDict := map[string]string{}
+		for _, v := range result.UserID {
+			tmpDict[v] = "true"
+		}
+		for _, v := range g.UserID {
+			delete(tmpDict, v)
+		}
+		for key, _ := range tmpDict {
+			newUserID = append(newUserID, key)
+		}
+		result.UserID = newUserID
+	}
+	err = con.Update(bson.M{"groupid": group_id}, result)
+	if err != nil {
+		return user.ErrUnknown
+	}
+	return nil
+}
+
+func (r *groupUserRelationRoleRepository) Update(id string, g *user.GroupRelationModel) error {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
+	result := user.GroupRelationModel{}
+	err := con.Find(bson.M{"groupid": g.GroupID}).One(&result)
+	if err != nil {
+		return user.ErrUnknown
+	}
+	var newUserID []string
+	if result.UserID != nil {
+		result.UserID = append(result.UserID, g.UserID...)
+		tmpDict := map[string]string{}
+		for _, v := range result.UserID {
+			if v != "" {
+				tmpDict[v] = "true"
+			}
+		}
+		for key, _ := range tmpDict {
+			newUserID = append(newUserID, key)
+		}
+		result.UserID = newUserID
+	}
+	err = con.Update(bson.M{"groupid": g.GroupID}, result)
+	if err != nil {
+		return user.ErrUnknown
+	}
+	return err
+}
+
+// NewUserRelationRoleRepository returns a new instance of a in-memory cargo repository.
+func NewGroupUserRelationRoleRepository(db string, collection string) user.GroupRelationRepository {
+	return &groupUserRelationRoleRepository{
 		db:         db,
 		collection: collection,
 	}

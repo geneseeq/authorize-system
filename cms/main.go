@@ -8,7 +8,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/geneseeq/authorize-system/cms/association"
+	"github.com/geneseeq/authorize-system/cms/association/groups"
+	"github.com/geneseeq/authorize-system/cms/association/users"
 	"github.com/geneseeq/authorize-system/cms/grouping"
 	"github.com/geneseeq/authorize-system/cms/roleing"
 	"github.com/geneseeq/authorize-system/cms/route"
@@ -40,6 +41,8 @@ func main() {
 	as := route.InitRelationRouter(logger, fieldKeys)
 	us := route.InitUserRouter(logger, fieldKeys)
 	rs := route.InitRoleRouter(logger, fieldKeys)
+	gus := route.InitUserRelationRouter(logger, fieldKeys)
+	grs := route.InitRoleRelationRouter(logger, fieldKeys)
 
 	httpLogger := log.With(logger, "component", "http")
 
@@ -48,7 +51,9 @@ func main() {
 	mux.Handle("/grouping/v1/", grouping.MakeHandler(gs, httpLogger))
 	mux.Handle("/usering/v1/", usering.MakeHandler(us, httpLogger))
 	mux.Handle("/roleing/v1/", roleing.MakeHandler(rs, httpLogger))
-	mux.Handle("/association/v1/", association.MakeHandler(as, httpLogger))
+	mux.Handle("/releation/v1/user/", users.MakeHandler(as, httpLogger))
+	mux.Handle("/releation/v1/group/", groups.MakeHandler(gus, grs, httpLogger))
+	// mux.Handle("/gys/v1/", groups.MakeRoleHandler(grs, httpLogger))
 
 	http.Handle("/", accessControl(mux))
 	http.Handle("/metrics", promhttp.Handler())

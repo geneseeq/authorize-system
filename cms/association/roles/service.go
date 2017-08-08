@@ -1,6 +1,6 @@
-// Package association provides the use-case of booking a cargo. Used by views
+// Package user provides the use-case of booking a cargo. Used by views
 // facing an administrator.
-package association
+package users
 
 import (
 	"errors"

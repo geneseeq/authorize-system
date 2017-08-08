@@ -2,7 +2,7 @@ package route
 
 import (
 	"github.com/geneseeq/authorize-system/cms/action"
-	"github.com/geneseeq/authorize-system/cms/association"
+	"github.com/geneseeq/authorize-system/cms/association/users"
 
 	"github.com/go-kit/kit/log"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
@@ -10,22 +10,22 @@ import (
 )
 
 // InitRelationRouter init router
-func InitRelationRouter(logger log.Logger, fieldKeys []string) association.Service {
+func InitRelationRouter(logger log.Logger, fieldKeys []string) users.Service {
 	var relations = action.NewUserRelationRoleRepository("test", "user_own_roles")
 
-	var as association.Service
-	as = association.NewService(relations)
-	as = association.NewLoggingService(log.With(logger, "component", "association"), as)
-	as = association.NewInstrumentingService(
+	var as users.Service
+	as = users.NewService(relations)
+	as = users.NewLoggingService(log.With(logger, "component", "usersAssociation"), as)
+	as = users.NewInstrumentingService(
 		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
 			Namespace: "api",
-			Subsystem: "association_service",
+			Subsystem: "users_association_service",
 			Name:      "request_count",
 			Help:      "Number of requests received.",
 		}, fieldKeys),
 		kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
 			Namespace: "api",
-			Subsystem: "association_service",
+			Subsystem: "users_association_service",
 			Name:      "request_latency_microseconds",
 			Help:      "Total duration of requests in microseconds.",
 		}, fieldKeys),

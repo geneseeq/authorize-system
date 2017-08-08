@@ -1,4 +1,4 @@
-package association
+package users
 
 import (
 	"context"
