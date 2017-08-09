@@ -104,58 +104,6 @@ func MakeHandler(us Service, rs Service, logger kitlog.Logger) http.Handler {
 	return r
 }
 
-// // MakeRoleHandler returns a handler for the booking service.
-// func MakeRoleHandler(bs Service, logger kitlog.Logger) http.Handler {
-// 	opts := []kithttp.ServerOption{
-// 		kithttp.ServerErrorLogger(logger),
-// 		kithttp.ServerErrorEncoder(encodeError),
-// 	}
-
-// 	getGroupHandler := kithttp.NewServer(
-// 		makeGetGroupEndpoint(bs),
-// 		decodeGetGroupRequest,
-// 		encodeResponse,
-// 		opts...,
-// 	)
-
-// 	getAllGroupHandler := kithttp.NewServer(
-// 		makeGetAllGroupEndpoint(bs),
-// 		decodeGetAllGroupRequest,
-// 		encodeResponse,
-// 		opts...,
-// 	)
-
-// 	addGroupHandler := kithttp.NewServer(
-// 		makePostGroupEndpoint(bs),
-// 		decodePostGroupRequest,
-// 		encodeResponse,
-// 		opts...,
-// 	)
-
-// 	deleteMultiGroupHandler := kithttp.NewServer(
-// 		makeDeleteMultiGroupEndpoint(bs),
-// 		decodeDeleteMultiGroupRequest,
-// 		encodeResponse,
-// 		opts...,
-// 	)
-
-// 	updateMultiGroupHandler := kithttp.NewServer(
-// 		makePutMultiGroupEndpoint(bs),
-// 		decodePutMultiGroupRequest,
-// 		encodeResponse,
-// 		opts...,
-// 	)
-
-// 	r := mux.NewRouter()
-
-// 	r.Handle("/gys/v1/group/{group_id}/role", getGroupHandler).Methods("GET")
-// 	r.Handle("/gys/v1/group/role", getAllGroupHandler).Methods("GET")
-// 	r.Handle("/gys/v1/group/role", addGroupHandler).Methods("POST")
-// 	r.Handle("/gys/v1/group/role", deleteMultiGroupHandler).Methods("DELETE")
-// 	r.Handle("/gys/v1/group/role", updateMultiGroupHandler).Methods("PUT")
-// 	return r
-// }
-
 var errBadRoute = errors.New("bad route")
 
 func decodeGetGroupRequest(_ context.Context, r *http.Request) (interface{}, error) {

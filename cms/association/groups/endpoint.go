@@ -12,20 +12,6 @@ type baseGroupRequest struct {
 
 type listGroupRequest struct{}
 
-// type roleIDDict struct {
-// 	UserID string
-// 	RoleID []string
-// }
-
-// type baseMutliRoleRequest struct {
-// 	ListID []Role
-// }
-
-// type putRoleRequest struct {
-// 	ID   string
-// 	Role Role
-// }
-
 type postGroupRequest struct {
 	Groups []Groups
 }

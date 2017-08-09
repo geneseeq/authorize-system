@@ -1,6 +1,6 @@
-// Package user provides the use-case of booking a cargo. Used by views
+// Package roles provides the use-case of booking a cargo. Used by views
 // facing an administrator.
-package users
+package roles
 
 import (
 	"errors"
@@ -19,56 +19,61 @@ var (
 
 // Service is the interface that provides booking methods.
 type Service interface {
-	GetRoleFromUser(id string) (Role, error)
-	GetAllRole() ([]Role, error)
-	PostRole(role []Role) ([]string, []string, error)
-	// DeleteRole(id string) error
-	DeleteMultiRole([]Role) ([]string, []string, error)
-	// PutRole(id string, role Role) error
-	PutMultiRole([]Role) ([]string, []string, error)
+	GetAuthorityFromRole(id string) (Authority, error)
+	GetAllAuthority() ([]Authority, error)
+	PostAuthority(role []Authority) ([]string, []string, error)
+	DeleteMultiAuthority([]DeleteData) ([]string, []string, error)
+	PutMultiAuthority([]Authority) ([]string, []string, error)
 }
 
-// RoleIDList is a role id list
-// type RoleIDList struct {
-// 	RoleID []string
+// DeleteData is ...
+type DeleteData struct {
+	RoleID string   `json:"role_id"`
+	DataID []string `json:"data_id"`
+}
+
+// type authority struct {
+// 	DataID string   `json:"data_id"`
+// 	Action []string `json:"action"`
 // }
 
-// Role is a user base info
-type Role struct {
-	ID           string    `json:"id"`
-	UserID       string    `json:"user_id"`
-	RoleID       []string  `json:"role_id"`
-	Buildin      bool      `json:"buildin"`
-	CreateUserID string    `json:"create_user_id"`
-	CreateTime   time.Time `json:"create_time"`
+// Authority is a user base authority
+type Authority struct {
+	ID           string                `json:"id"`
+	RoleID       string                `json:"role_id"`
+	Authority    []user.AuthorityModel `json:"authority"`
+	Validity     string                `json:"validity"`
+	Buildin      bool                  `json:"buildin"`
+	CreateUserID string                `json:"create_user_id"`
+	CreateTime   time.Time             `json:"create_time"`
 }
 
 type service struct {
-	roles user.RelationRepository
+	authoritys user.AuthorityRelationRepository
 }
 
 // NewService creates a booking service with necessary dependencies.
-func NewService(roles user.RelationRepository) Service {
+func NewService(authoritys user.AuthorityRelationRepository) Service {
 	return &service{
-		roles: roles,
+		authoritys: authoritys,
 	}
 }
 
-func (s *service) GetRoleFromUser(id string) (Role, error) {
+func (s *service) GetAuthorityFromRole(id string) (Authority, error) {
 	if id == "" {
-		return Role{}, ErrInvalidArgument
+		return Authority{}, ErrInvalidArgument
 	}
-	r, err := s.roles.FindFromUser(id)
+	a, err := s.authoritys.FindFromAuthority(id)
 	if err != nil {
-		return Role{}, ErrNotFound
+		return Authority{}, ErrNotFound
 	}
-	return rolemodelToRole(r), nil
+	return authorityModelToAuthority(a), nil
 }
 
-func (s *service) GetAllRole() ([]Role, error) {
-	var result []Role
-	for _, g := range s.roles.FindAllFromUser() {
-		result = append(result, rolemodelToRole(g))
+func (s *service) GetAllAuthority() ([]Authority, error) {
+	var result []Authority
+	for _, a := range s.authoritys.FindAllFromAuthority() {
+		result = append(result, authorityModelToAuthority(a))
 	}
 	if len(result) == 0 {
 		return result, ErrNotFound
@@ -76,99 +81,89 @@ func (s *service) GetAllRole() ([]Role, error) {
 	return result, nil
 }
 
-func (s *service) PostRole(r []Role) ([]string, []string, error) {
+func (s *service) PostAuthority(authority []Authority) ([]string, []string, error) {
 	var sucessedIds []string
 	var failedIds []string
-	for _, role := range r {
-		role.CreateTime = user.TimeUtcToCst(time.Now())
-		err := s.roles.Store(roleToRolemodel(role))
+	for _, a := range authority {
+		a.CreateTime = user.TimeUtcToCst(time.Now())
+		err := s.authoritys.Store(authorityToAuthorityModel(a))
 		if err != nil {
-			failedIds = append(failedIds, role.UserID)
+			failedIds = append(failedIds, a.RoleID)
 			continue
 		} else {
-			sucessedIds = append(sucessedIds, role.UserID)
+			sucessedIds = append(sucessedIds, a.RoleID)
 		}
 	}
 	return sucessedIds, failedIds, nil
 }
 
-// func (s *service) DeleteRole(id string) error {
-// 	if id == "" {
-// 		return ErrInvalidArgument
-// 	}
-// 	err := s.roles.Remove(id)
-// 	if err != nil {
-// 		return ErrNotFound
-// 	}
-// 	return nil
-// }
-
-func (s *service) DeleteMultiRole(role []Role) ([]string, []string, error) {
+func (s *service) DeleteMultiAuthority(d []DeleteData) ([]string, []string, error) {
 	var sucessedIds []string
 	var failedIds []string
-	if len(role) == 0 {
+	if len(d) == 0 {
 		return nil, nil, ErrInvalidArgument
 	}
-	for _, value := range role {
-		err := s.roles.Remove(value.UserID, value.RoleID)
+	for _, value := range d {
+		err := s.authoritys.Remove(value.RoleID, deleteDataToDeleteModel(value))
 		if err != nil {
-			failedIds = append(failedIds, value.UserID)
+			failedIds = append(failedIds, value.RoleID)
 			continue
 		}
-		sucessedIds = append(sucessedIds, value.UserID)
+		sucessedIds = append(sucessedIds, value.RoleID)
 	}
 	return sucessedIds, failedIds, nil
 }
 
-// func (s *service) PutRole(id string, role Role) error {
-// 	_, err := s.GetRole(id)
-// 	if err != nil {
-// 		return ErrInconsistentIDs
-// 	}
-// 	err = s.roles.Update(id, roleToRolemodel(role))
-// 	return err
-// }
-
-func (s *service) PutMultiRole(role []Role) ([]string, []string, error) {
+func (s *service) PutMultiAuthority(authority []Authority) ([]string, []string, error) {
 	var sucessedIds []string
 	var failedIds []string
-	if len(role) == 0 {
+	if len(authority) == 0 {
 		return nil, nil, ErrInvalidArgument
 	}
-	for _, value := range role {
-		if len(value.UserID) == 0 {
-			failedIds = append(failedIds, value.UserID)
+	for _, value := range authority {
+		if len(value.RoleID) == 0 {
+			failedIds = append(failedIds, value.RoleID)
 			continue
 		}
-		err := s.roles.Update(value.UserID, roleToRolemodel(value))
+		err := s.authoritys.Update(value.RoleID, authorityToAuthorityModel(value))
 		if err != nil {
-			failedIds = append(failedIds, value.UserID)
+			failedIds = append(failedIds, value.RoleID)
 			continue
 		}
-		sucessedIds = append(sucessedIds, value.UserID)
+		sucessedIds = append(sucessedIds, value.RoleID)
 	}
 	return sucessedIds, failedIds, nil
 }
 
-func roleToRolemodel(r Role) *user.RoleRelationModel {
+func authorityToAuthorityModel(a Authority) *user.AuthorityRelationModel {
 
-	return &user.RoleRelationModel{
-		ID:           r.ID,
-		UserID:       r.UserID,
-		RoleID:       r.RoleID,
-		Buildin:      r.Buildin,
-		CreateUserID: r.CreateUserID,
-		CreateTime:   r.CreateTime,
+	return &user.AuthorityRelationModel{
+		ID:           a.ID,
+		RoleID:       a.RoleID,
+		Authority:    a.Authority,
+		Validity:     a.Validity,
+		Buildin:      a.Buildin,
+		CreateUserID: a.CreateUserID,
+		CreateTime:   a.CreateTime,
 	}
 }
 
-func rolemodelToRole(r *user.RoleRelationModel) Role {
-	return Role{
-		ID:           r.ID,
-		UserID:       r.UserID,
-		RoleID:       r.RoleID,
-		Buildin:      r.Buildin,
-		CreateUserID: r.CreateUserID,
-		CreateTime:   r.CreateTime,
+func deleteDataToDeleteModel(d DeleteData) *user.DeleteAuthorityModel {
+
+	return &user.DeleteAuthorityModel{
+		RoleID: d.RoleID,
+		DataID: d.DataID,
+	}
+}
+
+func authorityModelToAuthority(a *user.AuthorityRelationModel) Authority {
+	return Authority{
+		ID:           a.ID,
+		RoleID:       a.RoleID,
+		Authority:    a.Authority,
+		Validity:     a.Validity,
+		Buildin:      a.Buildin,
+		CreateUserID: a.CreateUserID,
+		CreateTime:   a.CreateTime,
 	}
 }

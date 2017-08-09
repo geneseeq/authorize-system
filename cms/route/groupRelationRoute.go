@@ -9,8 +9,7 @@ import (
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 )
 
-// InitUserRelationRouter init router
-func InitUserRelationRouter(logger log.Logger, fieldKeys []string) groups.Service {
+func initUserRelationRouter(logger log.Logger, fieldKeys []string) groups.Service {
 	var relations = action.NewGroupUserRelationRoleRepository("test", "group_own_users_and_roles")
 
 	var as groups.Service
@@ -34,8 +33,7 @@ func InitUserRelationRouter(logger log.Logger, fieldKeys []string) groups.Servic
 	return as
 }
 
-// InitRoleRelationRouter init router
-func InitRoleRelationRouter(logger log.Logger, fieldKeys []string) groups.Service {
+func initRoleRelationRouter(logger log.Logger, fieldKeys []string) groups.Service {
 	var relations = action.NewGroupRoleRelationRoleRepository("test", "group_own_users_and_roles")
 
 	var as groups.Service

@@ -1,5 +1,4 @@
-// Package users provides the use-case of booking a cargo. Used by views
-// facing an administrator.
+// Package groups provides the use-case of booking a cargo. Used by views
 package groups
 
 import (

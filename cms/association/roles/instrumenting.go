@@ -1,4 +1,4 @@
-package users
+package roles
 
 import (
 	"time"
@@ -21,65 +21,47 @@ func NewInstrumentingService(counter metrics.Counter, latency metrics.Histogram,
 	}
 }
 
-func (s *instrumentingService) GetRoleFromUser(id string) (role Role, err error) {
+func (s *instrumentingService) GetAuthorityFromRole(id string) (a Authority, err error) {
 	defer func(begin time.Time) {
 		s.requestCount.With("method", "load").Add(1)
 		s.requestLatency.With("method", "load").Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	return s.Service.GetRoleFromUser(id)
+	return s.Service.GetAuthorityFromRole(id)
 }
 
-func (s *instrumentingService) GetAllRole() ([]Role, error) {
+func (s *instrumentingService) GetAllAuthority() ([]Authority, error) {
 	defer func(begin time.Time) {
 		s.requestCount.With("method", "request_routes").Add(1)
 		s.requestLatency.With("method", "request_routes").Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	return s.Service.GetAllRole()
+	return s.Service.GetAllAuthority()
 }
 
-func (s *instrumentingService) PostRole(role []Role) ([]string, []string, error) {
+func (s *instrumentingService) PostAuthority(a []Authority) ([]string, []string, error) {
 	defer func(begin time.Time) {
 		s.requestCount.With("method", "book").Add(1)
 		s.requestLatency.With("method", "book").Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	return s.Service.PostRole(role)
+	return s.Service.PostAuthority(a)
 }
 
-// func (s *instrumentingService) DeleteRole(id string) (err error) {
-// 	defer func(begin time.Time) {
-// 		s.requestCount.With("method", "change_destination").Add(1)
-// 		s.requestLatency.With("method", "change_destination").Observe(time.Since(begin).Seconds())
-// 	}(time.Now())
-
-// 	return s.Service.DeleteRole(id)
-// }
-
-func (s *instrumentingService) DeleteMultiRole(role []Role) (sucessedIds []string, failedIds []string, err error) {
+func (s *instrumentingService) DeleteMultiAuthority(a []DeleteData) (sucessedIds []string, failedIds []string, err error) {
 	defer func(begin time.Time) {
 		s.requestCount.With("method", "change_destination").Add(1)
 		s.requestLatency.With("method", "change_destination").Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	return s.Service.DeleteMultiRole(role)
+	return s.Service.DeleteMultiAuthority(a)
 }
 
-// func (s *instrumentingService) PutRole(id string, role Role) (err error) {
-// 	defer func(begin time.Time) {
-// 		s.requestCount.With("method", "assign_to_route").Add(1)
-// 		s.requestLatency.With("method", "assign_to_route").Observe(time.Since(begin).Seconds())
-// 	}(time.Now())
-
-// 	return s.Service.PutRole(id, role)
-// }
-
-func (s *instrumentingService) PutMultiRole(role []Role) (sucessedIds []string, failedIds []string, err error) {
+func (s *instrumentingService) PutMultiAuthority(a []Authority) (sucessedIds []string, failedIds []string, err error) {
 	defer func(begin time.Time) {
 		s.requestCount.With("method", "assign_to_route").Add(1)
 		s.requestLatency.With("method", "assign_to_route").Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	return s.Service.PutMultiRole(role)
+	return s.Service.PutMultiAuthority(a)
 }

@@ -9,8 +9,7 @@ import (
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 )
 
-// InitUserRouter init router
-func InitUserRouter(logger log.Logger, fieldKeys []string) usering.Service {
+func initUserRouter(logger log.Logger, fieldKeys []string) usering.Service {
 	var users = action.NewUserDBRepository("test", "user_infos")
 	var us usering.Service
 	us = usering.NewService(users)

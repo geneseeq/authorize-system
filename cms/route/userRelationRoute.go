@@ -9,8 +9,7 @@ import (
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 )
 
-// InitRelationRouter init router
-func InitRelationRouter(logger log.Logger, fieldKeys []string) users.Service {
+func initRelationRouter(logger log.Logger, fieldKeys []string) users.Service {
 	var relations = action.NewUserRelationRoleRepository("test", "user_own_roles")
 
 	var as users.Service

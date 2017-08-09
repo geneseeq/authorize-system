@@ -358,3 +358,118 @@ func NewGroupUserRelationRoleRepository(db string, collection string) user.Group
 		collection: collection,
 	}
 }
+
+////////////////////////////////////////////
+//role & authority relation
+////////////////////////////////////////////
+
+type roleAuthorityRelationRepository struct {
+	mtx        sync.RWMutex
+	collection string
+	db         string
+}
+
+func (r *roleAuthorityRelationRepository) FindFromAuthority(id string) (*user.AuthorityRelationModel, error) {
+	r.mtx.RLock()
+	defer r.mtx.RUnlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
+	result := user.AuthorityRelationModel{}
+	err := con.Find(bson.M{"roleid": id}).One(&result)
+	if err != nil {
+		return nil, user.ErrUnknown
+	}
+	return &result, nil
+}
+
+func (r *roleAuthorityRelationRepository) FindAllFromAuthority() []*user.AuthorityRelationModel {
+	r.mtx.RLock()
+	defer r.mtx.RUnlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
+	var result []*user.AuthorityRelationModel
+	con.Find(nil).All(&result)
+	return result
+}
+
+func (r *roleAuthorityRelationRepository) Store(g *user.AuthorityRelationModel) error {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
+	err := con.Insert(g)
+	return err
+}
+
+func (r *roleAuthorityRelationRepository) Remove(roleID string, d *user.DeleteAuthorityModel) error {
+	r.mtx.RLock()
+	defer r.mtx.RUnlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
+	result := user.AuthorityRelationModel{}
+	err := con.Find(bson.M{"roleid": roleID}).One(&result)
+	if err != nil {
+		return user.ErrUnknown
+	}
+	var newAuthority []user.AuthorityModel
+	if result.Authority != nil {
+		tmpDict := map[string]user.AuthorityModel{}
+		for _, v := range result.Authority {
+			tmpDict[v.DataID] = v
+		}
+		for _, v := range d.DataID {
+			delete(tmpDict, v)
+		}
+		for _, value := range tmpDict {
+			newAuthority = append(newAuthority, value)
+		}
+		result.Authority = newAuthority
+	}
+	err = con.Update(bson.M{"roleid": roleID}, result)
+	if err != nil {
+		return user.ErrUnknown
+	}
+	return nil
+}
+
+func (r *roleAuthorityRelationRepository) Update(id string, a *user.AuthorityRelationModel) error {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
+	result := user.AuthorityRelationModel{}
+	err := con.Find(bson.M{"roleid": id}).One(&result)
+	if err != nil {
+		return user.ErrUnknown
+	}
+	var newAuthority []user.AuthorityModel
+	if result.Authority != nil {
+		result.Authority = append(result.Authority, a.Authority...)
+		tmpDict := map[string]user.AuthorityModel{}
+		for _, v := range result.Authority {
+			tmpDict[v.DataID] = v
+		}
+		for _, value := range tmpDict {
+			newAuthority = append(newAuthority, value)
+		}
+		result.Authority = newAuthority
+	}
+	err = con.Update(bson.M{"roleid": id}, result)
+	if err != nil {
+		return user.ErrUnknown
+	}
+	return err
+}
+
+// NewRoleAuthorityRelationRepository returns a new instance of a in-memory cargo repository.
+func NewRoleAuthorityRelationRepository(db string, collection string) user.AuthorityRelationRepository {
+	return &roleAuthorityRelationRepository{
+		db:         db,
+		collection: collection,
+	}
+}

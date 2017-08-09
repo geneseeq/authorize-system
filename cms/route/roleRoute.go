@@ -9,8 +9,7 @@ import (
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 )
 
-// InitRoleRouter init router
-func InitRoleRouter(logger log.Logger, fieldKeys []string) roleing.Service {
+func initRoleRouter(logger log.Logger, fieldKeys []string) roleing.Service {
 	var roles = action.NewRoleDBRepository("test", "role_infos")
 	var rs roleing.Service
 	rs = roleing.NewService(roles)

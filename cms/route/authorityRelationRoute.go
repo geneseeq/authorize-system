@@ -2,33 +2,33 @@ package route
 
 import (
 	"github.com/geneseeq/authorize-system/cms/action"
-	"github.com/geneseeq/authorize-system/cms/grouping"
+	"github.com/geneseeq/authorize-system/cms/association/roles"
 
 	"github.com/go-kit/kit/log"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 )
 
-func initGroupRouter(logger log.Logger, fieldKeys []string) grouping.Service {
-	var groups = action.NewGroupDBRepository("test", "group_infos")
+func initAuthorityRelationRouter(logger log.Logger, fieldKeys []string) roles.Service {
+	var relations = action.NewRoleAuthorityRelationRepository("test", "role_own_permissions")
 
-	var gs grouping.Service
-	gs = grouping.NewService(groups)
-	gs = grouping.NewLoggingService(log.With(logger, "component", "grouping"), gs)
-	gs = grouping.NewInstrumentingService(
+	var as roles.Service
+	as = roles.NewService(relations)
+	as = roles.NewLoggingService(log.With(logger, "component", "roleAuthorityAssociation"), as)
+	as = roles.NewInstrumentingService(
 		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
 			Namespace: "api",
-			Subsystem: "grouping_service",
+			Subsystem: "role_authority_service",
 			Name:      "request_count",
 			Help:      "Number of requests received.",
 		}, fieldKeys),
 		kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
 			Namespace: "api",
-			Subsystem: "grouping_service",
+			Subsystem: "role_authority_service",
 			Name:      "request_latency_microseconds",
 			Help:      "Total duration of requests in microseconds.",
 		}, fieldKeys),
-		gs,
+		as,
 	)
-	return gs
+	return as
 }

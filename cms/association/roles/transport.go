@@ -1,4 +1,4 @@
-package users
+package roles
 
 import (
 	"context"
@@ -20,127 +20,87 @@ func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
 		kithttp.ServerErrorEncoder(encodeError),
 	}
 
-	getRoleHandler := kithttp.NewServer(
-		makeGetRoleEndpoint(bs),
-		decodeGetRoleRequest,
+	getAuthorityHandler := kithttp.NewServer(
+		makeGetAuthorityEndpoint(bs),
+		decodeGetAuthorityRequest,
 		encodeResponse,
 		opts...,
 	)
 
-	getAllRoleHandler := kithttp.NewServer(
-		makeGetAllRoleEndpoint(bs),
-		decodeGetAllRoleRequest,
+	getAllAuthorityHandler := kithttp.NewServer(
+		makeGetAllAuthorityEndpoint(bs),
+		decodeGetAllAuthorityRequest,
 		encodeResponse,
 		opts...,
 	)
 
-	addRoleHandler := kithttp.NewServer(
-		makePostRoleEndpoint(bs),
-		decodePostRoleRequest,
+	addAuthorityHandler := kithttp.NewServer(
+		makePostAuthorityEndpoint(bs),
+		decodePostAuthorityRequest,
 		encodeResponse,
 		opts...,
 	)
 
-	// deleteRoleHandler := kithttp.NewServer(
-	// 	makeDeleteRoleEndpoint(bs),
-	// 	decodeDeleteRoleRequest,
-	// 	encodeResponse,
-	// 	opts...,
-	// )
-
-	deleteMultiRoleHandler := kithttp.NewServer(
-		makeDeleteMultiRoleEndpoint(bs),
-		decodeDeleteMultiRoleRequest,
+	deleteMultiAuthorityHandler := kithttp.NewServer(
+		makeDeleteMultiAuthorityEndpoint(bs),
+		decodeDeleteMultiAuthorityRequest,
 		encodeResponse,
 		opts...,
 	)
 
-	// updateRoleHandler := kithttp.NewServer(
-	// 	makePutRoleEndpoint(bs),
-	// 	decodePutRoleRequest,
-	// 	encodeResponse,
-	// 	opts...,
-	// )
-
-	updateMultiRoleHandler := kithttp.NewServer(
-		makePutMultiRoleEndpoint(bs),
-		decodePutMultiRoleRequest,
+	updateMultiAuthorityHandler := kithttp.NewServer(
+		makePutMultiAuthorityEndpoint(bs),
+		decodePutMultiAuthorityRequest,
 		encodeResponse,
 		opts...,
 	)
 
 	r := mux.NewRouter()
 
-	r.Handle("/association/v1/user/{user_id}/role", getRoleHandler).Methods("GET")
-	r.Handle("/association/v1/user/role", getAllRoleHandler).Methods("GET")
-	r.Handle("/association/v1/user/role", addRoleHandler).Methods("POST")
-	// r.Handle("/roleing/v1/role/{id}", deleteRoleHandler).Methods("DELETE")
-	r.Handle("/association/v1/user/role", deleteMultiRoleHandler).Methods("DELETE")
-	// r.Handle("/roleing/v1/role/{id}", updateRoleHandler).Methods("PUT")
-	r.Handle("/association/v1/user/role", updateMultiRoleHandler).Methods("PUT")
+	r.Handle("/releation/v1/role/{role_id}/authority", getAuthorityHandler).Methods("GET")
+	r.Handle("/releation/v1/role/authority", getAllAuthorityHandler).Methods("GET")
+	r.Handle("/releation/v1/role/authority", addAuthorityHandler).Methods("POST")
+	r.Handle("/releation/v1/role/authority", deleteMultiAuthorityHandler).Methods("DELETE")
+	r.Handle("/releation/v1/role/authority", updateMultiAuthorityHandler).Methods("PUT")
 	return r
 }
 
 var errBadRoute = errors.New("bad route")
 
-func decodeGetRoleRequest(_ context.Context, r *http.Request) (interface{}, error) {
+func decodeGetAuthorityRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
-	userID, ok := vars["user_id"]
+	roleID, ok := vars["role_id"]
 	if !ok {
 		return nil, errBadRoute
 	}
-	return baseRoleRequest{UserID: string(userID)}, nil
+	return baseAuthorityRequest{RoleID: string(roleID)}, nil
 }
 
-func decodeGetAllRoleRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	return listRoleRequest{}, nil
+func decodeGetAllAuthorityRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	return listAuthorityRequest{}, nil
 }
 
-func decodePostRoleRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var req postRoleRequest
-	if e := json.NewDecoder(r.Body).Decode(&req.Role); e != nil {
+func decodePostAuthorityRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var req postAuthorityRequest
+	if e := json.NewDecoder(r.Body).Decode(&req.Authority); e != nil {
 		return nil, e
 	}
 	return req, nil
 }
 
-// func decodeDeleteRoleRequest(_ context.Context, r *http.Request) (interface{}, error) {
-// 	vars := mux.Vars(r)
-// 	id, ok := vars["id"]
-// 	if !ok {
-// 		return nil, errBadRoute
-// 	}
-// 	return baseRoleRequest{ID: string(id)}, nil
-// }
+func decodeDeleteMultiAuthorityRequest(_ context.Context, r *http.Request) (interface{}, error) {
 
-func decodeDeleteMultiRoleRequest(_ context.Context, r *http.Request) (interface{}, error) {
-
-	var req postRoleRequest
-	if e := json.NewDecoder(r.Body).Decode(&req.Role); e != nil {
+	var req deleteAuthorityRequest
+	if e := json.NewDecoder(r.Body).Decode(&req.DeleteData); e != nil {
 		return nil, e
 	}
 	return req, nil
 }
 
-// func decodePutRoleRequest(_ context.Context, r *http.Request) (interface{}, error) {
-// 	vars := mux.Vars(r)
-// 	id, ok := vars["id"]
-// 	if !ok {
-// 		return nil, errBadRoute
-// 	}
-// 	var role Role
-// 	if err := json.NewDecoder(r.Body).Decode(&role); err != nil {
-// 		return nil, err
-// 	}
-// 	return putRoleRequest{
-// 		ID:   id,
-// 		Role: role,
-// 	}, nil
-// }
+func decodePutMultiAuthorityRequest(_ context.Context, r *http.Request) (interface{}, error) {
 
-func decodePutMultiRoleRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var req postRoleRequest
-	if err := json.NewDecoder(r.Body).Decode(&req.Role); err != nil {
+	var req postAuthorityRequest
+	if err := json.NewDecoder(r.Body).Decode(&req.Authority); err != nil {
 		return nil, err
 	}
 	return req, nil
