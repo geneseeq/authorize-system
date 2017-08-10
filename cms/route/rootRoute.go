@@ -6,8 +6,10 @@ import (
 	"github.com/geneseeq/authorize-system/cms/association/groups"
 	"github.com/geneseeq/authorize-system/cms/association/roles"
 	"github.com/geneseeq/authorize-system/cms/association/users"
+	"github.com/geneseeq/authorize-system/cms/dataing"
 	"github.com/geneseeq/authorize-system/cms/grouping"
 	"github.com/geneseeq/authorize-system/cms/roleing"
+	"github.com/geneseeq/authorize-system/cms/servicing"
 	"github.com/geneseeq/authorize-system/cms/usering"
 	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -22,6 +24,8 @@ func InitRouter(logger log.Logger, httpLogger log.Logger, fieldKeys []string) {
 	gus := initUserRelationRouter(logger, fieldKeys)
 	grs := initRoleRelationRouter(logger, fieldKeys)
 	ras := initAuthorityRelationRouter(logger, fieldKeys)
+	ss := initSetRouter(logger, fieldKeys)
+	service := initServiceRouter(logger, fieldKeys)
 	mux := http.NewServeMux()
 
 	mux.Handle("/grouping/v1/", grouping.MakeHandler(gs, httpLogger))
@@ -30,7 +34,8 @@ func InitRouter(logger log.Logger, httpLogger log.Logger, fieldKeys []string) {
 	mux.Handle("/releation/v1/user/", users.MakeHandler(as, httpLogger))
 	mux.Handle("/releation/v1/group/", groups.MakeHandler(gus, grs, httpLogger))
 	mux.Handle("/releation/v1/role/", roles.MakeHandler(ras, httpLogger))
-	// mux.Handle("/gys/v1/", groups.MakeRoleHandler(grs, httpLogger))
+	mux.Handle("/seting/v1/", dataing.MakeHandler(ss, httpLogger))
+	mux.Handle("/servicing/v1/", servicing.MakeHandler(service, httpLogger))
 
 	http.Handle("/", accessControl(mux))
 	http.Handle("/metrics", promhttp.Handler())
