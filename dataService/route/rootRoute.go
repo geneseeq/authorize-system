@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/geneseeq/authorize-system/dataService/baseing"
+	"github.com/geneseeq/authorize-system/dataService/fielding"
 	"github.com/geneseeq/authorize-system/dataService/labeling"
 	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -13,10 +14,12 @@ import (
 func InitRouter(logger log.Logger, httpLogger log.Logger, fieldKeys []string) {
 	baseData := initDataRouter(logger, fieldKeys)
 	labelData := initLabelRouter(logger, fieldKeys)
+	fieldData := initFieldRouter(logger, fieldKeys)
 	mux := http.NewServeMux()
 
 	mux.Handle("/baseing/v1/", baseing.MakeHandler(baseData, httpLogger))
 	mux.Handle("/labeling/v1/", labeling.MakeHandler(labelData, httpLogger))
+	mux.Handle("/fielding/v1/", fielding.MakeHandler(fieldData, httpLogger))
 
 	http.Handle("/", accessControl(mux))
 	http.Handle("/metrics", promhttp.Handler())
