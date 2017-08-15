@@ -1,4 +1,4 @@
-package baseing
+package labeling
 
 import (
 	"context"
@@ -20,87 +20,87 @@ func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
 		kithttp.ServerErrorEncoder(encodeError),
 	}
 
-	getBaseDataHandler := kithttp.NewServer(
-		makeGetBaseDataEndpoint(bs),
-		decodeGetBaseDataRequest,
+	getLabelHandler := kithttp.NewServer(
+		makeGetLabelEndpoint(bs),
+		decodeGetLabelRequest,
 		encodeResponse,
 		opts...,
 	)
 
-	addBaseDataHandler := kithttp.NewServer(
-		makePostBaseDataEndpoint(bs),
-		decodePostBaseDataRequest,
+	addLabelHandler := kithttp.NewServer(
+		makePostLabelEndpoint(bs),
+		decodePostLabelRequest,
 		encodeResponse,
 		opts...,
 	)
 
-	getAllBaseDataHandler := kithttp.NewServer(
-		makeGetAllBaseDataEndpoint(bs),
-		decodeGetAllBaseDataRequest,
+	getAllLabelHandler := kithttp.NewServer(
+		makeGetAllLabelEndpoint(bs),
+		decodeGetAllLabelRequest,
 		encodeResponse,
 		opts...,
 	)
 
-	updateMultiBaseDataHandler := kithttp.NewServer(
-		makePutMultiBaseDataEndpoint(bs),
-		decodePutMultiBaseDataRequest,
+	updateMultiLabelHandler := kithttp.NewServer(
+		makePutMultiLabelEndpoint(bs),
+		decodePutMultiLabelRequest,
 		encodeResponse,
 		opts...,
 	)
 
-	deleteMultiBaseDataHandler := kithttp.NewServer(
-		makeDeleteMultiBaseDataEndpoint(bs),
-		decodeDeleteMultiBaseDataRequest,
+	deleteMultiLabelHandler := kithttp.NewServer(
+		makeDeleteMultiLabelEndpoint(bs),
+		decodeDeleteMultiLabelRequest,
 		encodeResponse,
 		opts...,
 	)
 
 	r := mux.NewRouter()
 
-	r.Handle("/baseing/v1/data/{id}", getBaseDataHandler).Methods("GET")
-	r.Handle("/baseing/v1/data", getAllBaseDataHandler).Methods("GET")
-	r.Handle("/baseing/v1/data", addBaseDataHandler).Methods("POST")
-	r.Handle("/baseing/v1/data", updateMultiBaseDataHandler).Methods("PUT")
-	r.Handle("/baseing/v1/data", deleteMultiBaseDataHandler).Methods("DELETE")
+	r.Handle("/labeling/v1/label/{id}", getLabelHandler).Methods("GET")
+	r.Handle("/labeling/v1/label", getAllLabelHandler).Methods("GET")
+	r.Handle("/labeling/v1/label", addLabelHandler).Methods("POST")
+	r.Handle("/labeling/v1/label", updateMultiLabelHandler).Methods("PUT")
+	r.Handle("/labeling/v1/label", deleteMultiLabelHandler).Methods("DELETE")
 
 	return r
 }
 
 var errBadRoute = errors.New("bad route")
 
-func decodeGetBaseDataRequest(_ context.Context, r *http.Request) (interface{}, error) {
+func decodeGetLabelRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
 	id, ok := vars["id"]
 	if !ok {
 		return nil, errBadRoute
 	}
-	return getBaseDataRequest{ID: string(id)}, nil
+	return getLabelRequest{LabelID: string(id)}, nil
 }
 
-func decodePostBaseDataRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var req postBaseDataRequest
-	if e := json.NewDecoder(r.Body).Decode(&req.BaseData); e != nil {
+func decodePostLabelRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var req postLabelRequest
+	if e := json.NewDecoder(r.Body).Decode(&req.Label); e != nil {
 		return nil, e
 	}
 	return req, nil
 }
 
-func decodeGetAllBaseDataRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	return listBaseDataRequest{}, nil
+func decodeGetAllLabelRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	return listLabelRequest{}, nil
 }
 
-func decodeDeleteMultiBaseDataRequest(_ context.Context, r *http.Request) (interface{}, error) {
+func decodeDeleteMultiLabelRequest(_ context.Context, r *http.Request) (interface{}, error) {
 
-	var req deleteMutliBaseDataRequest
+	var req deleteMutliLabelRequest
 	if e := json.NewDecoder(r.Body).Decode(&req.ListID); e != nil {
 		return nil, e
 	}
 	return req, nil
 }
 
-func decodePutMultiBaseDataRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var req postBaseDataRequest
-	if err := json.NewDecoder(r.Body).Decode(&req.BaseData); err != nil {
+func decodePutMultiLabelRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var req postLabelRequest
+	if err := json.NewDecoder(r.Body).Decode(&req.Label); err != nil {
 		return nil, err
 	}
 	return req, nil

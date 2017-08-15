@@ -1,4 +1,4 @@
-package baseing
+package labeling
 
 import (
 	"context"
@@ -6,21 +6,21 @@ import (
 	"github.com/go-kit/kit/endpoint"
 )
 
-type getBaseDataRequest struct {
-	ID string
+type getLabelRequest struct {
+	LabelID string
 }
 
-type deleteMutliBaseDataRequest struct {
+type deleteMutliLabelRequest struct {
 	ListID []string
 }
 
-type listBaseDataRequest struct{}
+type listLabelRequest struct{}
 
-type postBaseDataRequest struct {
-	BaseData []BaseData
+type postLabelRequest struct {
+	Label []Label
 }
 
-type postBaseDataResponse struct {
+type postLabelResponse struct {
 	//omitempty表示字段值为空，则不输出到json串
 	Status     int      `json:"status"`
 	Content    string   `json:"content"`
@@ -29,47 +29,46 @@ type postBaseDataResponse struct {
 	Err        error    `json:"err,omitempty"`
 }
 
-// baseDataResponse User must equal User type
-type baseDataResponse struct {
-	BaseData []BaseData `json:"content"`
-	Err      error      `json:"error,omitempty"`
+type labelResponse struct {
+	Label []Label `json:"content"`
+	Err   error   `json:"error,omitempty"`
 }
 
-func (r baseDataResponse) error() error { return r.Err }
+func (r labelResponse) error() error { return r.Err }
 
-func (r postBaseDataResponse) error() error { return r.Err }
+func (r postLabelResponse) error() error { return r.Err }
 
-func makeGetBaseDataEndpoint(s Service) endpoint.Endpoint {
+func makeGetLabelEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(getBaseDataRequest)
-		result, err := s.GetBaseData(req.ID)
-		var datas []BaseData
+		req := request.(getLabelRequest)
+		result, err := s.GetLabel(req.LabelID)
+		var datas []Label
 		datas = append(datas, result)
-		return baseDataResponse{BaseData: datas, Err: err}, nil
+		return labelResponse{Label: datas, Err: err}, nil
 	}
 }
 
-func makeGetAllBaseDataEndpoint(s Service) endpoint.Endpoint {
+func makeGetAllLabelEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		_ = request.(listBaseDataRequest)
-		result, err := s.GetAllBaseData()
-		return baseDataResponse{BaseData: result, Err: err}, nil
+		_ = request.(listLabelRequest)
+		result, err := s.GetAllLabel()
+		return labelResponse{Label: result, Err: err}, nil
 	}
 }
 
-func makePostBaseDataEndpoint(s Service) endpoint.Endpoint {
+func makePostLabelEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(postBaseDataRequest)
-		sucessed, failed, err := s.PostBaseData(req.BaseData)
+		req := request.(postLabelRequest)
+		sucessed, failed, err := s.PostLabel(req.Label)
 		if err == nil {
-			return postBaseDataResponse{
+			return postLabelResponse{
 				SucessedID: sucessed,
 				FailedID:   failed,
 				Err:        err,
 				Status:     200,
 				Content:    "add data sucessed"}, nil
 		}
-		return postBaseDataResponse{
+		return postLabelResponse{
 			SucessedID: sucessed,
 			FailedID:   failed,
 			Err:        err,
@@ -78,19 +77,19 @@ func makePostBaseDataEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-func makeDeleteMultiBaseDataEndpoint(s Service) endpoint.Endpoint {
+func makeDeleteMultiLabelEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(deleteMutliBaseDataRequest)
-		sucessed, failed, err := s.DeleteMultiBaseData(req.ListID)
+		req := request.(deleteMutliLabelRequest)
+		sucessed, failed, err := s.DeleteMultiLabel(req.ListID)
 		if err == nil {
-			return postBaseDataResponse{
+			return postLabelResponse{
 				SucessedID: sucessed,
 				FailedID:   failed,
 				Err:        err,
 				Status:     200,
 				Content:    "add data sucessed"}, nil
 		}
-		return postBaseDataResponse{
+		return postLabelResponse{
 			SucessedID: sucessed,
 			FailedID:   failed,
 			Err:        err,
@@ -99,19 +98,19 @@ func makeDeleteMultiBaseDataEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-func makePutMultiBaseDataEndpoint(s Service) endpoint.Endpoint {
+func makePutMultiLabelEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(postBaseDataRequest)
-		sucessed, failed, err := s.PutMultiBaseData(req.BaseData)
+		req := request.(postLabelRequest)
+		sucessed, failed, err := s.PutMultiLabel(req.Label)
 		if err == nil {
-			return postBaseDataResponse{
+			return postLabelResponse{
 				SucessedID: sucessed,
 				FailedID:   failed,
 				Err:        err,
 				Status:     200,
 				Content:    "add data sucessed"}, nil
 		}
-		return postBaseDataResponse{
+		return postLabelResponse{
 			SucessedID: sucessed,
 			FailedID:   failed,
 			Err:        err,
