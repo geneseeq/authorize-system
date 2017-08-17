@@ -1,4 +1,4 @@
-package labeling
+package dataing
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/geneseeq/authorize-system/dataService/data"
+	"github.com/geneseeq/authorize-system/upms/user"
 	kitlog "github.com/go-kit/kit/log"
 	kithttp "github.com/go-kit/kit/transport/http"
 )
@@ -20,87 +20,87 @@ func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
 		kithttp.ServerErrorEncoder(encodeError),
 	}
 
-	getLabelHandler := kithttp.NewServer(
-		makeGetLabelEndpoint(bs),
-		decodeGetLabelRequest,
+	getDataSetHandler := kithttp.NewServer(
+		makeGetSetEndpoint(bs),
+		decodeGetSetRequest,
 		encodeResponse,
 		opts...,
 	)
 
-	addLabelHandler := kithttp.NewServer(
-		makePostLabelEndpoint(bs),
-		decodePostLabelRequest,
+	addDataSetHandler := kithttp.NewServer(
+		makePostSetEndpoint(bs),
+		decodePostSetRequest,
 		encodeResponse,
 		opts...,
 	)
 
-	getAllLabelHandler := kithttp.NewServer(
-		makeGetAllLabelEndpoint(bs),
-		decodeGetAllLabelRequest,
+	getAllDataSetHandler := kithttp.NewServer(
+		makeGetAllSetEndpoint(bs),
+		decodeGetAllSetRequest,
 		encodeResponse,
 		opts...,
 	)
 
-	updateMultiLabelHandler := kithttp.NewServer(
-		makePutMultiLabelEndpoint(bs),
-		decodePutMultiLabelRequest,
+	updateMultiDataSetHandler := kithttp.NewServer(
+		makePutMultiSetEndpoint(bs),
+		decodePutMultiSetRequest,
 		encodeResponse,
 		opts...,
 	)
 
-	deleteMultiLabelHandler := kithttp.NewServer(
-		makeDeleteMultiLabelEndpoint(bs),
-		decodeDeleteMultiLabelRequest,
+	deleteMultiDataSetHandler := kithttp.NewServer(
+		makeDeleteMultiSetEndpoint(bs),
+		decodeDeleteMultiSetRequest,
 		encodeResponse,
 		opts...,
 	)
 
 	r := mux.NewRouter()
 
-	r.Handle("/labeling/v1/label/{id}", getLabelHandler).Methods("GET")
-	r.Handle("/labeling/v1/label", getAllLabelHandler).Methods("GET")
-	r.Handle("/labeling/v1/label", addLabelHandler).Methods("POST")
-	r.Handle("/labeling/v1/label", updateMultiLabelHandler).Methods("PUT")
-	r.Handle("/labeling/v1/label", deleteMultiLabelHandler).Methods("DELETE")
+	r.Handle("/seting/v1/data/{id}", getDataSetHandler).Methods("GET")
+	r.Handle("/seting/v1/data", getAllDataSetHandler).Methods("GET")
+	r.Handle("/seting/v1/data", addDataSetHandler).Methods("POST")
+	r.Handle("/seting/v1/data", updateMultiDataSetHandler).Methods("PUT")
+	r.Handle("/seting/v1/data", deleteMultiDataSetHandler).Methods("DELETE")
 
 	return r
 }
 
 var errBadRoute = errors.New("bad route")
 
-func decodeGetLabelRequest(_ context.Context, r *http.Request) (interface{}, error) {
+func decodeGetSetRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
 	id, ok := vars["id"]
 	if !ok {
 		return nil, errBadRoute
 	}
-	return getLabelRequest{LabelID: string(id)}, nil
+	return getSetRequest{ID: string(id)}, nil
 }
 
-func decodePostLabelRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var req postLabelRequest
-	if e := json.NewDecoder(r.Body).Decode(&req.Label); e != nil {
+func decodePostSetRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var req postSetRequest
+	if e := json.NewDecoder(r.Body).Decode(&req.DataSet); e != nil {
 		return nil, e
 	}
 	return req, nil
 }
 
-func decodeGetAllLabelRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	return listLabelRequest{}, nil
+func decodeGetAllSetRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	return listSetRequest{}, nil
 }
 
-func decodeDeleteMultiLabelRequest(_ context.Context, r *http.Request) (interface{}, error) {
+func decodeDeleteMultiSetRequest(_ context.Context, r *http.Request) (interface{}, error) {
 
-	var req deleteMutliLabelRequest
+	var req deleteMutliSetRequest
 	if e := json.NewDecoder(r.Body).Decode(&req.ListID); e != nil {
 		return nil, e
 	}
 	return req, nil
 }
 
-func decodePutMultiLabelRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var req postLabelRequest
-	if err := json.NewDecoder(r.Body).Decode(&req.Label); err != nil {
+func decodePutMultiSetRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var req postSetRequest
+	if err := json.NewDecoder(r.Body).Decode(&req.DataSet); err != nil {
 		return nil, err
 	}
 	return req, nil
@@ -122,7 +122,7 @@ type errorer interface {
 // encode errors from business-logic
 func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 	switch err {
-	case data.ErrUnknown:
+	case user.ErrUnknown:
 		w.WriteHeader(http.StatusNotFound)
 	case ErrInvalidArgument:
 		w.WriteHeader(http.StatusBadRequest)
