@@ -6,7 +6,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/geneseeq/authorize-system/cms/user"
+	"github.com/geneseeq/authorize-system/upms/user"
 )
 
 // ErrInvalidArgument is returned when one or more arguments are invalid.

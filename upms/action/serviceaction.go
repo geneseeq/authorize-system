@@ -4,7 +4,7 @@ package action
 import (
 	"sync"
 
-	"github.com/geneseeq/authorize-system/cms/user"
+	"github.com/geneseeq/authorize-system/upms/user"
 	"github.com/geneseeq/authorize-system/db"
 	"gopkg.in/mgo.v2/bson"
 )

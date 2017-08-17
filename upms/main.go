@@ -8,7 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/geneseeq/authorize-system/cms/route"
+	"github.com/geneseeq/authorize-system/upms/route"
 	"github.com/go-kit/kit/log"
 )
 
