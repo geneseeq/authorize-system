@@ -31,10 +31,9 @@ func getAddress(mongoCfg DB) (string, error) {
 var session *mgo.Session
 
 func init() {
-	content, _ := ioutil.ReadFile("../conf/conf.yaml")
+	content, _ := ioutil.ReadFile("C:/work/gitlab/authorize-system/conf/conf.yaml")
 	mongoCfg := DB{}
 	err := yaml.Unmarshal(content, &mongoCfg)
-
 	address, err := getAddress(mongoCfg)
 	dialInfo := &mgo.DialInfo{
 		Addrs:     []string{address},
