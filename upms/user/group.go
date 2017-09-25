@@ -2,22 +2,20 @@ package user
 
 import (
 	"time"
-
-	"gopkg.in/mgo.v2/bson"
 )
 
 // GroupModel is group struct
 type GroupModel struct {
-	UnionID      bson.ObjectId `bson:"_id,omitempty"`
-	Parent       string        `bson:"parent"`
-	ID           string        `bson:"id"`
-	Type         int           `bson:"type"`
-	Name         string        `bson:"name"`
-	Code         string        `bson:"code"`
-	Alias        string        `bson:"alias"`
-	Buildin      bool          `bson:"buildin"`
-	CreateUserID string        `bson:"create_user_id"`
-	CreateTime   time.Time     `bson:"create_time"`
+	UnionID      string    `bson:"_id,omitempty"`
+	Parent       string    `bson:"parent"`
+	ID           string    `bson:"id"`
+	Type         int       `bson:"type"`
+	Name         string    `bson:"name"`
+	Code         string    `bson:"code"`
+	Alias        string    `bson:"alias"`
+	Buildin      bool      `bson:"buildin"`
+	CreateUserID string    `bson:"create_user_id"`
+	CreateTime   time.Time `bson:"create_time"`
 }
 
 // NewGroup is create instance
