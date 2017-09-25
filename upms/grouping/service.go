@@ -142,6 +142,7 @@ func (s *service) PutMultiGroup(g []Group) ([]string, error) {
 func groupToGroupmodel(g Group) *user.GroupModel {
 
 	return &user.GroupModel{
+		UnionID:      g.ID,
 		ID:           g.ID,
 		Type:         g.Type,
 		Parent:       g.Parent,

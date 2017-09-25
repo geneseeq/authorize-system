@@ -70,10 +70,10 @@ func main() {
 	defer pool.Release()
 
 	// how many jobs we should wait
-	pool.WaitCount(1000000)
+	pool.WaitCount(len(baseInfos))
 
 	// submit one or more jobs to pool
-	for i := 0; i < len(baseInfos); i++ {
+	for i := 0; i < 100; i++ {
 		count := i
 
 		pool.JobQueue <- func() {
