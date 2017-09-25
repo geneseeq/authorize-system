@@ -6,6 +6,8 @@ import (
 	"errors"
 	"time"
 
+	"gopkg.in/mgo.v2/bson"
+
 	"github.com/geneseeq/authorize-system/upms/user"
 )
 
@@ -142,7 +144,7 @@ func (s *service) PutMultiGroup(g []Group) ([]string, error) {
 func groupToGroupmodel(g Group) *user.GroupModel {
 
 	return &user.GroupModel{
-		UnionID:      g.ID,
+		UnionID:      bson.ObjectIdHex(g.ID),
 		ID:           g.ID,
 		Type:         g.Type,
 		Parent:       g.Parent,
