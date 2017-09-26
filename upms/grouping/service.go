@@ -91,7 +91,7 @@ func (s *service) PostGroup(g []Group) ([]string, []string, error) {
 		}
 		return sucessed, failed, nil
 	}
-	return sucessed, failed, ErrExceededMount
+	return nil, nil, ErrExceededMount
 }
 
 func (s *service) DeleteGroup(id string) error {
@@ -122,16 +122,14 @@ func (s *service) DeleteMultiGroup(listid []string) ([]string, []string, error) 
 		}
 		return sucessed, failed, nil
 	}
-	return sucessed, failed, ErrExceededMount
+	return nil, nil, ErrExceededMount
 }
 
 func (s *service) PutGroup(id string, group Group) error {
-	result, err := s.GetGroup(id)
+	_, err := s.GetGroup(id)
 	if err != nil {
 		return ErrInconsistentIDs
 	}
-	group.CreateTime = result.CreateTime
-	group.UpdateTime = user.TimeUtcToCst(time.Now())
 	err = s.groups.Update(id, groupToGroupmodel(group))
 	return err
 }
@@ -149,7 +147,6 @@ func (s *service) PutMultiGroup(g []Group) ([]string, []string, error) {
 				failed = append(failed, group.ID)
 				continue
 			}
-			group.UpdateTime = user.TimeUtcToCst(time.Now())
 			err = s.groups.Update(group.ID, groupToGroupmodel(group))
 			if err != nil {
 				failed = append(failed, group.ID)
@@ -159,7 +156,7 @@ func (s *service) PutMultiGroup(g []Group) ([]string, []string, error) {
 		}
 		return sucessed, failed, nil
 	}
-	return sucessed, failed, ErrExceededMount
+	return nil, nil, ErrExceededMount
 }
 
 func groupToGroupmodel(g Group) *user.GroupModel {

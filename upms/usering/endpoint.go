@@ -34,6 +34,7 @@ type postUserResponse struct {
 	Status     int      `json:"status"`
 	Content    string   `json:"content"`
 	SucessedID []string `json:"sucessedid,omitempty"`
+	FailedID   []string `json:"failedid,omitempty"`
 	Err        error    `json:"err,omitempty"`
 }
 
@@ -70,11 +71,21 @@ func makeGetAllUserEndpoint(s Service) endpoint.Endpoint {
 func makePostUserEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(postUserRequest)
-		ids, err := s.PostUser(req.User)
+		sucessed, failed, err := s.PostUser(req.User)
 		if err == nil {
-			return postUserResponse{SucessedID: ids, Err: err, Status: 200, Content: "add user sucessed"}, nil
+			return postUserResponse{
+				SucessedID: sucessed,
+				FailedID:   failed,
+				Err:        err,
+				Status:     200,
+				Content:    "add user sucessed"}, nil
 		}
-		return postUserResponse{SucessedID: ids, Err: err, Status: 300, Content: "add user failed"}, nil
+		return postUserResponse{
+			SucessedID: sucessed,
+			FailedID:   failed,
+			Err:        err,
+			Status:     300,
+			Content:    "add user failed"}, nil
 	}
 }
 
@@ -83,21 +94,37 @@ func makeDeleteUserEndpoint(s Service) endpoint.Endpoint {
 		req := request.(deleteUserRequest)
 		err := s.DeleteUser(req.ID)
 		if err == nil {
-			return postUserResponse{Err: err, Status: 200, Content: "delete user sucessed"}, nil
+			return postUserResponse{
+				Err:     err,
+				Status:  200,
+				Content: "delete user sucessed"}, nil
 		}
 
-		return postUserResponse{Err: err, Status: 300, Content: "delete user failed"}, nil
+		return postUserResponse{
+			Err:     err,
+			Status:  300,
+			Content: "delete user failed"}, nil
 	}
 }
 
 func makeDeleteMultiUserEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(deleteMutliUserRequest)
-		ids, err := s.DeleteMultiUser(req.ListID)
+		sucessed, failed, err := s.DeleteMultiUser(req.ListID)
 		if err == nil {
-			return postUserResponse{SucessedID: ids, Err: err, Status: 200, Content: "delete mutli user sucessed"}, nil
+			return postUserResponse{
+				SucessedID: sucessed,
+				FailedID:   failed,
+				Err:        err,
+				Status:     200,
+				Content:    "delete mutli user sucessed"}, nil
 		}
-		return postUserResponse{SucessedID: ids, Err: err, Status: 300, Content: "delete mutli user failed"}, nil
+		return postUserResponse{
+			SucessedID: sucessed,
+			FailedID:   failed,
+			Err:        err,
+			Status:     300,
+			Content:    "delete mutli user failed"}, nil
 	}
 }
 
@@ -106,19 +133,35 @@ func makePutUserEndpoint(s Service) endpoint.Endpoint {
 		req := request.(putUserRequest)
 		err := s.PutUser(req.ID, req.User)
 		if err == nil {
-			return postUserResponse{Err: err, Status: 200, Content: "update user sucessed"}, nil
+			return postUserResponse{
+				Err:     err,
+				Status:  200,
+				Content: "update user sucessed"}, nil
 		}
-		return postUserResponse{Err: err, Status: 300, Content: "update user failed"}, nil
+		return postUserResponse{
+			Err:     err,
+			Status:  300,
+			Content: "update user failed"}, nil
 	}
 }
 
 func makePutMultiUserEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(postUserRequest)
-		ids, err := s.PutMultiUser(req.User)
+		sucessed, failed, err := s.PutMultiUser(req.User)
 		if err == nil {
-			return postUserResponse{SucessedID: ids, Err: err, Status: 200, Content: "update user sucessed"}, nil
+			return postUserResponse{
+				SucessedID: sucessed,
+				FailedID:   failed,
+				Err:        err,
+				Status:     200,
+				Content:    "update user sucessed"}, nil
 		}
-		return postUserResponse{SucessedID: ids, Err: err, Status: 300, Content: "update user failed"}, nil
+		return postUserResponse{
+			SucessedID: sucessed,
+			FailedID:   failed,
+			Err:        err,
+			Status:     300,
+			Content:    "update user failed"}, nil
 	}
 }

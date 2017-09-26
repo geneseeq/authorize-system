@@ -11,19 +11,21 @@ import (
 
 // UserModel is user struct
 type UserModel struct {
-	ID           string
-	Type         int
-	Number       string
-	Username     string
-	Tele         string
-	Gneder       bool
-	Status       int
-	Validity     bool
-	Vip          bool
-	Buildin      bool
-	CreateUserID string
-	CreateTime   time.Time
-	Avatar       string
+	UnionID      string    `bson:"_id"` //唯一ID
+	ID           string    `bson:"id"`
+	Type         int       `bson:"type"`
+	Number       string    `bson:"number"`
+	Username     string    `bson:"username"`
+	Tele         string    `bson:"tele"`
+	Gneder       bool      `bson:"gender"`
+	Status       int       `bson:"status"`
+	Validity     bool      `bson:"validity"`
+	Vip          bool      `bson:"vip"`
+	Buildin      bool      `bson:"buildin"`
+	CreateUserID string    `bson:"create_user_id"`
+	CreateTime   time.Time `bson:"create_time"`
+	UpdateTime   time.Time `bson:"update_time"`
+	Avatar       string    `bson:"avatar"`
 }
 
 // NewUser is create instance

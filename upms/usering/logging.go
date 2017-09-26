@@ -16,7 +16,7 @@ func NewLoggingService(logger log.Logger, s Service) Service {
 	return &loggingService{logger, s}
 }
 
-func (s *loggingService) PostUser(user []User) (ids []string, err error) {
+func (s *loggingService) PostUser(user []User) (sucessed []string, failed []string, err error) {
 	defer func(begin time.Time) {
 		s.logger.Log(
 			"method", "user",
@@ -61,7 +61,7 @@ func (s *loggingService) PutUser(id string, user User) (err error) {
 	return s.Service.PutUser(id, user)
 }
 
-func (s *loggingService) PutMultiUser(user []User) (ids []string, err error) {
+func (s *loggingService) PutMultiUser(user []User) (sucessed []string, failed []string, err error) {
 	defer func(begin time.Time) {
 		s.logger.Log(
 			"method", "assign_to_route",
@@ -83,7 +83,7 @@ func (s *loggingService) DeleteUser(id string) (err error) {
 	return s.Service.DeleteUser(id)
 }
 
-func (s *loggingService) DeleteMultiUser(listid []string) (ids []string, err error) {
+func (s *loggingService) DeleteMultiUser(listid []string) (sucessed []string, failed []string, err error) {
 	defer func(begin time.Time) {
 		s.logger.Log(
 			"method", "change_destination",
