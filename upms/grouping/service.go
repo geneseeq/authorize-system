@@ -15,17 +15,19 @@ var (
 	ErrInconsistentIDs = errors.New("inconsistent IDs")
 	ErrAlreadyExists   = errors.New("already exists")
 	ErrNotFound        = errors.New("not found")
+	ErrExceededMount   = errors.New("exceeded max mount")
+	LimitMaxSum        = 50
 )
 
 // Service is the interface that provides booking methods.
 type Service interface {
 	GetGroup(id string) (Group, error)
 	GetAllGroup() ([]Group, error)
-	PostGroup(group []Group) ([]string, error)
+	PostGroup(group []Group) ([]string, []string, error)
 	DeleteGroup(id string) error
-	DeleteMultiGroup(listid []string) ([]string, error)
+	DeleteMultiGroup(listid []string) ([]string, []string, error)
 	PutGroup(id string, group Group) error
-	PutMultiGroup(group []Group) ([]string, error)
+	PutMultiGroup(group []Group) ([]string, []string, error)
 }
 
 // Group is a user base info
@@ -72,20 +74,24 @@ func (s *service) GetAllGroup() ([]Group, error) {
 	return result, nil
 }
 
-func (s *service) PostGroup(g []Group) ([]string, error) {
-	var ids []string
-	for _, group := range g {
-		curTime := user.TimeUtcToCst(time.Now())
-		group.CreateTime = curTime
-		group.UpdateTime = curTime
-		err := s.groups.Store(groupToGroupmodel(group))
-		if err != nil {
-			return ids, err
-		} else {
-			ids = append(ids, group.ID)
+func (s *service) PostGroup(g []Group) ([]string, []string, error) {
+	var sucessed []string
+	var failed []string
+	if len(g) < LimitMaxSum {
+		for _, group := range g {
+			curTime := user.TimeUtcToCst(time.Now())
+			group.CreateTime = curTime
+			group.UpdateTime = curTime
+			err := s.groups.Store(groupToGroupmodel(group))
+			if err != nil {
+				failed = append(failed, group.ID)
+				continue
+			}
+			sucessed = append(sucessed, group.ID)
 		}
+		return sucessed, failed, nil
 	}
-	return ids, nil
+	return sucessed, failed, ErrExceededMount
 }
 
 func (s *service) DeleteGroup(id string) error {
@@ -99,52 +105,64 @@ func (s *service) DeleteGroup(id string) error {
 	return nil
 }
 
-func (s *service) DeleteMultiGroup(listid []string) ([]string, error) {
-	var ids []string
-	if len(listid) == 0 {
-		return ids, ErrInvalidArgument
-	}
-	for _, id := range listid {
-		error := s.groups.Remove(id)
-		if error != nil {
-			return ids, ErrNotFound
+func (s *service) DeleteMultiGroup(listid []string) ([]string, []string, error) {
+	var sucessed []string
+	var failed []string
+	if len(listid) < LimitMaxSum {
+		for _, id := range listid {
+			if id == "" {
+				return nil, nil, ErrInvalidArgument
+			}
+			error := s.groups.Remove(id)
+			if error != nil {
+				failed = append(failed, id)
+				continue
+			}
+			sucessed = append(sucessed, id)
 		}
-		ids = append(ids, id)
+		return sucessed, failed, nil
 	}
-	return ids, nil
+	return sucessed, failed, ErrExceededMount
 }
 
 func (s *service) PutGroup(id string, group Group) error {
-	_, err := s.GetGroup(id)
+	result, err := s.GetGroup(id)
 	if err != nil {
 		return ErrInconsistentIDs
 	}
+	group.CreateTime = result.CreateTime
 	group.UpdateTime = user.TimeUtcToCst(time.Now())
 	err = s.groups.Update(id, groupToGroupmodel(group))
 	return err
 }
 
-func (s *service) PutMultiGroup(g []Group) ([]string, error) {
-	var ids []string
-	for _, group := range g {
-		if len(group.ID) == 0 {
-			return ids, ErrInvalidArgument
+func (s *service) PutMultiGroup(g []Group) ([]string, []string, error) {
+	var sucessed []string
+	var failed []string
+	if len(g) < LimitMaxSum {
+		for _, group := range g {
+			if len(group.ID) == 0 {
+				return nil, nil, ErrInvalidArgument
+			}
+			_, err := s.GetGroup(group.ID)
+			if err != nil {
+				failed = append(failed, group.ID)
+				continue
+			}
+			group.UpdateTime = user.TimeUtcToCst(time.Now())
+			err = s.groups.Update(group.ID, groupToGroupmodel(group))
+			if err != nil {
+				failed = append(failed, group.ID)
+				continue
+			}
+			sucessed = append(sucessed, group.ID)
 		}
-		_, err := s.GetGroup(group.ID)
-		if err != nil {
-			return ids, ErrInconsistentIDs
-		}
-		err = s.groups.Update(group.ID, groupToGroupmodel(group))
-		if err != nil {
-			return ids, err
-		}
-		ids = append(ids, group.ID)
+		return sucessed, failed, nil
 	}
-	return ids, nil
+	return sucessed, failed, ErrExceededMount
 }
 
 func groupToGroupmodel(g Group) *user.GroupModel {
-
 	return &user.GroupModel{
 		UnionID:      g.ID,
 		ID:           g.ID,
@@ -156,7 +174,7 @@ func groupToGroupmodel(g Group) *user.GroupModel {
 		Buildin:      g.Buildin,
 		CreateUserID: g.CreateUserID,
 		CreateTime:   g.CreateTime,
-		UpdateTime:   g.UpdateTime
+		UpdateTime:   g.UpdateTime,
 	}
 }
 
@@ -171,6 +189,6 @@ func groupmodelToGroup(g *user.GroupModel) Group {
 		Buildin:      g.Buildin,
 		CreateUserID: g.CreateUserID,
 		CreateTime:   g.CreateTime,
-		UpdateTime:   g.UpdateTime
+		UpdateTime:   g.UpdateTime,
 	}
 }

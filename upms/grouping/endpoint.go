@@ -40,6 +40,7 @@ type postGroupResponse struct {
 	Status     int      `json:"status"`
 	Content    string   `json:"content"`
 	SucessedId []string `json:"sucessedid,omitempty"`
+	FailedID   []string `json:"failedid,omitempty"`
 	Err        error    `json:"err,omitempty"`
 }
 
@@ -68,11 +69,21 @@ func makeGetAllGroupEndpoint(s Service) endpoint.Endpoint {
 func makePostGroupEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(postGroupRequest)
-		ids, err := s.PostGroup(req.Group)
+		sucessed, failed, err := s.PostGroup(req.Group)
 		if err == nil {
-			return postGroupResponse{SucessedId: ids, Err: err, Status: 200, Content: "add user sucessed"}, nil
+			return postGroupResponse{
+				SucessedId: sucessed,
+				FailedID:   failed,
+				Err:        err,
+				Status:     200,
+				Content:    "add group sucessed"}, nil
 		}
-		return postGroupResponse{SucessedId: ids, Err: err, Status: 300, Content: "add user failed"}, nil
+		return postGroupResponse{
+			SucessedId: sucessed,
+			FailedID:   failed,
+			Err:        err,
+			Status:     300,
+			Content:    "add group failed"}, nil
 	}
 }
 
@@ -81,20 +92,36 @@ func makeDeleteGroupEndpoint(s Service) endpoint.Endpoint {
 		req := request.(deleteGroupRequest)
 		err := s.DeleteGroup(req.ID)
 		if err == nil {
-			return postGroupResponse{Err: err, Status: 200, Content: "delete user sucessed"}, nil
+			return postGroupResponse{
+				Err:     err,
+				Status:  200,
+				Content: "delete group sucessed"}, nil
 		}
-		return postGroupResponse{Err: err, Status: 300, Content: "delete user failed"}, nil
+		return postGroupResponse{
+			Err:     err,
+			Status:  300,
+			Content: "delete group failed"}, nil
 	}
 }
 
 func makeDeleteMultiGroupEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(deleteMutliGroupRequest)
-		ids, err := s.DeleteMultiGroup(req.ListID)
+		sucessed, failed, err := s.DeleteMultiGroup(req.ListID)
 		if err == nil {
-			return postGroupResponse{SucessedId: ids, Err: err, Status: 200, Content: "delete mutli user sucessed"}, nil
+			return postGroupResponse{
+				SucessedId: sucessed,
+				FailedID:   failed,
+				Err:        err,
+				Status:     200,
+				Content:    "delete mutli group sucessed"}, nil
 		}
-		return postGroupResponse{SucessedId: ids, Err: err, Status: 300, Content: "delete mutli user failed"}, nil
+		return postGroupResponse{
+			SucessedId: sucessed,
+			FailedID:   failed,
+			Err:        err,
+			Status:     300,
+			Content:    "delete mutli group failed"}, nil
 	}
 }
 
@@ -103,19 +130,29 @@ func makePutGroupEndpoint(s Service) endpoint.Endpoint {
 		req := request.(putGroupRequest)
 		err := s.PutGroup(req.ID, req.Group)
 		if err == nil {
-			return postGroupResponse{Err: err, Status: 200, Content: "update user sucessed"}, nil
+			return postGroupResponse{Err: err, Status: 200, Content: "update group sucessed"}, nil
 		}
-		return postGroupResponse{Err: err, Status: 300, Content: "update user failed"}, nil
+		return postGroupResponse{Err: err, Status: 300, Content: "update group failed"}, nil
 	}
 }
 
 func makePutMultiGroupEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(postGroupRequest)
-		ids, err := s.PutMultiGroup(req.Group)
+		sucessed, failed, err := s.PutMultiGroup(req.Group)
 		if err == nil {
-			return postGroupResponse{SucessedId: ids, Err: err, Status: 200, Content: "update user sucessed"}, nil
+			return postGroupResponse{
+				SucessedId: sucessed,
+				FailedID:   failed,
+				Err:        err,
+				Status:     200,
+				Content:    "update group sucessed"}, nil
 		}
-		return postGroupResponse{SucessedId: ids, Err: err, Status: 300, Content: "update user failed"}, nil
+		return postGroupResponse{
+			SucessedId: sucessed,
+			FailedID:   failed,
+			Err:        err,
+			Status:     300,
+			Content:    "update group failed"}, nil
 	}
 }

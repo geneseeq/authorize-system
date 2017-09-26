@@ -39,7 +39,7 @@ func (s *instrumentingService) GetAllGroup() ([]Group, error) {
 	return s.Service.GetAllGroup()
 }
 
-func (s *instrumentingService) PostGroup(group []Group) ([]string, error) {
+func (s *instrumentingService) PostGroup(group []Group) ([]string, []string, error) {
 	defer func(begin time.Time) {
 		s.requestCount.With("method", "book").Add(1)
 		s.requestLatency.With("method", "book").Observe(time.Since(begin).Seconds())
@@ -57,7 +57,7 @@ func (s *instrumentingService) DeleteGroup(id string) (err error) {
 	return s.Service.DeleteGroup(id)
 }
 
-func (s *instrumentingService) DeleteMultiGroup(listid []string) (ids []string, err error) {
+func (s *instrumentingService) DeleteMultiGroup(listid []string) (sucessed []string, failed []string, err error) {
 	defer func(begin time.Time) {
 		s.requestCount.With("method", "change_destination").Add(1)
 		s.requestLatency.With("method", "change_destination").Observe(time.Since(begin).Seconds())
@@ -75,7 +75,7 @@ func (s *instrumentingService) PutGroup(id string, group Group) (err error) {
 	return s.Service.PutGroup(id, group)
 }
 
-func (s *instrumentingService) PutMultiGroup(group []Group) (ids []string, err error) {
+func (s *instrumentingService) PutMultiGroup(group []Group) (sucessed []string, failed []string, err error) {
 	defer func(begin time.Time) {
 		s.requestCount.With("method", "assign_to_route").Add(1)
 		s.requestLatency.With("method", "assign_to_route").Observe(time.Since(begin).Seconds())

@@ -38,7 +38,7 @@ func (s *loggingService) GetAllGroup() ([]Group, error) {
 	return s.Service.GetAllGroup()
 }
 
-func (s *loggingService) PostGroup(group []Group) (ids []string, err error) {
+func (s *loggingService) PostGroup(group []Group) (sucessed []string, failed []string, err error) {
 	defer func(begin time.Time) {
 		s.logger.Log(
 			"method", "group",
@@ -60,7 +60,7 @@ func (s *loggingService) DeleteGroup(id string) (err error) {
 	return s.Service.DeleteGroup(id)
 }
 
-func (s *loggingService) DeleteMultiGroup(listid []string) (ids []string, err error) {
+func (s *loggingService) DeleteMultiGroup(listid []string) (sucessed []string, failed []string, err error) {
 	defer func(begin time.Time) {
 		s.logger.Log(
 			"method", "change_destination",
@@ -83,7 +83,7 @@ func (s *loggingService) PutGroup(id string, group Group) (err error) {
 	return s.Service.PutGroup(id, group)
 }
 
-func (s *loggingService) PutMultiGroup(group []Group) (ids []string, err error) {
+func (s *loggingService) PutMultiGroup(group []Group) (sucessed []string, failed []string, err error) {
 	defer func(begin time.Time) {
 		s.logger.Log(
 			"method", "assign_to_route",
