@@ -13,7 +13,7 @@ import (
 	kithttp "github.com/go-kit/kit/transport/http"
 )
 
-// MakeHandler returns a handler for the booking service.
+// MakeHandler returns a handler for the grouping service.
 func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
 	opts := []kithttp.ServerOption{
 		kithttp.ServerErrorLogger(logger),

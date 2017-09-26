@@ -6,7 +6,7 @@ import (
 
 // GroupModel is group struct
 type GroupModel struct {
-	UnionID      string    `bson:"_id,omitempty"`
+	UnionID      string    `bson:"_id"` //唯一ID
 	Parent       string    `bson:"parent"`
 	ID           string    `bson:"id"`
 	Type         int       `bson:"type"`
@@ -16,6 +16,7 @@ type GroupModel struct {
 	Buildin      bool      `bson:"buildin"`
 	CreateUserID string    `bson:"create_user_id"`
 	CreateTime   time.Time `bson:"create_time"`
+	UpdateTime   time.Time `bson:"update_time"`
 }
 
 // NewGroup is create instance
