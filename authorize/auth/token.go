@@ -14,13 +14,15 @@ import (
 
 // TokenModel is user struct
 type TokenModel struct {
-	ID           string
-	AccessToken  string
-	Validity     string
-	TokenType    string
-	ExpiresIn    int
-	RefreshToken string
-	UpdateTime   time.Time
+	UnionID      string    `bson:"_id"`
+	ID           string    `bson:"id"`
+	AccessToken  string    `bson:"access_token"`
+	Validity     bool      `bson:"validity"`
+	TokenType    string    `bson:"token_type"`
+	ExpiresIn    int       `bson:"expires_in"`
+	RefreshToken string    `bson:"refresh_token"`
+	UpdateTime   time.Time `bson:"update_time"`
+	CreateTime   time.Time `bson:"create_time"`
 }
 
 // NewToken is create instance

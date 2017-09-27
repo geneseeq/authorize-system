@@ -67,14 +67,14 @@ func makePostTokenEndpoint(s Service) endpoint.Endpoint {
 				FailedID:   failed,
 				Err:        err,
 				Status:     200,
-				Content:    "add data sucessed"}, nil
+				Content:    "add token sucessed"}, nil
 		}
 		return postTokenResponse{
 			SucessedID: sucessed,
 			FailedID:   failed,
 			Err:        err,
 			Status:     300,
-			Content:    "add user failed"}, nil
+			Content:    "add token failed"}, nil
 	}
 }
 
@@ -88,14 +88,14 @@ func makeDeleteMultiTokenEndpoint(s Service) endpoint.Endpoint {
 				FailedID:   failed,
 				Err:        err,
 				Status:     200,
-				Content:    "add data sucessed"}, nil
+				Content:    "add token sucessed"}, nil
 		}
 		return postTokenResponse{
 			SucessedID: sucessed,
 			FailedID:   failed,
 			Err:        err,
 			Status:     300,
-			Content:    "add user failed"}, nil
+			Content:    "add token failed"}, nil
 	}
 }
 
@@ -109,13 +109,13 @@ func makePutMultiTokenEndpoint(s Service) endpoint.Endpoint {
 				FailedID:   failed,
 				Err:        err,
 				Status:     200,
-				Content:    "add data sucessed"}, nil
+				Content:    "add token sucessed"}, nil
 		}
 		return postTokenResponse{
 			SucessedID: sucessed,
 			FailedID:   failed,
 			Err:        err,
 			Status:     300,
-			Content:    "add user failed"}, nil
+			Content:    "add token failed"}, nil
 	}
 }

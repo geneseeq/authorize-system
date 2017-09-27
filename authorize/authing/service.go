@@ -37,6 +37,7 @@ type Token struct {
 	ExpiresIn    int       `json:"expires_in"`
 	RefreshToken string    `json:"refresh_token"`
 	UpdateTime   time.Time `json:"update_time"`
+	CreateTime   time.Time `json:"create_time"`
 }
 
 type service struct {
@@ -55,7 +56,9 @@ func (s *service) PostToken(d []Token) ([]string, []string, error) {
 	var failed []string
 	if len(d) < LimitMaxSum {
 		for _, content := range d {
-			content.UpdateTime = auth.TimeUtcToCst(time.Now())
+			currentTime := auth.TimeUtcToCst(time.Now())
+			content.UpdateTime = currentTime
+			content.CreateTime = currentTime
 			err := s.tokens.Store(tokenToTokenModel(content))
 			if err != nil {
 				failed = append(failed, content.ID)
@@ -135,6 +138,7 @@ func (s *service) DeleteMultiToken(listid []string) ([]string, []string, error) 
 func tokenToTokenModel(d Token) *auth.TokenModel {
 
 	return &auth.TokenModel{
+		UnionID:      d.ID,
 		ID:           d.ID,
 		AccessToken:  d.AccessToken,
 		Validity:     d.Validity,
@@ -142,6 +146,7 @@ func tokenToTokenModel(d Token) *auth.TokenModel {
 		ExpiresIn:    d.ExpiresIn,
 		RefreshToken: d.RefreshToken,
 		UpdateTime:   d.UpdateTime,
+		CreateTime:   d.CreateTime,
 	}
 }
 
@@ -154,5 +159,6 @@ func tokenModellToToken(d *auth.TokenModel) Token {
 		ExpiresIn:    d.ExpiresIn,
 		RefreshToken: d.RefreshToken,
 		UpdateTime:   d.UpdateTime,
+		CreateTime:   d.CreateTime,
 	}
 }
