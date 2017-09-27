@@ -2,6 +2,7 @@ package action
 
 import (
 	"sync"
+	"time"
 
 	"github.com/geneseeq/authorize-system/dataService/data"
 	"github.com/geneseeq/authorize-system/db"
@@ -21,7 +22,7 @@ func (r *labelDBRepository) Find(id string) (*data.LabelModel, error) {
 	defer ds.Close()
 	con := ds.GetConnect(r.db, r.collection)
 	result := data.LabelModel{}
-	err := con.Find(bson.M{"labelid": id}).One(&result)
+	err := con.Find(bson.M{"label_id": id}).One(&result)
 	if err != nil {
 		return nil, data.ErrUnknown
 	}
@@ -55,7 +56,7 @@ func (r *labelDBRepository) Remove(id string) error {
 	ds := db.NewSessionStore()
 	defer ds.Close()
 	con := ds.GetConnect(r.db, r.collection)
-	err := con.Remove(bson.M{"labelid": id})
+	err := con.Remove(bson.M{"label_id": id})
 	if err != nil {
 		return data.ErrUnknown
 	}
@@ -79,6 +80,13 @@ func appendListID(destListid []string, srcListID []string) []string {
 	}
 	return srcListID
 }
+func newLabelModel(new *data.LabelModel, result data.LabelModel) data.LabelModel {
+	result.SampleID = appendListID(new.SampleID, result.SampleID)
+	result.OrderID = appendListID(new.OrderID, result.OrderID)
+	result.MedicalID = appendListID(new.MedicalID, result.MedicalID)
+	result.UpdateTime = data.TimeUtcToCst(time.Now())
+	return result
+}
 
 func (r *labelDBRepository) Update(id string, d *data.LabelModel) error {
 	r.mtx.Lock()
@@ -87,13 +95,12 @@ func (r *labelDBRepository) Update(id string, d *data.LabelModel) error {
 	defer ds.Close()
 	con := ds.GetConnect(r.db, r.collection)
 	result := data.LabelModel{}
-	err := con.Find(bson.M{"labelid": id}).One(&result)
+	err := con.Find(bson.M{"label_id": id}).One(&result)
 	if err != nil {
 		return data.ErrUnknown
 	}
-	result.SampleID = appendListID(d.SampleID, result.SampleID)
-	result.OrderID = appendListID(d.OrderID, result.OrderID)
-	err = con.Update(bson.M{"labelid": id}, result)
+	result = newLabelModel(d, result)
+	err = con.Update(bson.M{"label_id": id}, result)
 	return err
 }
 

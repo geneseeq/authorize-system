@@ -34,6 +34,8 @@ type Label struct {
 	SampleID   []string  `json:"sample_id"`
 	OrderID    []string  `json:"order_id"`
 	UpdateTime time.Time `json:"update_time"`
+	CreateTime time.Time `json:"create_time"`
+	MedicalID  []string  `json:"medical_id"`
 }
 
 type service struct {
@@ -52,7 +54,9 @@ func (s *service) PostLabel(d []Label) ([]string, []string, error) {
 	var failed []string
 	if len(d) < LimitMaxSum {
 		for _, content := range d {
-			content.UpdateTime = data.TimeUtcToCst(time.Now())
+			curTime := data.TimeUtcToCst(time.Now())
+			content.CreateTime = curTime
+			content.UpdateTime = curTime
 			err := s.labels.Store(labelToLabelModel(content))
 			if err != nil {
 				failed = append(failed, content.LabelID)
@@ -90,7 +94,8 @@ func (s *service) PutMultiLabel(d []Label) ([]string, []string, error) {
 	if len(d) < LimitMaxSum {
 		for _, data := range d {
 			if len(data.LabelID) == 0 {
-				return nil, nil, ErrInvalidArgument
+				failed = append(failed, data.LabelID)
+				continue
 			}
 			_, err := s.GetLabel(data.LabelID)
 			if err != nil {
@@ -132,10 +137,13 @@ func (s *service) DeleteMultiLabel(listid []string) ([]string, []string, error) 
 func labelToLabelModel(d Label) *data.LabelModel {
 
 	return &data.LabelModel{
+		UnionID:    d.LabelID,
 		SampleID:   d.SampleID,
 		OrderID:    d.OrderID,
 		LabelID:    d.LabelID,
+		MedicalID:  d.MedicalID,
 		UpdateTime: d.UpdateTime,
+		CreateTime: d.CreateTime,
 	}
 }
 
@@ -145,5 +153,7 @@ func labelModellToLabel(d *data.LabelModel) Label {
 		OrderID:    d.OrderID,
 		LabelID:    d.LabelID,
 		UpdateTime: d.UpdateTime,
+		CreateTime: d.CreateTime,
+		MedicalID:  d.MedicalID,
 	}
 }

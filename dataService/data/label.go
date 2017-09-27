@@ -7,10 +7,13 @@ import (
 
 // LabelModel is user struct
 type LabelModel struct {
-	LabelID    string
-	SampleID   []string
-	OrderID    []string
-	UpdateTime time.Time
+	UnionID    string    `bson:"_id"` //唯一ID
+	LabelID    string    `bson:"label_id"`
+	SampleID   []string  `bson:"sample_id"`
+	OrderID    []string  `bson:"order_id"`
+	MedicalID  []string  `bson:"medical_id"`
+	CreateTime time.Time `bson:"create_time"`
+	UpdateTime time.Time `bson:"update_time"`
 }
 
 // NewLabelData is create instance

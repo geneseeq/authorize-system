@@ -90,7 +90,7 @@ func (r *fieldDBRepository) Update(id string, d *data.FieldModel) error {
 		return data.ErrUnknown
 	}
 	result = newBaseLabelModel(d, result)
-	err = con.Update(bson.M{"id": id}, result)
+	err = con.Update(bson.M{"id": id}, bson.M{"$set": result})
 	return err
 }
 
