@@ -203,25 +203,25 @@
 
 针对角色的CURD,涉及的表role_infos结构
 
-{
-        "_id" : "test1",
-        "id" : "test1",
-        "rule" : "",
-        "name" : "",
-        "match_field" : [
-                {
-                        "data_type" : 0,
-                        "src_field" : [ ],
-                        "dest_field" : ""
-                }
-        ],
-        "type" : "",
-        "validity" : false,
-        "buildin" : false,
-        "create_user_id" : "",
-        "create_time" : ISODate("2017-09-27T13:44:52.611Z"),
-        "update_time" : ISODate("2017-09-27T13:44:52.611Z")
-}
+	{
+			"_id" : "test1",
+			"id" : "test1",
+			"rule" : "",
+			"name" : "",
+			"match_field" : [
+					{
+							"data_type" : 0,
+							"src_field" : [ ],
+							"dest_field" : ""
+					}
+			],
+			"type" : "",
+			"validity" : false,
+			"buildin" : false,
+			"create_user_id" : "",
+			"create_time" : ISODate("2017-09-27T13:44:52.611Z"),
+			"update_time" : ISODate("2017-09-27T13:44:52.611Z")
+	}
 
 
 ## 新增数据集
@@ -241,3 +241,43 @@
 * /seting/v1/data
 
 * /seting/v1/data/<data_id>
+
+
+# 数据集服务
+
+针对角色的CURD,涉及的表role_infos结构
+
+        {
+            "id":"服务id",
+            "parent":"父服务",
+            "depend":["服务id01","服务id02"]
+            "name":"服务名称",
+            "level":"服务级别（公司内部服务，公司外部服务）",
+            "path":"服务访问路径",
+            "register_time":"注册时间",
+            "validity":"是否有效",
+            "buildin":"内建",
+            "owner":["user_type(医生/教师/个人/员工/企业)"],
+            "create_user_id":"创建人ID",
+            "create_time":"创建时间",
+            "status":"状态"
+        }
+
+
+## 新增数据集
+
+* /servicing/v1/service
+
+## 更新数据集
+
+* /servicing/v1/service
+
+## 删除数据集
+
+* /servicing/v1/service
+
+## 查找数据集
+
+* /servicing/v1/service
+
+* /servicing/v1/service/<service_id>

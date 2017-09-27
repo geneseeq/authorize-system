@@ -61,7 +61,9 @@ func (s *service) PostService(u []Services) ([]string, []string, error) {
 	var failed []string
 	if len(u) < LimitMaxSum {
 		for _, data := range u {
-			data.CreateTime = user.TimeUtcToCst(time.Now())
+			curTime := user.TimeUtcToCst(time.Now())
+			data.CreateTime = curTime
+			data.RegisterTime = curTime
 			err := s.services.Store(serviceToServiceModel(data))
 			if err != nil {
 				failed = append(failed, data.ID)
@@ -133,12 +135,13 @@ func (s *service) DeleteMultiService(listid []string) ([]string, []string, error
 		}
 		return sucessed, failed, nil
 	}
-	return sucessed, failed, ErrExceededMount
+	return nil, nil, ErrExceededMount
 }
 
 func serviceToServiceModel(s Services) *user.ServicesModel {
 
 	return &user.ServicesModel{
+		UnionID:      s.ID,
 		ID:           s.ID,
 		Parent:       s.Parent,
 		Buildin:      s.Buildin,

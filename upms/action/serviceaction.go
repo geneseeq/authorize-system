@@ -3,9 +3,10 @@ package action
 
 import (
 	"sync"
+	"time"
 
-	"github.com/geneseeq/authorize-system/upms/user"
 	"github.com/geneseeq/authorize-system/db"
+	"github.com/geneseeq/authorize-system/upms/user"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -63,13 +64,63 @@ func (r *serviceDBRepository) Remove(id string) error {
 	return nil
 }
 
+func newServicesModel(new *user.ServicesModel, result user.ServicesModel) user.ServicesModel {
+	if new.Parent != "" {
+		result.Parent = new.Parent
+	}
+
+	if len(new.Depend) != 0 {
+		result.Depend = new.Depend
+	}
+
+	if len(new.Owner) != 0 {
+		result.Owner = new.Owner
+	}
+
+	if new.Name != "" {
+		result.Name = new.Name
+	}
+
+	if new.Level != "" {
+		result.Level = new.Level
+	}
+
+	if new.Path != "" {
+		result.Path = new.Path
+	}
+
+	if new.Status != "" {
+		result.Status = new.Status
+	}
+
+	if new.Validity != false {
+		result.Validity = new.Validity
+	}
+
+	if new.Buildin != false {
+		result.Buildin = new.Buildin
+	}
+
+	if new.CreateUserID != "" {
+		result.CreateUserID = new.CreateUserID
+	}
+	result.RegisterTime = user.TimeUtcToCst(time.Now())
+	return result
+}
+
 func (r *serviceDBRepository) Update(id string, s *user.ServicesModel) error {
 	r.mtx.Lock()
 	defer r.mtx.Unlock()
 	ds := db.NewSessionStore()
 	defer ds.Close()
 	con := ds.GetConnect(r.db, r.collection)
-	err := con.Update(bson.M{"id": id}, s)
+	result := user.ServicesModel{}
+	err := con.Find(bson.M{"id": id}).One(&result)
+	if err != nil {
+		return user.ErrUnknown
+	}
+	result = newServicesModel(s, result)
+	err = con.Update(bson.M{"id": id}, bson.M{"$set": result})
 	return err
 }
 
