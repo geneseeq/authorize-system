@@ -39,6 +39,7 @@ type DataSet struct {
 	Buildin      bool              `json:"buildin"`
 	CreateUserID string            `json:"create_user_id"`
 	CreateTime   time.Time         `json:"create_time"`
+	UpdateTime   time.Time         `json:"update_time"`
 }
 
 type service struct {
@@ -57,7 +58,9 @@ func (s *service) PostDataSet(set []DataSet) ([]string, []string, error) {
 	var failedID []string
 	if len(set) < LimitMaxSum {
 		for _, data := range set {
-			data.CreateTime = user.TimeUtcToCst(time.Now())
+			curTime := user.TimeUtcToCst(time.Now())
+			data.CreateTime = curTime
+			data.UpdateTime = curTime
 			err := s.sets.Store(setToSetModel(data))
 			if err != nil {
 				failedID = append(failedID, data.ID)
@@ -112,7 +115,7 @@ func (s *service) PutMultiDataSet(set []DataSet) ([]string, []string, error) {
 		}
 		return sucessedID, failedID, nil
 	}
-	return sucessedID, failedID, ErrExceededMount
+	return nil, nil, ErrExceededMount
 }
 
 func (s *service) DeleteMultiDataSet(listid []string) ([]string, []string, error) {
@@ -135,6 +138,7 @@ func (s *service) DeleteMultiDataSet(listid []string) ([]string, []string, error
 func setToSetModel(s DataSet) *user.DataSetModel {
 
 	return &user.DataSetModel{
+		UnionID:      s.ID,
 		ID:           s.ID,
 		Rule:         s.Rule,
 		Name:         s.Name,
@@ -144,6 +148,7 @@ func setToSetModel(s DataSet) *user.DataSetModel {
 		Buildin:      s.Buildin,
 		CreateUserID: s.CreateUserID,
 		CreateTime:   s.CreateTime,
+		UpdateTime:   s.UpdateTime,
 	}
 }
 
@@ -158,5 +163,6 @@ func setModelToSet(s *user.DataSetModel) DataSet {
 		Buildin:      s.Buildin,
 		CreateUserID: s.CreateUserID,
 		CreateTime:   s.CreateTime,
+		UpdateTime:   s.UpdateTime,
 	}
 }

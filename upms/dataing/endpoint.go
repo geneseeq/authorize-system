@@ -18,11 +18,6 @@ type deleteMutliSetRequest struct {
 	ListID []string
 }
 
-// type putUserRequest struct {
-// 	ID   string
-// 	User User
-// }
-
 type listSetRequest struct{}
 
 type postSetRequest struct {
@@ -75,14 +70,14 @@ func makePostSetEndpoint(s Service) endpoint.Endpoint {
 				FailedID:   failedID,
 				Err:        err,
 				Status:     200,
-				Content:    "add user sucessed"}, nil
+				Content:    "add data set sucessed"}, nil
 		}
 		return postSetResponse{
 			SucessedID: sucessedID,
 			FailedID:   failedID,
 			Err:        err,
 			Status:     300,
-			Content:    "add user failed"}, nil
+			Content:    "add data set failed"}, nil
 	}
 }
 
@@ -96,14 +91,14 @@ func makeDeleteMultiSetEndpoint(s Service) endpoint.Endpoint {
 				FailedID:   failedID,
 				Err:        err,
 				Status:     200,
-				Content:    "delete dataset sucessed"}, nil
+				Content:    "delete data set sucessed"}, nil
 		}
 		return postSetResponse{
 			SucessedID: sucessedID,
 			FailedID:   failedID,
 			Err:        err,
 			Status:     300,
-			Content:    "delete dataset failed"}, nil
+			Content:    "delete data set failed"}, nil
 	}
 }
 
@@ -117,13 +112,13 @@ func makePutMultiSetEndpoint(s Service) endpoint.Endpoint {
 				FailedID:   failedID,
 				Err:        err,
 				Status:     200,
-				Content:    "update dataset sucessed"}, nil
+				Content:    "update data set sucessed"}, nil
 		}
 		return postSetResponse{
 			SucessedID: sucessedID,
 			FailedID:   failedID,
 			Err:        err,
 			Status:     300,
-			Content:    "update dataset failed"}, nil
+			Content:    "update data set failed"}, nil
 	}
 }

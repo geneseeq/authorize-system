@@ -198,3 +198,46 @@
 * /usering/v1/user
 
 * /usering/v1/user/<role_id>
+
+# 数据集服务
+
+针对角色的CURD,涉及的表role_infos结构
+
+{
+        "_id" : "test1",
+        "id" : "test1",
+        "rule" : "",
+        "name" : "",
+        "match_field" : [
+                {
+                        "data_type" : 0,
+                        "src_field" : [ ],
+                        "dest_field" : ""
+                }
+        ],
+        "type" : "",
+        "validity" : false,
+        "buildin" : false,
+        "create_user_id" : "",
+        "create_time" : ISODate("2017-09-27T13:44:52.611Z"),
+        "update_time" : ISODate("2017-09-27T13:44:52.611Z")
+}
+
+
+## 新增数据集
+
+* /seting/v1/data
+
+## 更新数据集
+
+* /seting/v1/data
+
+## 删除数据集
+
+* /seting/v1/data
+
+## 查找数据集
+
+* /seting/v1/data
+
+* /seting/v1/data/<data_id>

@@ -140,7 +140,8 @@ func (s *service) PutMultiGroup(g []Group) ([]string, []string, error) {
 	if len(g) < LimitMaxSum {
 		for _, group := range g {
 			if len(group.ID) == 0 {
-				return nil, nil, ErrInvalidArgument
+				failed = append(failed, group.ID)
+				continue
 			}
 			_, err := s.GetGroup(group.ID)
 			if err != nil {
