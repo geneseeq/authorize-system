@@ -14,19 +14,21 @@ type LabelIDModel struct {
 
 // BaseDataModel is user struct
 type BaseDataModel struct {
-	ID           string
-	SampleID     string
-	OrderID      string
-	SaleID       string
-	Doctor       string
-	Hospital     string
-	HospitalDept string
-	School       string
-	SchoolDept   string
-	Product      string
-	Project      string
-	LabelID      []string
-	UpdateTime   time.Time
+	UnionID      string    `bson:"_id"` //唯一ID
+	ID           string    `bson:"id"`
+	SampleID     string    `bson:"sample_id"`
+	OrderID      string    `bson:"order_id"`
+	SaleID       string    `bson:"sale_id"`
+	Doctor       string    `bson:"doctor"`
+	Hospital     string    `bson:"hospital"`
+	HospitalDept string    `bson:"hospital_dept"`
+	School       string    `bson:"school"`
+	SchoolDept   string    `bson:"school_dept"`
+	Product      string    `bson:"product"`
+	Project      string    `bson:"project"`
+	LabelID      []string  `bson:"label_id"`
+	UpdateTime   time.Time `bson:"update_time"`
+	CreateTime   time.Time `bson:"create_time"`
 }
 
 // NewBaseData is create instance

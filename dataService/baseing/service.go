@@ -44,6 +44,7 @@ type BaseData struct {
 	Project      string    `json:"project"`
 	LabelID      []string  `json:"label_id"`
 	UpdateTime   time.Time `json:"update_time"`
+	CreateTime   time.Time `json:"create_time"`
 }
 
 type service struct {
@@ -62,7 +63,9 @@ func (s *service) PostBaseData(d []BaseData) ([]string, []string, error) {
 	var failed []string
 	if len(d) < LimitMaxSum {
 		for _, content := range d {
-			content.UpdateTime = data.TimeUtcToCst(time.Now())
+			curTime := data.TimeUtcToCst(time.Now())
+			content.CreateTime = curTime
+			content.UpdateTime = curTime
 			err := s.datas.Store(baseDataToBaseDataModel(content))
 			if err != nil {
 				failed = append(failed, content.ID)
@@ -100,7 +103,8 @@ func (s *service) PutMultiBaseData(d []BaseData) ([]string, []string, error) {
 	if len(d) < LimitMaxSum {
 		for _, data := range d {
 			if len(data.ID) == 0 {
-				return nil, nil, ErrInvalidArgument
+				failed = append(failed, data.ID)
+				continue
 			}
 			_, err := s.GetBaseData(data.ID)
 			if err != nil {
@@ -162,6 +166,7 @@ func (s *service) DeleteMutliLabel(labelid []data.LabelIDModel) ([]string, []str
 func baseDataToBaseDataModel(d BaseData) *data.BaseDataModel {
 
 	return &data.BaseDataModel{
+		UnionID:      d.ID,
 		ID:           d.ID,
 		SampleID:     d.SampleID,
 		OrderID:      d.OrderID,
@@ -174,6 +179,7 @@ func baseDataToBaseDataModel(d BaseData) *data.BaseDataModel {
 		Product:      d.Product,
 		Project:      d.Project,
 		LabelID:      d.LabelID,
+		CreateTime:   d.CreateTime,
 		UpdateTime:   d.UpdateTime,
 	}
 }
@@ -192,6 +198,7 @@ func baseDataModellToBaseData(d *data.BaseDataModel) BaseData {
 		Product:      d.Product,
 		Project:      d.Project,
 		LabelID:      d.LabelID,
+		CreateTime:   d.CreateTime,
 		UpdateTime:   d.UpdateTime,
 	}
 }
