@@ -35,6 +35,7 @@ type Field struct {
 	Type       string    `json:"type"`
 	Comment    string    `json:"comment"`
 	UpdateTime time.Time `json:"update_time"`
+	CreateTime time.Time `json:"create_time"`
 }
 
 type service struct {
@@ -53,7 +54,9 @@ func (s *service) PostField(d []Field) ([]string, []string, error) {
 	var failed []string
 	if len(d) < LimitMaxSum {
 		for _, content := range d {
-			content.UpdateTime = data.TimeUtcToCst(time.Now())
+			curTime := data.TimeUtcToCst(time.Now())
+			content.CreateTime = curTime
+			content.UpdateTime = curTime
 			err := s.fields.Store(fieldToFieldModel(content))
 			if err != nil {
 				failed = append(failed, content.ID)
@@ -91,7 +94,8 @@ func (s *service) PutMultiField(d []Field) ([]string, []string, error) {
 	if len(d) < LimitMaxSum {
 		for _, data := range d {
 			if len(data.ID) == 0 {
-				return nil, nil, ErrInvalidArgument
+				failed = append(failed, data.ID)
+				continue
 			}
 			_, err := s.GetField(data.ID)
 			if err != nil {
@@ -133,11 +137,13 @@ func (s *service) DeleteMultiField(listid []string) ([]string, []string, error) 
 func fieldToFieldModel(d Field) *data.FieldModel {
 
 	return &data.FieldModel{
+		UnionID:    d.ID,
 		ID:         d.ID,
 		Field:      d.Field,
 		Type:       d.Type,
 		Comment:    d.Comment,
 		UpdateTime: d.UpdateTime,
+		CreateTime: d.CreateTime,
 	}
 }
 
@@ -148,5 +154,6 @@ func fieldModelToField(d *data.FieldModel) Field {
 		Type:       d.Type,
 		Comment:    d.Comment,
 		UpdateTime: d.UpdateTime,
+		CreateTime: d.CreateTime,
 	}
 }
