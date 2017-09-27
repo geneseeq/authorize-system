@@ -68,3 +68,35 @@
 * /baseing/v1/data/
 
 * /baseing/v1/data/<data_id>
+
+# 基础数据字段描述服务
+
+针对基本信息缓存的CURD,涉及的表data_infos结构
+
+        {
+            "id":"field_id",
+            "field":"字段"doctor/sale_id,# from data_infos collection
+            "type":"类型"(医生/教师/个人/员工/企业),
+            "comment":"描述",
+            "update_time":"数据更新时间",
+            "create_time":"数据创建时间"
+        }
+
+
+## 新增基础数据字段描述
+
+* /fielding/v1/field
+
+## 更新基础数据字段描述
+
+* /fielding/v1/field
+
+## 删除基础数据字段描述
+
+* /fielding/v1/field
+
+## 查找基础数据字段描述
+
+* /fielding/v1/field
+
+* /fielding/v1/field/<field_id>
