@@ -68,7 +68,7 @@ func newTokenModel(new *auth.TokenModel, result auth.TokenModel) auth.TokenModel
 		result.AccessToken = new.AccessToken
 	}
 
-	if new.Validity != "" {
+	if new.Validity != false {
 		result.Validity = new.Validity
 	}
 

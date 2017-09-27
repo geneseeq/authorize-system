@@ -32,7 +32,7 @@ type Service interface {
 type Token struct {
 	ID           string    `json:"id"`
 	AccessToken  string    `json:"access_token"`
-	Validity     string    `json:"validity"`
+	Validity     bool      `json:"validity"`
 	TokenType    string    `json:"token_type"`
 	ExpiresIn    int       `json:"expires_in"`
 	RefreshToken string    `json:"refresh_token"`
