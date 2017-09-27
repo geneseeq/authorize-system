@@ -6,13 +6,15 @@ import (
 
 // GroupModel is group struct
 type RoleModel struct {
-	ID           string
-	Type         int
-	Name         string
-	Alias        string
-	Buildin      bool
-	CreateUserID string
-	CreateTime   time.Time
+	UnionID      string    `bson:"_id"` //唯一ID
+	ID           string    `bson:"id"`
+	Type         int       `bson:"type"`
+	Name         string    `bson:"name"`
+	Alias        string    `bson:"alias"`
+	Buildin      bool      `bson:"buildin"`
+	CreateUserID string    `bson:"create_user_id"`
+	CreateTime   time.Time `bson:"create_time"`
+	UpdateTime   time.Time `bson:"update_time"`
 }
 
 // NewRole is create instance

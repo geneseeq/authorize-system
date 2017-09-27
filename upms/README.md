@@ -121,100 +121,38 @@
 
 针对用户的CURD,涉及的表user_infos结构
 
-	{
-			"_id" : "af",
-			"id" : "af",
-			"type" : 0,
-			"number" : "",
-			"username" : "",
-			"tele" : "",
-			"gender" : false,
-			"status" : 0,
-			"validity" : false,
-			"vip" : false,
-			"buildin" : false,
-			"create_user_id" : "",
-			"create_time" : ISODate("2017-09-26T17:00:16.351Z"),
-			"update_time" : ISODate("2017-09-26T17:00:16.351Z"),
-			"avatar" : ""
-	}
-
-
+        {
+            "id":"用户ID",
+            "type":"医生/教师/个人/员工/企业",
+            "number":"工号",
+            "username":"用户名",
+            "tele":"电话",
+            "gender":"性别",
+            "status":"岗位状态"(离职，全职，实习),
+            "validity":"是否合法",
+            "vip":"是否是vip",
+            "buildin":"内建用户",
+            "create_user_id":"创建人ID",
+            "create_time":"创建时间",
+            "update_time":"更新时间",
+            "avatar":"http://.../avatar.jpg",
+        }
 
 ## 新增用户
 
 * /usering/v1/user
 
-请求body
-
-	[{
-		"id":"af1"
-	},{
-		"id":"af1"
-	}]
-
-返回body
-
-	{
-		"status": 200,
-		"content": "add user sucessed",
-		"sucessedid": [
-			"af1"
-		],
-		"failedid": [
-			"af1"
-		]
-	}
-
-
 ## 更新用户
 
 * /usering/v1/user
 
-请求body和返回body同post接口
-
 * /usering/v1/user/<user_id>
-
-请求body同POST请求
-
-返回body
-
-	{
-		"status": 200,
-		"content": "update user sucessed"
-	}
 
 ## 删除用户
 
 * /usering/v1/user
 
-请求body
-
-	["af", "af1"]
-
-返回body
-
-	{
-		"status": 200,
-		"content": "delete mutli group sucessed",
-		"sucessedid": [
-			"af1"
-		],
-		"failedid": [
-			"af"
-		]
-	}
-
 * /usering/v1/user/<user_id>
-
-请求body同DELETE请求
-
-返回body
-
-	{
-		"status": 200,
-		"content": "delete user sucessed"
-	}
 
 ## 查找用户组
 
@@ -222,21 +160,41 @@
 
 * /usering/v1/user/<user_id>
 
-返回body
+
+# 角色服务
+
+针对角色的CURD,涉及的表role_infos结构
 
 	{
-		"content": [
-			{
-				"id": "af",
-				"type": 0,
-				"parent": "",
-				"name": "",
-				"code": "",
-				"alias": "sdfsdf",
-				"buildin": false,
-				"create_user_id": "",
-				"create_time": "2017-09-26T23:57:49.269+08:00",
-				"update_time": "2017-09-26T23:57:49.269+08:00"
-			}
-		]
+		"type":"岗位"（主岗，副岗，职务）,
+		"name":"名称",
+		"alias":"别名",
+		"id":"角色ID",
+		"buildin":"内建用户组",
+		"create_user_id":"创建人ID",
+		"create_time":"创建时间",
+		"update_time":"更新时间"
 	}
+
+
+## 新增角色
+
+* /roleing/v1/role
+
+## 更新角色
+
+* /roleing/v1/role
+
+* /roleing/v1/role/<role_id>
+
+## 删除角色
+
+* /roleing/v1/role
+
+* /usering/v1/user/<role_id>
+
+## 查找角色
+
+* /usering/v1/user
+
+* /usering/v1/user/<role_id>

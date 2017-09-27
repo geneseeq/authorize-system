@@ -16,6 +16,8 @@ var (
 	ErrInconsistentIDs = errors.New("inconsistent IDs")
 	ErrAlreadyExists   = errors.New("already exists")
 	ErrNotFound        = errors.New("not found")
+	ErrExceededMount   = errors.New("exceeded max mount")
+	LimitMaxSum        = 50
 )
 
 // Service is the interface that provides booking methods.
@@ -38,6 +40,7 @@ type Role struct {
 	Buildin      bool      `json:"buildin"`
 	CreateUserID string    `json:"create_user_id"`
 	CreateTime   time.Time `json:"create_time"`
+	UpdateTime   time.Time `json:"update_time"`
 }
 
 type service struct {
@@ -76,17 +79,23 @@ func (s *service) GetAllRole() ([]Role, error) {
 func (s *service) PostRole(r []Role) ([]string, []string, error) {
 	var sucessedIds []string
 	var failedIds []string
-	for _, role := range r {
-		role.CreateTime = user.TimeUtcToCst(time.Now())
-		err := s.roles.Store(roleToRolemodel(role))
-		if err != nil {
-			failedIds = append(failedIds, role.ID)
-			continue
-		} else {
-			sucessedIds = append(sucessedIds, role.ID)
+	if len(r) < LimitMaxSum {
+		for _, role := range r {
+			curTime := user.TimeUtcToCst(time.Now())
+			role.UpdateTime = curTime
+			role.CreateTime = curTime
+			err := s.roles.Store(roleToRolemodel(role))
+			if err != nil {
+				failedIds = append(failedIds, role.ID)
+				continue
+			} else {
+				sucessedIds = append(sucessedIds, role.ID)
+			}
 		}
+		return sucessedIds, failedIds, nil
 	}
-	return sucessedIds, failedIds, nil
+	return nil, nil, ErrExceededMount
+
 }
 
 func (s *service) DeleteRole(id string) error {
@@ -103,18 +112,21 @@ func (s *service) DeleteRole(id string) error {
 func (s *service) DeleteMultiRole(listid []string) ([]string, []string, error) {
 	var sucessedIds []string
 	var failedIds []string
-	if len(listid) == 0 {
-		return nil, nil, ErrInvalidArgument
-	}
-	for _, id := range listid {
-		err := s.roles.Remove(id)
-		if err != nil {
-			failedIds = append(failedIds, id)
-			continue
+	if len(listid) < LimitMaxSum {
+		for _, id := range listid {
+			if id == "" {
+				return nil, nil, ErrInvalidArgument
+			}
+			err := s.roles.Remove(id)
+			if err != nil {
+				failedIds = append(failedIds, id)
+				continue
+			}
+			sucessedIds = append(sucessedIds, id)
 		}
-		sucessedIds = append(sucessedIds, id)
+		return sucessedIds, failedIds, nil
 	}
-	return sucessedIds, failedIds, nil
+	return nil, nil, ErrExceededMount
 }
 
 func (s *service) PutRole(id string, role Role) error {
@@ -129,28 +141,33 @@ func (s *service) PutRole(id string, role Role) error {
 func (s *service) PutMultiRole(r []Role) ([]string, []string, error) {
 	var sucessedIds []string
 	var failedIds []string
-	for _, role := range r {
-		if len(role.ID) == 0 {
-			failedIds = append(failedIds, role.ID)
-			continue
+	if len(r) < LimitMaxSum {
+		for _, role := range r {
+			if len(role.ID) == 0 {
+				failedIds = append(failedIds, role.ID)
+				continue
+			}
+			_, err := s.GetRole(role.ID)
+			if err != nil {
+				failedIds = append(failedIds, role.ID)
+				continue
+			}
+			err = s.roles.Update(role.ID, roleToRolemodel(role))
+			if err != nil {
+				failedIds = append(failedIds, role.ID)
+				continue
+			}
+			sucessedIds = append(sucessedIds, role.ID)
 		}
-		_, err := s.GetRole(role.ID)
-		if err != nil {
-			failedIds = append(failedIds, role.ID)
-			continue
-		}
-		err = s.roles.Update(role.ID, roleToRolemodel(role))
-		if err != nil {
-			continue
-		}
-		sucessedIds = append(sucessedIds, role.ID)
+		return sucessedIds, failedIds, nil
 	}
-	return sucessedIds, failedIds, nil
+	return nil, nil, ErrExceededMount
 }
 
 func roleToRolemodel(r Role) *user.RoleModel {
 
 	return &user.RoleModel{
+		UnionID:      r.ID,
 		ID:           r.ID,
 		Type:         r.Type,
 		Name:         r.Name,
@@ -158,6 +175,7 @@ func roleToRolemodel(r Role) *user.RoleModel {
 		Buildin:      r.Buildin,
 		CreateUserID: r.CreateUserID,
 		CreateTime:   r.CreateTime,
+		UpdateTime:   r.UpdateTime,
 	}
 }
 
@@ -170,5 +188,6 @@ func rolemodelToRole(r *user.RoleModel) Role {
 		Buildin:      r.Buildin,
 		CreateUserID: r.CreateUserID,
 		CreateTime:   r.CreateTime,
+		UpdateTime:   r.UpdateTime,
 	}
 }
