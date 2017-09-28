@@ -2,9 +2,10 @@ package action
 
 import (
 	"sync"
+	"time"
 
-	"github.com/geneseeq/authorize-system/upms/user"
 	"github.com/geneseeq/authorize-system/db"
+	"github.com/geneseeq/authorize-system/upms/user"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -25,7 +26,7 @@ func (r *userRelationRoleRepository) FindFromUser(id string) (*user.RoleRelation
 	defer ds.Close()
 	con := ds.GetConnect(r.db, r.collection)
 	result := user.RoleRelationModel{}
-	err := con.Find(bson.M{"userid": id}).One(&result)
+	err := con.Find(bson.M{"user_id": id}).One(&result)
 	if err != nil {
 		return nil, user.ErrUnknown
 	}
@@ -53,34 +54,47 @@ func (r *userRelationRoleRepository) Store(g *user.RoleRelationModel) error {
 	return err
 }
 
-func (r *userRelationRoleRepository) Remove(user_id string, role_id []string) error {
+func (r *userRelationRoleRepository) Remove(userID string, role *user.RoleRelationModel) error {
 	r.mtx.RLock()
 	defer r.mtx.RUnlock()
 	ds := db.NewSessionStore()
 	defer ds.Close()
 	con := ds.GetConnect(r.db, r.collection)
 	result := user.RoleRelationModel{}
-	err := con.Find(bson.M{"userid": user_id}).One(&result)
+	err := con.Find(bson.M{"user_id": userID}).One(&result)
 	if err != nil {
 		return user.ErrUnknown
 	}
-	var newRoleID []string
-	if result.RoleID != nil {
-		tmpDict := map[string]string{}
-		for _, v := range result.RoleID {
-			tmpDict[v] = "true"
+	if len(role.RoleID) == 0 {
+		if len(result.RoleID) == 0 {
+			err = con.Remove(bson.M{"user_id": userID})
+		} else {
+			return user.ErrRemove
 		}
-		for _, v := range role_id {
-			delete(tmpDict, v)
+		if err != nil {
+			return user.ErrUnknown
 		}
-		for key, _ := range tmpDict {
-			newRoleID = append(newRoleID, key)
+
+	} else {
+		var newRoleID []string
+		if result.RoleID != nil {
+			tmpDict := map[string]string{}
+			for _, v := range result.RoleID {
+				tmpDict[v] = "true"
+			}
+			for _, v := range role.RoleID {
+				delete(tmpDict, v)
+			}
+			for key, _ := range tmpDict {
+				newRoleID = append(newRoleID, key)
+			}
+			result.RoleID = newRoleID
 		}
-		result.RoleID = newRoleID
-	}
-	err = con.Update(bson.M{"userid": user_id}, result)
-	if err != nil {
-		return user.ErrUnknown
+		result.UpdateTime = user.TimeUtcToCst(time.Now())
+		err = con.Update(bson.M{"user_id": userID}, result)
+		if err != nil {
+			return user.ErrUnknown
+		}
 	}
 	return nil
 }
@@ -92,7 +106,7 @@ func (r *userRelationRoleRepository) Update(id string, g *user.RoleRelationModel
 	defer ds.Close()
 	con := ds.GetConnect(r.db, r.collection)
 	result := user.RoleRelationModel{}
-	err := con.Find(bson.M{"userid": g.UserID}).One(&result)
+	err := con.Find(bson.M{"user_id": g.UserID}).One(&result)
 	if err != nil {
 		return user.ErrUnknown
 	}
@@ -110,7 +124,14 @@ func (r *userRelationRoleRepository) Update(id string, g *user.RoleRelationModel
 		}
 		result.RoleID = newRoleID
 	}
-	err = con.Update(bson.M{"userid": g.UserID}, result)
+	result.UpdateTime = user.TimeUtcToCst(time.Now())
+	if g.CreateUserID != "" {
+		result.CreateUserID = g.CreateUserID
+	}
+	if g.Buildin != false {
+		result.Buildin = g.Buildin
+	}
+	err = con.Update(bson.M{"user_id": g.UserID}, result)
 	if err != nil {
 		return user.ErrUnknown
 	}
@@ -142,7 +163,7 @@ func (r *groupRoleRelationRoleRepository) FindFromGroup(id string) (*user.GroupR
 	defer ds.Close()
 	con := ds.GetConnect(r.db, r.collection)
 	result := user.GroupRelationModel{}
-	err := con.Find(bson.M{"groupid": id}).One(&result)
+	err := con.Find(bson.M{"group_id": id}).One(&result)
 	if err != nil {
 		return nil, user.ErrUnknown
 	}
@@ -170,34 +191,47 @@ func (r *groupRoleRelationRoleRepository) Store(g *user.GroupRelationModel) erro
 	return err
 }
 
-func (r *groupRoleRelationRoleRepository) Remove(group_id string, g *user.GroupRelationModel) error {
+func (r *groupRoleRelationRoleRepository) Remove(groupID string, g *user.GroupRelationModel) error {
 	r.mtx.RLock()
 	defer r.mtx.RUnlock()
 	ds := db.NewSessionStore()
 	defer ds.Close()
 	con := ds.GetConnect(r.db, r.collection)
 	result := user.GroupRelationModel{}
-	err := con.Find(bson.M{"groupid": group_id}).One(&result)
+	err := con.Find(bson.M{"group_id": groupID}).One(&result)
 	if err != nil {
 		return user.ErrUnknown
 	}
-	var newRoleID []string
-	if result.RoleID != nil {
-		tmpDict := map[string]string{}
-		for _, v := range result.RoleID {
-			tmpDict[v] = "true"
+	if len(g.UserID) == 0 && len(g.RoleID) == 0 {
+		if len(result.UserID) == 0 && len(result.RoleID) == 0 {
+			err = con.Remove(bson.M{"group_id": groupID})
+		} else {
+			return user.ErrRemove
 		}
-		for _, v := range g.RoleID {
-			delete(tmpDict, v)
+		if err != nil {
+			return user.ErrUnknown
 		}
-		for key, _ := range tmpDict {
-			newRoleID = append(newRoleID, key)
+	} else {
+
+		var newRoleID []string
+		if result.RoleID != nil {
+			tmpDict := map[string]string{}
+			for _, v := range result.RoleID {
+				tmpDict[v] = "true"
+			}
+			for _, v := range g.RoleID {
+				delete(tmpDict, v)
+			}
+			for key, _ := range tmpDict {
+				newRoleID = append(newRoleID, key)
+			}
+			result.RoleID = newRoleID
 		}
-		result.RoleID = newRoleID
-	}
-	err = con.Update(bson.M{"groupid": group_id}, result)
-	if err != nil {
-		return user.ErrUnknown
+		result.UpdateTime = user.TimeUtcToCst(time.Now())
+		err = con.Update(bson.M{"group_id": groupID}, result)
+		if err != nil {
+			return user.ErrUnknown
+		}
 	}
 	return nil
 }
@@ -209,7 +243,7 @@ func (r *groupRoleRelationRoleRepository) Update(id string, g *user.GroupRelatio
 	defer ds.Close()
 	con := ds.GetConnect(r.db, r.collection)
 	result := user.GroupRelationModel{}
-	err := con.Find(bson.M{"groupid": g.GroupID}).One(&result)
+	err := con.Find(bson.M{"group_id": g.GroupID}).One(&result)
 	if err != nil {
 		return user.ErrUnknown
 	}
@@ -227,7 +261,14 @@ func (r *groupRoleRelationRoleRepository) Update(id string, g *user.GroupRelatio
 		}
 		result.RoleID = newRoleID
 	}
-	err = con.Update(bson.M{"groupid": g.GroupID}, result)
+	result.UpdateTime = user.TimeUtcToCst(time.Now())
+	if g.CreateUserID != "" {
+		result.CreateUserID = g.CreateUserID
+	}
+	if g.Buildin != false {
+		result.Buildin = g.Buildin
+	}
+	err = con.Update(bson.M{"group_id": g.GroupID}, result)
 	if err != nil {
 		return user.ErrUnknown
 	}
@@ -259,7 +300,7 @@ func (r *groupUserRelationRoleRepository) FindFromGroup(id string) (*user.GroupR
 	defer ds.Close()
 	con := ds.GetConnect(r.db, r.collection)
 	result := user.GroupRelationModel{}
-	err := con.Find(bson.M{"groupid": id}).One(&result)
+	err := con.Find(bson.M{"group_id": id}).One(&result)
 	if err != nil {
 		return nil, user.ErrUnknown
 	}
@@ -287,34 +328,47 @@ func (r *groupUserRelationRoleRepository) Store(g *user.GroupRelationModel) erro
 	return err
 }
 
-func (r *groupUserRelationRoleRepository) Remove(group_id string, g *user.GroupRelationModel) error {
+func (r *groupUserRelationRoleRepository) Remove(groupID string, g *user.GroupRelationModel) error {
 	r.mtx.RLock()
 	defer r.mtx.RUnlock()
 	ds := db.NewSessionStore()
 	defer ds.Close()
 	con := ds.GetConnect(r.db, r.collection)
 	result := user.GroupRelationModel{}
-	err := con.Find(bson.M{"groupid": group_id}).One(&result)
+	err := con.Find(bson.M{"group_id": groupID}).One(&result)
 	if err != nil {
 		return user.ErrUnknown
 	}
-	var newUserID []string
-	if result.UserID != nil {
-		tmpDict := map[string]string{}
-		for _, v := range result.UserID {
-			tmpDict[v] = "true"
+	if len(g.UserID) == 0 && len(g.RoleID) == 0 {
+		if len(result.UserID) == 0 && len(result.RoleID) == 0 {
+			err = con.Remove(bson.M{"group_id": groupID})
+		} else {
+			return user.ErrRemove
 		}
-		for _, v := range g.UserID {
-			delete(tmpDict, v)
+		if err != nil {
+			return user.ErrUnknown
 		}
-		for key, _ := range tmpDict {
-			newUserID = append(newUserID, key)
+
+	} else {
+		var newUserID []string
+		if result.UserID != nil {
+			tmpDict := map[string]string{}
+			for _, v := range result.UserID {
+				tmpDict[v] = "true"
+			}
+			for _, v := range g.UserID {
+				delete(tmpDict, v)
+			}
+			for key, _ := range tmpDict {
+				newUserID = append(newUserID, key)
+			}
+			result.UserID = newUserID
 		}
-		result.UserID = newUserID
-	}
-	err = con.Update(bson.M{"groupid": group_id}, result)
-	if err != nil {
-		return user.ErrUnknown
+		result.UpdateTime = user.TimeUtcToCst(time.Now())
+		err = con.Update(bson.M{"group_id": groupID}, result)
+		if err != nil {
+			return user.ErrUnknown
+		}
 	}
 	return nil
 }
@@ -326,13 +380,14 @@ func (r *groupUserRelationRoleRepository) Update(id string, g *user.GroupRelatio
 	defer ds.Close()
 	con := ds.GetConnect(r.db, r.collection)
 	result := user.GroupRelationModel{}
-	err := con.Find(bson.M{"groupid": g.GroupID}).One(&result)
+	err := con.Find(bson.M{"group_id": g.GroupID}).One(&result)
 	if err != nil {
 		return user.ErrUnknown
 	}
 	var newUserID []string
 	if result.UserID != nil {
 		result.UserID = append(result.UserID, g.UserID...)
+		//去重
 		tmpDict := map[string]string{}
 		for _, v := range result.UserID {
 			if v != "" {
@@ -344,7 +399,14 @@ func (r *groupUserRelationRoleRepository) Update(id string, g *user.GroupRelatio
 		}
 		result.UserID = newUserID
 	}
-	err = con.Update(bson.M{"groupid": g.GroupID}, result)
+	result.UpdateTime = user.TimeUtcToCst(time.Now())
+	if g.CreateUserID != "" {
+		result.CreateUserID = g.CreateUserID
+	}
+	if g.Buildin != false {
+		result.Buildin = g.Buildin
+	}
+	err = con.Update(bson.M{"group_id": g.GroupID}, result)
 	if err != nil {
 		return user.ErrUnknown
 	}
@@ -376,7 +438,7 @@ func (r *roleAuthorityRelationRepository) FindFromAuthority(id string) (*user.Au
 	defer ds.Close()
 	con := ds.GetConnect(r.db, r.collection)
 	result := user.AuthorityRelationModel{}
-	err := con.Find(bson.M{"roleid": id}).One(&result)
+	err := con.Find(bson.M{"role_id": id}).One(&result)
 	if err != nil {
 		return nil, user.ErrUnknown
 	}
@@ -411,27 +473,39 @@ func (r *roleAuthorityRelationRepository) Remove(roleID string, d *user.DeleteAu
 	defer ds.Close()
 	con := ds.GetConnect(r.db, r.collection)
 	result := user.AuthorityRelationModel{}
-	err := con.Find(bson.M{"roleid": roleID}).One(&result)
+	err := con.Find(bson.M{"role_id": roleID}).One(&result)
 	if err != nil {
 		return user.ErrUnknown
 	}
-	var newAuthority []user.AuthorityModel
-	if result.Authority != nil {
-		tmpDict := map[string]user.AuthorityModel{}
-		for _, v := range result.Authority {
-			tmpDict[v.DataID] = v
+	if len(d.DataID) == 0 {
+		if len(result.Authority) == 0 {
+			err = con.Remove(bson.M{"role_id": roleID})
+		} else {
+			return user.ErrRemove
 		}
-		for _, v := range d.DataID {
-			delete(tmpDict, v)
+		if err != nil {
+			return user.ErrUnknown
 		}
-		for _, value := range tmpDict {
-			newAuthority = append(newAuthority, value)
+
+	} else {
+		var newAuthority []user.AuthorityModel
+		if result.Authority != nil {
+			tmpDict := map[string]user.AuthorityModel{}
+			for _, v := range result.Authority {
+				tmpDict[v.DataID] = v
+			}
+			for _, v := range d.DataID {
+				delete(tmpDict, v)
+			}
+			for _, value := range tmpDict {
+				newAuthority = append(newAuthority, value)
+			}
+			result.Authority = newAuthority
 		}
-		result.Authority = newAuthority
-	}
-	err = con.Update(bson.M{"roleid": roleID}, result)
-	if err != nil {
-		return user.ErrUnknown
+		err = con.Update(bson.M{"role_id": roleID}, result)
+		if err != nil {
+			return user.ErrUnknown
+		}
 	}
 	return nil
 }
@@ -443,7 +517,7 @@ func (r *roleAuthorityRelationRepository) Update(id string, a *user.AuthorityRel
 	defer ds.Close()
 	con := ds.GetConnect(r.db, r.collection)
 	result := user.AuthorityRelationModel{}
-	err := con.Find(bson.M{"roleid": id}).One(&result)
+	err := con.Find(bson.M{"role_id": id}).One(&result)
 	if err != nil {
 		return user.ErrUnknown
 	}
@@ -459,7 +533,13 @@ func (r *roleAuthorityRelationRepository) Update(id string, a *user.AuthorityRel
 		}
 		result.Authority = newAuthority
 	}
-	err = con.Update(bson.M{"roleid": id}, result)
+	err = con.Update(bson.M{"role_id": id}, result)
+	if a.CreateUserID != "" {
+		result.CreateUserID = a.CreateUserID
+	}
+	if a.Buildin != false {
+		result.Buildin = a.Buildin
+	}
 	if err != nil {
 		return user.ErrUnknown
 	}

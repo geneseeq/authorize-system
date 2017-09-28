@@ -9,65 +9,68 @@ type RoleID []string
 
 // RoleRelationModel is group struct
 type RoleRelationModel struct {
-	ID           string
-	UserID       string
-	RoleID       []string
-	Buildin      bool
-	CreateUserID string
-	CreateTime   time.Time
+	UnionID      string    `bson:"_id"`
+	UserID       string    `bson:"user_id"`
+	RoleID       []string  `bson:"role_id"`
+	Buildin      bool      `bson:"buildin"`
+	CreateUserID string    `bson:"create_user_id"`
+	CreateTime   time.Time `bson:"create_time"`
+	UpdateTime   time.Time `bson:"update_time"`
 }
 
 // GroupRelationModel is group struct
 type GroupRelationModel struct {
-	ID           string
-	GroupID      string
-	UserID       []string
-	RoleID       []string
-	Buildin      bool
-	CreateUserID string
-	CreateTime   time.Time
+	UnionID      string    `bson:"_id"`
+	GroupID      string    `bson:"group_id"`
+	UserID       []string  `bson:"user_id"`
+	RoleID       []string  `bson:"role_id"`
+	Buildin      bool      `bson:"buildin"`
+	CreateUserID string    `bson:"create_user_id"`
+	CreateTime   time.Time `bson:"create_time"`
+	UpdateTime   time.Time `bson:"update_time"`
 }
 
 type AuthorityModel struct {
-	DataID string   `json:"data_id"`
-	Action []string `json:"action"`
+	DataID string   `json:"data_id" bson:"data_id"`
+	Action []string `json:"action" bson:"action"`
 }
 
 // AuthorityRelationModel is group struct
 type AuthorityRelationModel struct {
-	ID           string
-	RoleID       string
-	Authority    []AuthorityModel
-	Validity     string
-	Buildin      bool
-	CreateUserID string
-	CreateTime   time.Time
+	UnionID      string           `bson:"_id"`
+	RoleID       string           `bson:"role_id"`
+	Authority    []AuthorityModel `bson:"authority"`
+	Validity     string           `bson:"validity"`
+	Buildin      bool             `bson:"buildin"`
+	CreateUserID string           `bson:"create_user_id"`
+	CreateTime   time.Time        `bson:"create_time"`
+	UpdateTime   time.Time        `bson:"update_time"`
 }
 
 // DeleteAuthorityModel is group struct
 type DeleteAuthorityModel struct {
-	RoleID string
-	DataID []string
+	RoleID string   `bson:"role_id"`
+	DataID []string `bson:"data_id"`
 }
 
 // NewRoleRelation is create instance
 func NewRoleRelation(id string) *RoleRelationModel {
 	return &RoleRelationModel{
-		ID: id,
+		UserID: id,
 	}
 }
 
 // NewGroupRelation is create instance
 func NewGroupRelation(id string) *GroupRelationModel {
 	return &GroupRelationModel{
-		ID: id,
+		GroupID: id,
 	}
 }
 
 // NewAuthorityRelation is create instance
 func NewAuthorityRelation(id string) *AuthorityRelationModel {
 	return &AuthorityRelationModel{
-		ID: id,
+		RoleID: id,
 	}
 }
 
@@ -76,7 +79,7 @@ type RelationRepository interface {
 	Store(role *RoleRelationModel) error
 	FindFromUser(id string) (*RoleRelationModel, error)
 	FindAllFromUser() []*RoleRelationModel
-	Remove(userID string, roleID []string) error
+	Remove(userID string, role *RoleRelationModel) error
 	Update(id string, role *RoleRelationModel) error
 }
 

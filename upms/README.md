@@ -281,3 +281,149 @@
 * /servicing/v1/service
 
 * /servicing/v1/service/<service_id>
+
+
+# 组用户和组角色服务
+
+涉及的表group_own_users_and_roles
+
+	{
+			"_id" : "test2",
+			"group_id" : "test2",
+			"user_id" : [
+					"dd1235f",
+					"fgg"
+			],
+			"role_id" : [ ],
+			"buildin" : false,
+			"create_user_id" : "",
+			"create_time" : ISODate("2017-09-28T10:28:35.503Z"),
+			"update_time" : ISODate("2017-09-28T10:28:35.503Z")
+	}
+
+## 新增组中的用户
+
+* /releation/v1/group/user
+
+## 更新组中的用户
+
+* /releation/v1/group/user
+
+## 删除组中用户
+
+* /releation/v1/group/user
+
+删除的body为[{"group_id":"test2","user_id":["dd1235f","fgg"]}]
+
+删除用户时，首先是删除user_id,如果user_id和role_id为空，则删除整条记录
+
+## 查找组中用户
+
+* /releation/v1/group/<group_id>/user
+
+* /releation/v1/group/user
+
+## 新增组中的角色
+
+* /releation/v1/group/role
+
+## 更新组中的角色
+
+* /releation/v1/group/role
+
+## 删除组中角色
+
+* /releation/v1/group/role
+
+删除的body为[{"group_id":"test2","user_id":["dd1235f","fgg21"]}]
+
+删除用户时，首先是删除user_id,如果user_id为空，则删除整条记录
+
+## 查找组中角色
+
+* /releation/v1/group/role
+
+* /releation/v1/group/<group_id>/role
+
+# 用户角色关系服务
+
+涉及的表user_own_roles结构
+
+	{
+			"_id" : "test2",
+			"user_id" : "test2",
+			"role_id" : [
+					"gys",
+					"hhh"
+			],
+			"buildin" : false,
+			"create_user_id" : "",
+			"create_time" : ISODate("2017-09-28T13:24:20.181Z"),
+			"update_time" : ISODate("2017-09-28T13:25:05.332Z")
+	}
+
+## 新增用户中的角色
+
+* /releation/v1/user/role
+
+## 更新用户中的角色
+
+* /releation/v1/user/role
+
+## 删除用户中角色
+
+* /releation/v1/user/role
+
+删除的body为[{"user_id":"test2","role_id":["gys2","hhh2"]}]
+
+删除数据权限时，首先是删除role_id,如果role_id为空，则删除整条记录
+
+## 查找用户中角色
+
+* /releation/v1/user/role
+
+* /releation/v1/user/<user_id>/role
+
+# 用户角色关系服务
+
+涉及的表user_own_roles结构
+
+	{
+			"_id" : "test2",
+			"role_id" : "test2",
+			"authority" : [
+					{
+							"data_id" : "tag01",
+							"action" : [
+									"dsd"
+							]
+					}
+			],
+			"validity" : "",
+			"buildin" : false,
+			"create_user_id" : "",
+			"create_time" : ISODate("2017-09-28T14:03:29.222Z"),
+			"update_time" : ISODate("2017-09-28T14:03:29.222Z")
+	}
+
+## 新增用户中的角色
+
+* /releation/v1/role/authority
+
+## 更新用户中的角色
+
+* /releation/v1/role/authority
+
+## 删除用户中角色
+
+* /releation/v1/role/authority
+
+删除的body为[{"role_id":"test2","data_id":["tag01"]}]
+
+删除数据权限时，首先是删除data_id字典,如果data_id为空，则删除整条记录
+
+## 查找用户中角色
+
+* /releation/v1/role/authority
+
+* /releation/v1/role/<role_id>/authority

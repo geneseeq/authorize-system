@@ -14,6 +14,8 @@ var (
 	ErrInconsistentIDs = errors.New("inconsistent IDs")
 	ErrAlreadyExists   = errors.New("already exists")
 	ErrNotFound        = errors.New("not found")
+	ErrExceededMount   = errors.New("exceeded max mount")
+	LimitMaxSum        = 50
 )
 
 // Service is the interface that provides booking methods.
@@ -27,13 +29,13 @@ type Service interface {
 
 // Groups is a relation coll
 type Groups struct {
-	ID           string    `json:"id"`
 	GroupID      string    `json:"group_id"`
 	RoleID       []string  `json:"role_id"`
 	UserID       []string  `json:"user_id"`
 	Buildin      bool      `json:"buildin"`
 	CreateUserID string    `json:"create_user_id"`
 	CreateTime   time.Time `json:"create_time"`
+	UpdateTime   time.Time `json:"update_time"`
 }
 
 type service struct {
@@ -72,17 +74,21 @@ func (s *service) GetAllData() ([]Groups, error) {
 func (s *service) PostData(g []Groups) ([]string, []string, error) {
 	var sucessedIds []string
 	var failedIds []string
-	for _, group := range g {
-		group.CreateTime = user.TimeUtcToCst(time.Now())
-		err := s.groups.Store(groupToGroupmodel(group))
-		if err != nil {
-			failedIds = append(failedIds, group.GroupID)
-			continue
-		} else {
+	if len(g) < LimitMaxSum {
+		for _, group := range g {
+			currentTime := user.TimeUtcToCst(time.Now())
+			group.CreateTime = currentTime
+			group.UpdateTime = currentTime
+			err := s.groups.Store(groupToGroupmodel(group))
+			if err != nil {
+				failedIds = append(failedIds, group.GroupID)
+				continue
+			}
 			sucessedIds = append(sucessedIds, group.GroupID)
 		}
+		return sucessedIds, failedIds, nil
 	}
-	return sucessedIds, failedIds, nil
+	return nil, nil, ErrExceededMount
 }
 
 func (s *service) DeleteMultiData(g []Groups) ([]string, []string, error) {
@@ -91,15 +97,18 @@ func (s *service) DeleteMultiData(g []Groups) ([]string, []string, error) {
 	if len(g) == 0 {
 		return nil, nil, ErrInvalidArgument
 	}
-	for _, value := range g {
-		err := s.groups.Remove(value.GroupID, groupToGroupmodel(value))
-		if err != nil {
-			failedIds = append(failedIds, value.GroupID)
-			continue
+	if len(g) < LimitMaxSum {
+		for _, value := range g {
+			err := s.groups.Remove(value.GroupID, groupToGroupmodel(value))
+			if err != nil {
+				failedIds = append(failedIds, value.GroupID)
+				continue
+			}
+			sucessedIds = append(sucessedIds, value.GroupID)
 		}
-		sucessedIds = append(sucessedIds, value.GroupID)
+		return sucessedIds, failedIds, nil
 	}
-	return sucessedIds, failedIds, nil
+	return nil, nil, ErrExceededMount
 }
 
 func (s *service) PutMultiData(g []Groups) ([]string, []string, error) {
@@ -108,42 +117,46 @@ func (s *service) PutMultiData(g []Groups) ([]string, []string, error) {
 	if len(g) == 0 {
 		return nil, nil, ErrInvalidArgument
 	}
-	for _, value := range g {
-		if len(value.GroupID) == 0 {
-			failedIds = append(failedIds, value.GroupID)
-			continue
+	if len(g) < LimitMaxSum {
+		for _, value := range g {
+			if len(value.GroupID) == 0 {
+				failedIds = append(failedIds, value.GroupID)
+				continue
+			}
+			err := s.groups.Update(value.GroupID, groupToGroupmodel(value))
+			if err != nil {
+				failedIds = append(failedIds, value.GroupID)
+				continue
+			}
+			sucessedIds = append(sucessedIds, value.GroupID)
 		}
-		err := s.groups.Update(value.GroupID, groupToGroupmodel(value))
-		if err != nil {
-			failedIds = append(failedIds, value.GroupID)
-			continue
-		}
-		sucessedIds = append(sucessedIds, value.GroupID)
+		return sucessedIds, failedIds, nil
 	}
-	return sucessedIds, failedIds, nil
+	return nil, nil, ErrExceededMount
 }
 
 func groupToGroupmodel(g Groups) *user.GroupRelationModel {
 
 	return &user.GroupRelationModel{
-		ID:           g.ID,
+		UnionID:      g.GroupID,
 		GroupID:      g.GroupID,
 		UserID:       g.UserID,
 		RoleID:       g.RoleID,
 		Buildin:      g.Buildin,
 		CreateUserID: g.CreateUserID,
 		CreateTime:   g.CreateTime,
+		UpdateTime:   g.UpdateTime,
 	}
 }
 
 func groupmodelToGroup(g *user.GroupRelationModel) Groups {
 	return Groups{
-		ID:           g.ID,
 		GroupID:      g.GroupID,
 		UserID:       g.UserID,
 		RoleID:       g.RoleID,
 		Buildin:      g.Buildin,
 		CreateUserID: g.CreateUserID,
 		CreateTime:   g.CreateTime,
+		UpdateTime:   g.UpdateTime,
 	}
 }

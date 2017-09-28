@@ -15,6 +15,8 @@ var (
 	ErrInconsistentIDs = errors.New("inconsistent IDs")
 	ErrAlreadyExists   = errors.New("already exists")
 	ErrNotFound        = errors.New("not found")
+	ErrExceededMount   = errors.New("exceeded max mount")
+	LimitMaxSum        = 50
 )
 
 // Service is the interface that provides booking methods.
@@ -35,12 +37,12 @@ type Service interface {
 
 // Role is a user base info
 type Role struct {
-	ID           string    `json:"id"`
 	UserID       string    `json:"user_id"`
 	RoleID       []string  `json:"role_id"`
 	Buildin      bool      `json:"buildin"`
 	CreateUserID string    `json:"create_user_id"`
 	CreateTime   time.Time `json:"create_time"`
+	UpdateTime   time.Time `json:"update_time"`
 }
 
 type service struct {
@@ -79,17 +81,21 @@ func (s *service) GetAllRole() ([]Role, error) {
 func (s *service) PostRole(r []Role) ([]string, []string, error) {
 	var sucessedIds []string
 	var failedIds []string
-	for _, role := range r {
-		role.CreateTime = user.TimeUtcToCst(time.Now())
-		err := s.roles.Store(roleToRolemodel(role))
-		if err != nil {
-			failedIds = append(failedIds, role.UserID)
-			continue
-		} else {
+	if len(r) < LimitMaxSum {
+		for _, role := range r {
+			currentTime := user.TimeUtcToCst(time.Now())
+			role.CreateTime = currentTime
+			role.UpdateTime = currentTime
+			err := s.roles.Store(roleToRolemodel(role))
+			if err != nil {
+				failedIds = append(failedIds, role.UserID)
+				continue
+			}
 			sucessedIds = append(sucessedIds, role.UserID)
 		}
+		return sucessedIds, failedIds, nil
 	}
-	return sucessedIds, failedIds, nil
+	return nil, nil, ErrExceededMount
 }
 
 // func (s *service) DeleteRole(id string) error {
@@ -109,15 +115,18 @@ func (s *service) DeleteMultiRole(role []Role) ([]string, []string, error) {
 	if len(role) == 0 {
 		return nil, nil, ErrInvalidArgument
 	}
-	for _, value := range role {
-		err := s.roles.Remove(value.UserID, value.RoleID)
-		if err != nil {
-			failedIds = append(failedIds, value.UserID)
-			continue
+	if len(role) < LimitMaxSum {
+		for _, value := range role {
+			err := s.roles.Remove(value.UserID, roleToRolemodel(value))
+			if err != nil {
+				failedIds = append(failedIds, value.UserID)
+				continue
+			}
+			sucessedIds = append(sucessedIds, value.UserID)
 		}
-		sucessedIds = append(sucessedIds, value.UserID)
+		return sucessedIds, failedIds, nil
 	}
-	return sucessedIds, failedIds, nil
+	return nil, nil, ErrExceededMount
 }
 
 // func (s *service) PutRole(id string, role Role) error {
@@ -135,40 +144,44 @@ func (s *service) PutMultiRole(role []Role) ([]string, []string, error) {
 	if len(role) == 0 {
 		return nil, nil, ErrInvalidArgument
 	}
-	for _, value := range role {
-		if len(value.UserID) == 0 {
-			failedIds = append(failedIds, value.UserID)
-			continue
+	if len(role) < LimitMaxSum {
+		for _, value := range role {
+			if len(value.UserID) == 0 {
+				failedIds = append(failedIds, value.UserID)
+				continue
+			}
+			err := s.roles.Update(value.UserID, roleToRolemodel(value))
+			if err != nil {
+				failedIds = append(failedIds, value.UserID)
+				continue
+			}
+			sucessedIds = append(sucessedIds, value.UserID)
 		}
-		err := s.roles.Update(value.UserID, roleToRolemodel(value))
-		if err != nil {
-			failedIds = append(failedIds, value.UserID)
-			continue
-		}
-		sucessedIds = append(sucessedIds, value.UserID)
+		return sucessedIds, failedIds, nil
 	}
-	return sucessedIds, failedIds, nil
+	return nil, nil, ErrExceededMount
 }
 
 func roleToRolemodel(r Role) *user.RoleRelationModel {
 
 	return &user.RoleRelationModel{
-		ID:           r.ID,
+		UnionID:      r.UserID,
 		UserID:       r.UserID,
 		RoleID:       r.RoleID,
 		Buildin:      r.Buildin,
 		CreateUserID: r.CreateUserID,
 		CreateTime:   r.CreateTime,
+		UpdateTime:   r.UpdateTime,
 	}
 }
 
 func rolemodelToRole(r *user.RoleRelationModel) Role {
 	return Role{
-		ID:           r.ID,
 		UserID:       r.UserID,
 		RoleID:       r.RoleID,
 		Buildin:      r.Buildin,
 		CreateUserID: r.CreateUserID,
 		CreateTime:   r.CreateTime,
+		UpdateTime:   r.UpdateTime,
 	}
 }

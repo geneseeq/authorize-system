@@ -15,6 +15,8 @@ var (
 	ErrInconsistentIDs = errors.New("inconsistent IDs")
 	ErrAlreadyExists   = errors.New("already exists")
 	ErrNotFound        = errors.New("not found")
+	ErrExceededMount   = errors.New("exceeded max mount")
+	LimitMaxSum        = 50
 )
 
 // Service is the interface that provides booking methods.
@@ -39,13 +41,13 @@ type DeleteData struct {
 
 // Authority is a user base authority
 type Authority struct {
-	ID           string                `json:"id"`
 	RoleID       string                `json:"role_id"`
 	Authority    []user.AuthorityModel `json:"authority"`
 	Validity     string                `json:"validity"`
 	Buildin      bool                  `json:"buildin"`
 	CreateUserID string                `json:"create_user_id"`
 	CreateTime   time.Time             `json:"create_time"`
+	UpdateTime   time.Time             `json:"update_time"`
 }
 
 type service struct {
@@ -84,17 +86,22 @@ func (s *service) GetAllAuthority() ([]Authority, error) {
 func (s *service) PostAuthority(authority []Authority) ([]string, []string, error) {
 	var sucessedIds []string
 	var failedIds []string
-	for _, a := range authority {
-		a.CreateTime = user.TimeUtcToCst(time.Now())
-		err := s.authoritys.Store(authorityToAuthorityModel(a))
-		if err != nil {
-			failedIds = append(failedIds, a.RoleID)
-			continue
-		} else {
-			sucessedIds = append(sucessedIds, a.RoleID)
+	if len(authority) < LimitMaxSum {
+		for _, a := range authority {
+			currentTime := user.TimeUtcToCst(time.Now())
+			a.CreateTime = currentTime
+			a.UpdateTime = currentTime
+			err := s.authoritys.Store(authorityToAuthorityModel(a))
+			if err != nil {
+				failedIds = append(failedIds, a.RoleID)
+				continue
+			} else {
+				sucessedIds = append(sucessedIds, a.RoleID)
+			}
 		}
+		return sucessedIds, failedIds, nil
 	}
-	return sucessedIds, failedIds, nil
+	return nil, nil, ErrExceededMount
 }
 
 func (s *service) DeleteMultiAuthority(d []DeleteData) ([]string, []string, error) {
@@ -103,15 +110,18 @@ func (s *service) DeleteMultiAuthority(d []DeleteData) ([]string, []string, erro
 	if len(d) == 0 {
 		return nil, nil, ErrInvalidArgument
 	}
-	for _, value := range d {
-		err := s.authoritys.Remove(value.RoleID, deleteDataToDeleteModel(value))
-		if err != nil {
-			failedIds = append(failedIds, value.RoleID)
-			continue
+	if len(d) < LimitMaxSum {
+		for _, value := range d {
+			err := s.authoritys.Remove(value.RoleID, deleteDataToDeleteModel(value))
+			if err != nil {
+				failedIds = append(failedIds, value.RoleID)
+				continue
+			}
+			sucessedIds = append(sucessedIds, value.RoleID)
 		}
-		sucessedIds = append(sucessedIds, value.RoleID)
+		return sucessedIds, failedIds, nil
 	}
-	return sucessedIds, failedIds, nil
+	return nil, nil, ErrExceededMount
 }
 
 func (s *service) PutMultiAuthority(authority []Authority) ([]string, []string, error) {
@@ -120,31 +130,35 @@ func (s *service) PutMultiAuthority(authority []Authority) ([]string, []string, 
 	if len(authority) == 0 {
 		return nil, nil, ErrInvalidArgument
 	}
-	for _, value := range authority {
-		if len(value.RoleID) == 0 {
-			failedIds = append(failedIds, value.RoleID)
-			continue
+	if len(authority) < LimitMaxSum {
+		for _, value := range authority {
+			if len(value.RoleID) == 0 {
+				failedIds = append(failedIds, value.RoleID)
+				continue
+			}
+			err := s.authoritys.Update(value.RoleID, authorityToAuthorityModel(value))
+			if err != nil {
+				failedIds = append(failedIds, value.RoleID)
+				continue
+			}
+			sucessedIds = append(sucessedIds, value.RoleID)
 		}
-		err := s.authoritys.Update(value.RoleID, authorityToAuthorityModel(value))
-		if err != nil {
-			failedIds = append(failedIds, value.RoleID)
-			continue
-		}
-		sucessedIds = append(sucessedIds, value.RoleID)
+		return sucessedIds, failedIds, nil
 	}
-	return sucessedIds, failedIds, nil
+	return nil, nil, ErrExceededMount
 }
 
 func authorityToAuthorityModel(a Authority) *user.AuthorityRelationModel {
 
 	return &user.AuthorityRelationModel{
-		ID:           a.ID,
+		UnionID:      a.RoleID,
 		RoleID:       a.RoleID,
 		Authority:    a.Authority,
 		Validity:     a.Validity,
 		Buildin:      a.Buildin,
 		CreateUserID: a.CreateUserID,
 		CreateTime:   a.CreateTime,
+		UpdateTime:   a.UpdateTime,
 	}
 }
 
@@ -158,12 +172,12 @@ func deleteDataToDeleteModel(d DeleteData) *user.DeleteAuthorityModel {
 
 func authorityModelToAuthority(a *user.AuthorityRelationModel) Authority {
 	return Authority{
-		ID:           a.ID,
 		RoleID:       a.RoleID,
 		Authority:    a.Authority,
 		Validity:     a.Validity,
 		Buildin:      a.Buildin,
 		CreateUserID: a.CreateUserID,
 		CreateTime:   a.CreateTime,
+		UpdateTime:   a.UpdateTime,
 	}
 }

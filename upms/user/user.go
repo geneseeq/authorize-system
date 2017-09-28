@@ -44,6 +44,7 @@ func NextTrackingID() string {
 // ErrUnknown is unkown user error
 var (
 	ErrUnknown = errors.New("not find data.")
+	ErrRemove  = errors.New("delete data is failed.")
 )
 
 // TimeUtcToCst is format time
