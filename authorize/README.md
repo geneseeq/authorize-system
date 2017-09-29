@@ -1,32 +1,33 @@
-# 用户角色关系服务
+# 数据授权服务
 
-涉及的表user_own_roles结构
+涉及的表auth_infos结构
 
     {
-            "_id" : "gys",
-            "id" : "gys",
-            "type" : 0,
-            "name" : "gys",
-            "alias" : "",
-            "buildin" : false,
-            "create_user_id" : "",
-            "create_time" : ISODate("2017-09-27T11:04:34.244Z"),
-            "update_time" : ISODate("2017-09-27T11:04:34.244Z")
+            "_id" : "test2",
+            "id" : "test2",
+            "access_token" : "",
+            "validity" : false,
+            "token_type" : "",
+            "expires_in" : 0,
+            "refresh_token" : "",
+            "update_time" : ISODate("2017-09-28T14:15:12.078Z"),
+            "create_time" : ISODate("2017-09-28T14:15:12.078Z")
     }
 
-## 新增用户中的角色
+
+## 新增数据授权token
 
 * /authing/v1/authorize/user/token
 
-## 更新用户中的角色
+## 更新数据授权token
 
 * /authing/v1/authorize/user/token
 
-## 删除用户中角色
+## 删除数据授权token
 
 * /authing/v1/authorize/user/token
 
-## 查找用户中角色
+## 查找数据授权token
 
 * /authing/v1/authorize/user/token
 

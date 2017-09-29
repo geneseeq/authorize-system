@@ -148,9 +148,6 @@ func (s *service) DeleteMutliLabel(labelid []data.LabelIDModel) ([]string, []str
 	var failed []string
 	if len(labelid) < LimitMaxSum {
 		for _, label := range labelid {
-			if label.ID == "" || len(label.LabelID) == 0 {
-				return sucessed, failed, ErrInvalidArgument
-			}
 			error := s.datas.RemoveLabel(label.ID, label.LabelID)
 			if error != nil {
 				failed = append(failed, label.LabelID...)

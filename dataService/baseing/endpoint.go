@@ -3,6 +3,7 @@ package baseing
 import (
 	"context"
 
+	"github.com/geneseeq/authorize-system/dataService/data"
 	"github.com/go-kit/kit/endpoint"
 )
 
@@ -12,6 +13,10 @@ type getBaseDataRequest struct {
 
 type deleteMutliBaseDataRequest struct {
 	ListID []string
+}
+
+type deleteMutliLabelRequest struct {
+	Label []data.LabelIDModel
 }
 
 type listBaseDataRequest struct{}
@@ -95,7 +100,28 @@ func makeDeleteMultiBaseDataEndpoint(s Service) endpoint.Endpoint {
 			FailedID:   failed,
 			Err:        err,
 			Status:     300,
-			Content:    "add user failed"}, nil
+			Content:    "delete data failed"}, nil
+	}
+}
+
+func makeDeleteMultiLabelEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(deleteMutliLabelRequest)
+		sucessed, failed, err := s.DeleteMutliLabel(req.Label)
+		if err == nil {
+			return postBaseDataResponse{
+				SucessedID: sucessed,
+				FailedID:   failed,
+				Err:        err,
+				Status:     200,
+				Content:    "delete data sucessed"}, nil
+		}
+		return postBaseDataResponse{
+			SucessedID: sucessed,
+			FailedID:   failed,
+			Err:        err,
+			Status:     300,
+			Content:    "delete data failed"}, nil
 	}
 }
 

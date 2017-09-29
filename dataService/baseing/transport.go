@@ -55,6 +55,13 @@ func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
 		opts...,
 	)
 
+	deleteMultiLabelHandler := kithttp.NewServer(
+		makeDeleteMultiLabelEndpoint(bs),
+		decodeDeleteMultiLabelRequest,
+		encodeResponse,
+		opts...,
+	)
+
 	r := mux.NewRouter()
 
 	r.Handle("/baseing/v1/data/{id}", getBaseDataHandler).Methods("GET")
@@ -62,7 +69,7 @@ func MakeHandler(bs Service, logger kitlog.Logger) http.Handler {
 	r.Handle("/baseing/v1/data", addBaseDataHandler).Methods("POST")
 	r.Handle("/baseing/v1/data", updateMultiBaseDataHandler).Methods("PUT")
 	r.Handle("/baseing/v1/data", deleteMultiBaseDataHandler).Methods("DELETE")
-
+	r.Handle("/baseing/v1/data/label", deleteMultiLabelHandler).Methods("DELETE")
 	return r
 }
 
@@ -93,6 +100,15 @@ func decodeDeleteMultiBaseDataRequest(_ context.Context, r *http.Request) (inter
 
 	var req deleteMutliBaseDataRequest
 	if e := json.NewDecoder(r.Body).Decode(&req.ListID); e != nil {
+		return nil, e
+	}
+	return req, nil
+}
+
+func decodeDeleteMultiLabelRequest(_ context.Context, r *http.Request) (interface{}, error) {
+
+	var req deleteMutliLabelRequest
+	if e := json.NewDecoder(r.Body).Decode(&req.Label); e != nil {
 		return nil, e
 	}
 	return req, nil

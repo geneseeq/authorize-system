@@ -75,22 +75,27 @@ func (r *baseDataDBRepository) RemoveLabel(id string, label []string) error {
 	if err != nil {
 		return data.ErrUnknown
 	}
-	var newLabelID []string
-	if result.LabelID != nil {
-		tmpDict := map[string]string{}
-		for _, v := range result.LabelID {
-			tmpDict[v] = "true"
+	if len(label) == 0 && len(result.LabelID) == 0 {
+		err = con.Remove(bson.M{"id": id})
+	} else {
+		var newLabelID []string
+		if result.LabelID != nil {
+			tmpDict := map[string]string{}
+			for _, v := range result.LabelID {
+				tmpDict[v] = "true"
+			}
+			for _, v := range label {
+				delete(tmpDict, v)
+			}
+			for key, _ := range tmpDict {
+				newLabelID = append(newLabelID, key)
+			}
+			result.LabelID = newLabelID
 		}
-		for _, v := range label {
-			delete(tmpDict, v)
-		}
-		for key, _ := range tmpDict {
-			newLabelID = append(newLabelID, key)
-		}
-		result.LabelID = newLabelID
+		err = con.Update(bson.M{"id": id}, result)
 	}
-	err = con.Update(bson.M{"id": id}, result)
 	return err
+
 }
 
 func newBaseDataModel(new *data.BaseDataModel, result data.BaseDataModel) data.BaseDataModel {

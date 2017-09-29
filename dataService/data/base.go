@@ -8,8 +8,8 @@ import (
 
 // LabelIDModel is
 type LabelIDModel struct {
-	ID      string   `json:"id"`
-	LabelID []string `json:"label_id"`
+	ID      string   `json:"id" bson:"id"`
+	LabelID []string `json:"label_id" bson:"label_id"`
 }
 
 // BaseDataModel is user struct
