@@ -1,8 +1,10 @@
 package db
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -30,8 +32,23 @@ func getAddress(mongoCfg DB) (string, error) {
 
 var session *mgo.Session
 
+const (
+	defaultGOPATH = "C:/work/goworkspace"
+)
+
+func envString(env, fallback string) string {
+	e := os.Getenv(env)
+	if e == "" {
+		return fallback
+	}
+	return e
+}
 func init() {
-	content, _ := ioutil.ReadFile("C:/work/gitlab/authorize-system/conf/conf.yaml")
+
+	goPath := envString("GOPATH", defaultGOPATH)
+	confPath := goPath + "/src/github.com/geneseeq/authorize-system/conf/" + "conf.yaml"
+	fmt.Println(confPath)
+	content, _ := ioutil.ReadFile(confPath)
 	mongoCfg := DB{}
 	err := yaml.Unmarshal(content, &mongoCfg)
 	address, err := getAddress(mongoCfg)
