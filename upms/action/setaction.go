@@ -90,6 +90,11 @@ func newDataSetModel(new *user.DataSetModel, result user.DataSetModel) user.Data
 	if new.CreateUserID != "" {
 		result.CreateUserID = new.CreateUserID
 	}
+
+	if new.UpdateUserID != "" {
+		result.UpdateUserID = new.UpdateUserID
+	}
+
 	result.UpdateTime = user.TimeUtcToCst(time.Now())
 	return result
 }

@@ -46,6 +46,7 @@ type Authority struct {
 	Validity     string                `json:"validity"`
 	Buildin      bool                  `json:"buildin"`
 	CreateUserID string                `json:"create_user_id"`
+	UpdateUserID string                `json:"update_user_id"`
 	CreateTime   time.Time             `json:"create_time"`
 	UpdateTime   time.Time             `json:"update_time"`
 }
@@ -157,6 +158,7 @@ func authorityToAuthorityModel(a Authority) *user.AuthorityRelationModel {
 		Validity:     a.Validity,
 		Buildin:      a.Buildin,
 		CreateUserID: a.CreateUserID,
+		UpdateUserID: a.UpdateUserID,
 		CreateTime:   a.CreateTime,
 		UpdateTime:   a.UpdateTime,
 	}
@@ -177,6 +179,7 @@ func authorityModelToAuthority(a *user.AuthorityRelationModel) Authority {
 		Validity:     a.Validity,
 		Buildin:      a.Buildin,
 		CreateUserID: a.CreateUserID,
+		UpdateUserID: a.UpdateUserID,
 		CreateTime:   a.CreateTime,
 		UpdateTime:   a.UpdateTime,
 	}

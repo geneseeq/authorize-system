@@ -34,11 +34,13 @@ type Service interface {
 // Role is a user base info
 type Role struct {
 	ID           string    `json:"id"`
-	Type         int       `json:"type"` //"type":"医生/教师/个人/员工/企业"
+	Type         string    `json:"type"`
 	Name         string    `json:"name"`
 	Alias        string    `json:"alias"`
 	Buildin      bool      `json:"buildin"`
+	Validity     bool      `json:"validity"`
 	CreateUserID string    `json:"create_user_id"`
+	UpdateUserID string    `json:"update_user_id"`
 	CreateTime   time.Time `json:"create_time"`
 	UpdateTime   time.Time `json:"update_time"`
 }
@@ -174,6 +176,8 @@ func roleToRolemodel(r Role) *user.RoleModel {
 		Alias:        r.Alias,
 		Buildin:      r.Buildin,
 		CreateUserID: r.CreateUserID,
+		UpdateUserID: r.UpdateUserID,
+		Validity:     r.Validity,
 		CreateTime:   r.CreateTime,
 		UpdateTime:   r.UpdateTime,
 	}
@@ -186,6 +190,8 @@ func rolemodelToRole(r *user.RoleModel) Role {
 		Name:         r.Name,
 		Alias:        r.Alias,
 		Buildin:      r.Buildin,
+		UpdateUserID: r.UpdateUserID,
+		Validity:     r.Validity,
 		CreateUserID: r.CreateUserID,
 		CreateTime:   r.CreateTime,
 		UpdateTime:   r.UpdateTime,

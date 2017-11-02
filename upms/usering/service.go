@@ -34,14 +34,17 @@ type Service interface {
 type User struct {
 	ID           string    `json:"id"`
 	Type         int       `json:"type"` //"type":"医生/教师/个人/员工/企业"
+	UserID       string    `json:"user_id"`
 	Number       string    `json:"number"`
 	Username     string    `json:"username"`
+	Email        string    `json:"email"`
 	Tele         string    `json:"tele"`
-	Gneder       bool      `json:"gender"`
+	Gneder       string    `json:"gender"`
 	Status       int       `json:"status"`
 	Validity     bool      `json:"validity"`
 	Vip          bool      `json:"vip"`
 	Buildin      bool      `json:"buildin"`
+	UpdateUserID string    `json:"update_user_id"`
 	CreateUserID string    `json:"create_user_id"`
 	CreateTime   time.Time `json:"create_time"`
 	UpdateTime   time.Time `json:"update_time"`
@@ -168,16 +171,19 @@ func userToUsermodel(u User) *user.UserModel {
 	return &user.UserModel{
 		UnionID:      u.ID,
 		ID:           u.ID,
+		UserID:       u.UserID,
 		Type:         u.Type,
 		Number:       u.Number,
 		Username:     u.Username,
 		Gneder:       u.Gneder,
+		Email:        u.Email,
 		Tele:         u.Tele,
 		Status:       u.Status,
 		Validity:     u.Validity,
 		Vip:          u.Vip,
 		Buildin:      u.Buildin,
 		CreateUserID: u.CreateUserID,
+		UpdateUserID: u.UpdateUserID,
 		CreateTime:   u.CreateTime,
 		UpdateTime:   u.UpdateTime,
 		Avatar:       u.Avatar,
@@ -187,16 +193,19 @@ func userToUsermodel(u User) *user.UserModel {
 func usermodelToUser(c *user.UserModel) User {
 	return User{
 		ID:           c.ID,
+		UserID:       c.UserID,
 		Type:         c.Type,
 		Number:       c.Number,
 		Username:     c.Username,
 		Gneder:       c.Gneder,
 		Tele:         c.Tele,
 		Status:       c.Status,
+		Email:        c.Email,
 		Validity:     c.Validity,
 		Vip:          c.Vip,
 		Buildin:      c.Buildin,
 		CreateUserID: c.CreateUserID,
+		UpdateUserID: c.UpdateUserID,
 		CreateTime:   c.CreateTime,
 		UpdateTime:   c.UpdateTime,
 		Avatar:       c.Avatar,

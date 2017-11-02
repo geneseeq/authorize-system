@@ -18,6 +18,7 @@ type ServicesModel struct {
 	Validity     bool      `bson:"validity"`
 	Buildin      bool      `bson:"buildin"`
 	Owner        []string  `bson:"owner"` //user type
+	UpdateUserID string    `bson:"update_user_id"`
 	CreateUserID string    `bson:"create_user_id"`
 	CreateTime   time.Time `bson:"create_time"`
 }

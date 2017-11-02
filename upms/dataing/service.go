@@ -38,6 +38,7 @@ type DataSet struct {
 	Validity     bool              `json:"validity"`
 	Buildin      bool              `json:"buildin"`
 	CreateUserID string            `json:"create_user_id"`
+	UpdateUserID string            `json:"update_user_id"`
 	CreateTime   time.Time         `json:"create_time"`
 	UpdateTime   time.Time         `json:"update_time"`
 }
@@ -147,6 +148,7 @@ func setToSetModel(s DataSet) *user.DataSetModel {
 		Validity:     s.Validity,
 		Buildin:      s.Buildin,
 		CreateUserID: s.CreateUserID,
+		UpdateUserID: s.UpdateUserID,
 		CreateTime:   s.CreateTime,
 		UpdateTime:   s.UpdateTime,
 	}
@@ -162,6 +164,7 @@ func setModelToSet(s *user.DataSetModel) DataSet {
 		Validity:     s.Validity,
 		Buildin:      s.Buildin,
 		CreateUserID: s.CreateUserID,
+		UpdateUserID: s.UpdateUserID,
 		CreateTime:   s.CreateTime,
 		UpdateTime:   s.UpdateTime,
 	}

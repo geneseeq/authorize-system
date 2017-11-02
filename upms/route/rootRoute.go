@@ -7,6 +7,7 @@ import (
 	"github.com/geneseeq/authorize-system/upms/association/roles"
 	"github.com/geneseeq/authorize-system/upms/association/users"
 	"github.com/geneseeq/authorize-system/upms/dataing"
+	"github.com/geneseeq/authorize-system/upms/distribute"
 	"github.com/geneseeq/authorize-system/upms/grouping"
 	"github.com/geneseeq/authorize-system/upms/roleing"
 	"github.com/geneseeq/authorize-system/upms/servicing"
@@ -23,6 +24,7 @@ func InitRouter(logger log.Logger, httpLogger log.Logger, fieldKeys []string) {
 	rs := initRoleRouter(logger, fieldKeys)
 	gus := initUserRelationRouter(logger, fieldKeys)
 	grs := initRoleRelationRouter(logger, fieldKeys)
+	rd := initRoleDistributeRouter(logger, fieldKeys)
 	ras := initAuthorityRelationRouter(logger, fieldKeys)
 	ss := initSetRouter(logger, fieldKeys)
 	service := initServiceRouter(logger, fieldKeys)
@@ -36,6 +38,7 @@ func InitRouter(logger log.Logger, httpLogger log.Logger, fieldKeys []string) {
 	mux.Handle("/releation/v1/role/", roles.MakeHandler(ras, httpLogger))
 	mux.Handle("/seting/v1/", dataing.MakeHandler(ss, httpLogger))
 	mux.Handle("/servicing/v1/", servicing.MakeHandler(service, httpLogger))
+	mux.Handle("/distribute/v1/", distribute.MakeHandler(rd, httpLogger))
 
 	http.Handle("/", accessControl(mux))
 	http.Handle("/metrics", promhttp.Handler())

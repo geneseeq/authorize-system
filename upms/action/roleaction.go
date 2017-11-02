@@ -63,7 +63,7 @@ func (r *roleDBRepository) Remove(id string) error {
 	return nil
 }
 func newRoleModel(new *user.RoleModel, result user.RoleModel) user.RoleModel {
-	if new.Type != 0 {
+	if new.Type != "" {
 		result.Type = new.Type
 	}
 
@@ -82,6 +82,15 @@ func newRoleModel(new *user.RoleModel, result user.RoleModel) user.RoleModel {
 	if new.CreateUserID != "" {
 		result.CreateUserID = new.CreateUserID
 	}
+
+	if new.Validity != false {
+		result.Validity = new.Validity
+	}
+
+	if new.UpdateUserID != "" {
+		result.UpdateUserID = new.UpdateUserID
+	}
+
 	result.UpdateTime = user.TimeUtcToCst(time.Now())
 	return result
 }

@@ -13,16 +13,19 @@ import (
 type UserModel struct {
 	UnionID      string    `bson:"_id"` //唯一ID
 	ID           string    `bson:"id"`
+	UserID       string    `bson:"user_id"`
 	Type         int       `bson:"type"`
 	Number       string    `bson:"number"`
 	Username     string    `bson:"username"`
+	Email        string    `bson:"email"`
 	Tele         string    `bson:"tele"`
-	Gneder       bool      `bson:"gender"`
+	Gneder       string    `bson:"gender"`
 	Status       int       `bson:"status"`
 	Validity     bool      `bson:"validity"`
 	Vip          bool      `bson:"vip"`
 	Buildin      bool      `bson:"buildin"`
 	CreateUserID string    `bson:"create_user_id"`
+	UpdateUserID string    `bson:"update_user_id"`
 	CreateTime   time.Time `bson:"create_time"`
 	UpdateTime   time.Time `bson:"update_time"`
 	Avatar       string    `bson:"avatar"`

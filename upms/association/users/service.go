@@ -41,6 +41,7 @@ type Role struct {
 	RoleID       []string  `json:"role_id"`
 	Buildin      bool      `json:"buildin"`
 	CreateUserID string    `json:"create_user_id"`
+	UpdateUserID string    `json:"update_user_id"`
 	CreateTime   time.Time `json:"create_time"`
 	UpdateTime   time.Time `json:"update_time"`
 }
@@ -170,6 +171,7 @@ func roleToRolemodel(r Role) *user.RoleRelationModel {
 		RoleID:       r.RoleID,
 		Buildin:      r.Buildin,
 		CreateUserID: r.CreateUserID,
+		UpdateUserID: r.UpdateUserID,
 		CreateTime:   r.CreateTime,
 		UpdateTime:   r.UpdateTime,
 	}
@@ -181,6 +183,7 @@ func rolemodelToRole(r *user.RoleRelationModel) Role {
 		RoleID:       r.RoleID,
 		Buildin:      r.Buildin,
 		CreateUserID: r.CreateUserID,
+		UpdateUserID: r.UpdateUserID,
 		CreateTime:   r.CreateTime,
 		UpdateTime:   r.UpdateTime,
 	}

@@ -7,13 +7,20 @@ import (
 
 // LabelModel is user struct
 type LabelModel struct {
-	UnionID    string    `bson:"_id"` //唯一ID
-	LabelID    string    `bson:"label_id"`
-	SampleID   []string  `bson:"sample_id"`
-	OrderID    []string  `bson:"order_id"`
-	MedicalID  []string  `bson:"medical_id"`
-	CreateTime time.Time `bson:"create_time"`
-	UpdateTime time.Time `bson:"update_time"`
+	UnionID      string    `bson:"_id"` //唯一ID
+	LabelID      string    `bson:"label_id"`
+	LabelType    string    `bson:"label_type"`
+	Action       []string  `bson:"action"`
+	SubLableID   []string  `bson:"sub_label_id"`
+	SampleID     []string  `bson:"sample_id"`
+	OrderID      []string  `bson:"order_id"`
+	MedicalID    []string  `bson:"medical_id"`
+	CreateTime   time.Time `bson:"create_time"`
+	UpdateTime   time.Time `bson:"update_time"`
+	CreateUserID string    `bson:"create_user_id"` //创建人ID
+	UpdateUserID string    `bson:"update_user_id"`
+	Buildin      bool      `bson:"buildin"`
+	Validity     bool      `bson:"validity"`
 }
 
 // NewLabelData is create instance

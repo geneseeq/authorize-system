@@ -104,6 +104,11 @@ func newServicesModel(new *user.ServicesModel, result user.ServicesModel) user.S
 	if new.CreateUserID != "" {
 		result.CreateUserID = new.CreateUserID
 	}
+
+	if new.UpdateUserID != "" {
+		result.UpdateUserID = new.UpdateUserID
+	}
+
 	result.RegisterTime = user.TimeUtcToCst(time.Now())
 	return result
 }

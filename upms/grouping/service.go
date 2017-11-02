@@ -32,16 +32,18 @@ type Service interface {
 
 // Group is a user base info
 type Group struct {
-	ID           string    `json:"id"`             //用户组ID
-	Type         int       `json:"type"`           //"1":"医生","2":"教师","3":"个人","4":"内部员工","0":"外部企业"
-	Parent       string    `json:"parent"`         //用户父组ID
-	Name         string    `json:"name"`           //组名字
-	Code         string    `json:"code"`           //组织编码
-	Alias        string    `json:"alias"`          //组别名
-	Buildin      bool      `json:"buildin"`        //是否内建，true内建，false非内建
+	ID           string    `json:"id"`      //用户组ID
+	Type         string    `json:"type"`    //组类型（所有具备父子关系的组：机构，部门，项目组）
+	Parent       string    `json:"parent"`  //用户父组ID
+	Name         string    `json:"name"`    //组名字
+	Code         string    `json:"code"`    //组织编码
+	Alias        string    `json:"alias"`   //组别名
+	Buildin      bool      `json:"buildin"` //是否内建，true内建，false非内建
+	Validity     bool      `json:"validity"`
 	CreateUserID string    `json:"create_user_id"` //创建人ID
-	CreateTime   time.Time `json:"create_time"`    //创建时间
-	UpdateTime   time.Time `json:"update_time"`    //更新时间
+	UpdateUserID string    `json:"update_user_id"`
+	CreateTime   time.Time `json:"create_time"` //创建时间
+	UpdateTime   time.Time `json:"update_time"` //更新时间
 }
 
 type service struct {
@@ -169,7 +171,9 @@ func groupToGroupmodel(g Group) *user.GroupModel {
 		Name:         g.Name,
 		Code:         g.Code,
 		Alias:        g.Alias,
+		Validity:     g.Validity,
 		Buildin:      g.Buildin,
+		UpdateUserID: g.UpdateUserID,
 		CreateUserID: g.CreateUserID,
 		CreateTime:   g.CreateTime,
 		UpdateTime:   g.UpdateTime,
@@ -185,6 +189,8 @@ func groupmodelToGroup(g *user.GroupModel) Group {
 		Code:         g.Code,
 		Alias:        g.Alias,
 		Buildin:      g.Buildin,
+		Validity:     g.Validity,
+		UpdateUserID: g.UpdateUserID,
 		CreateUserID: g.CreateUserID,
 		CreateTime:   g.CreateTime,
 		UpdateTime:   g.UpdateTime,

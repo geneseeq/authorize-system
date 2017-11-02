@@ -9,12 +9,14 @@ type GroupModel struct {
 	UnionID      string    `bson:"_id"` //唯一ID
 	Parent       string    `bson:"parent"`
 	ID           string    `bson:"id"`
-	Type         int       `bson:"type"`
+	Type         string    `bson:"type"`
 	Name         string    `bson:"name"`
 	Code         string    `bson:"code"`
 	Alias        string    `bson:"alias"`
 	Buildin      bool      `bson:"buildin"`
 	CreateUserID string    `bson:"create_user_id"`
+	UpdateUserID string    `bson:"update_user_id"`
+	Validity     bool      `bson:"validity"`
 	CreateTime   time.Time `bson:"create_time"`
 	UpdateTime   time.Time `bson:"update_time"`
 }

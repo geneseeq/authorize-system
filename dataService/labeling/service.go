@@ -30,12 +30,19 @@ type Service interface {
 
 // Label is a basedata base info
 type Label struct {
-	LabelID    string    `json:"label_id"`
-	SampleID   []string  `json:"sample_id"`
-	OrderID    []string  `json:"order_id"`
-	UpdateTime time.Time `json:"update_time"`
-	CreateTime time.Time `json:"create_time"`
-	MedicalID  []string  `json:"medical_id"`
+	LabelID      string    `json:"label_id"`
+	LabelType    string    `json:"label_type"`
+	SubLableID   []string  `json:"sub_label_id"`
+	SampleID     []string  `json:"sample_id"`
+	OrderID      []string  `json:"order_id"`
+	Action       []string  `json:"action"`
+	UpdateTime   time.Time `json:"update_time"`
+	CreateTime   time.Time `json:"create_time"`
+	MedicalID    []string  `json:"medical_id"`
+	CreateUserID string    `json:"create_user_id"` //创建人ID
+	UpdateUserID string    `json:"update_user_id"`
+	Buildin      bool      `json:"buildin"`
+	Validity     bool      `json:"validity"`
 }
 
 type service struct {
@@ -137,23 +144,37 @@ func (s *service) DeleteMultiLabel(listid []string) ([]string, []string, error) 
 func labelToLabelModel(d Label) *data.LabelModel {
 
 	return &data.LabelModel{
-		UnionID:    d.LabelID,
-		SampleID:   d.SampleID,
-		OrderID:    d.OrderID,
-		LabelID:    d.LabelID,
-		MedicalID:  d.MedicalID,
-		UpdateTime: d.UpdateTime,
-		CreateTime: d.CreateTime,
+		UnionID:      d.LabelID,
+		LabelType:    d.LabelType,
+		SubLableID:   d.SubLableID,
+		Action:       d.Action,
+		CreateUserID: d.CreateUserID,
+		UpdateUserID: d.UpdateUserID,
+		Buildin:      d.Buildin,
+		Validity:     d.Validity,
+		SampleID:     d.SampleID,
+		OrderID:      d.OrderID,
+		LabelID:      d.LabelID,
+		MedicalID:    d.MedicalID,
+		UpdateTime:   d.UpdateTime,
+		CreateTime:   d.CreateTime,
 	}
 }
 
 func labelModellToLabel(d *data.LabelModel) Label {
 	return Label{
-		SampleID:   d.SampleID,
-		OrderID:    d.OrderID,
-		LabelID:    d.LabelID,
-		UpdateTime: d.UpdateTime,
-		CreateTime: d.CreateTime,
-		MedicalID:  d.MedicalID,
+		SampleID:     d.SampleID,
+		OrderID:      d.OrderID,
+		LabelID:      d.LabelID,
+		UpdateTime:   d.UpdateTime,
+		CreateTime:   d.CreateTime,
+		MedicalID:    d.MedicalID,
+		LabelType:    d.LabelType,
+		SubLableID:   d.SubLableID,
+		Action:       d.Action,
+		CreateUserID: d.CreateUserID,
+		UpdateUserID: d.UpdateUserID,
+		Buildin:      d.Buildin,
+		Validity:     d.Validity,
 	}
 }

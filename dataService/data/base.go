@@ -16,9 +16,12 @@ type LabelIDModel struct {
 type BaseDataModel struct {
 	UnionID      string    `bson:"_id"` //唯一ID
 	ID           string    `bson:"id"`
+	Type         string    `bson:"type"`
 	SampleID     string    `bson:"sample_id"`
 	OrderID      string    `bson:"order_id"`
 	SaleID       string    `bson:"sale_id"`
+	MdeicalID    string    `bson:"mdeical_id"`
+	PersonUser   string    `bson:"personal_user"`
 	Doctor       string    `bson:"doctor"`
 	Hospital     string    `bson:"hospital"`
 	HospitalDept string    `bson:"hospital_dept"`

@@ -41,6 +41,7 @@ type Services struct {
 	Validity     bool      `json:"validity"`
 	Buildin      bool      `json:"buildin"`
 	CreateUserID string    `json:"create_user_id"`
+	UpdateUserID string    `json:"update_user_id"`
 	CreateTime   time.Time `json:"create_time"`
 	Owner        []string  `json:"owner"`
 }
@@ -147,6 +148,7 @@ func serviceToServiceModel(s Services) *user.ServicesModel {
 		Buildin:      s.Buildin,
 		CreateTime:   s.CreateTime,
 		CreateUserID: s.CreateUserID,
+		UpdateUserID: s.UpdateUserID,
 		Depend:       s.Depend,
 		Level:        s.Level,
 		Name:         s.Name,
@@ -165,6 +167,7 @@ func serviceModelToService(s *user.ServicesModel) Services {
 		Buildin:      s.Buildin,
 		CreateTime:   s.CreateTime,
 		CreateUserID: s.CreateUserID,
+		UpdateUserID: s.UpdateUserID,
 		Depend:       s.Depend,
 		Level:        s.Level,
 		Name:         s.Name,

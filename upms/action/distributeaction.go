@@ -1,4 +1,3 @@
-// Package action provides in-memory implementations of all the domain repositories.
 package action
 
 import (
@@ -10,29 +9,19 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-type userDBRepository struct {
+type distributeDBRepository struct {
 	mtx        sync.RWMutex
 	collection string
 	db         string
 }
 
-func (r *userDBRepository) Store(c *user.UserModel) error {
-	r.mtx.Lock()
-	defer r.mtx.Unlock()
-	ds := db.NewSessionStore()
-	defer ds.Close()
-	con := ds.GetConnect(r.db, r.collection)
-	err := con.Insert(c)
-	return err
-}
-
-func (r *userDBRepository) Find(id string) (*user.UserModel, error) {
+func (r *distributeDBRepository) Find(id string) (*user.RoleDistributeModel, error) {
 	r.mtx.RLock()
 	defer r.mtx.RUnlock()
 	ds := db.NewSessionStore()
 	defer ds.Close()
 	con := ds.GetConnect(r.db, r.collection)
-	result := user.UserModel{}
+	result := user.RoleDistributeModel{}
 	err := con.Find(bson.M{"id": id}).One(&result)
 	if err != nil {
 		return nil, user.ErrUnknown
@@ -40,18 +29,28 @@ func (r *userDBRepository) Find(id string) (*user.UserModel, error) {
 	return &result, nil
 }
 
-func (r *userDBRepository) FindAll() []*user.UserModel {
+func (r *distributeDBRepository) FindRoleDistributeAll() []*user.RoleDistributeModel {
 	r.mtx.RLock()
 	defer r.mtx.RUnlock()
 	ds := db.NewSessionStore()
 	defer ds.Close()
 	con := ds.GetConnect(r.db, r.collection)
-	var result []*user.UserModel
+	var result []*user.RoleDistributeModel
 	con.Find(nil).All(&result)
 	return result
 }
 
-func (r *userDBRepository) Remove(id string) error {
+func (r *distributeDBRepository) Store(g *user.RoleDistributeModel) error {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+	ds := db.NewSessionStore()
+	defer ds.Close()
+	con := ds.GetConnect(r.db, r.collection)
+	err := con.Insert(g)
+	return err
+}
+
+func (r *distributeDBRepository) Remove(id string) error {
 	r.mtx.RLock()
 	defer r.mtx.RUnlock()
 	ds := db.NewSessionStore()
@@ -64,45 +63,17 @@ func (r *userDBRepository) Remove(id string) error {
 	return nil
 }
 
-func newUserModel(new *user.UserModel, result user.UserModel) user.UserModel {
-	if new.Type != 0 {
-		result.Type = new.Type
-	}
-
-	if new.Number != "" {
-		result.Number = new.Number
-	}
-
-	if new.Username != "" {
-		result.Username = new.Username
+func newRoleDistributeModel(new *user.RoleDistributeModel, result user.RoleDistributeModel) user.RoleDistributeModel {
+	if new.GroupID != "" {
+		result.GroupID = new.GroupID
 	}
 
 	if new.UserID != "" {
 		result.UserID = new.UserID
 	}
 
-	if new.Email != "" {
-		result.Email = new.Email
-	}
-
-	if new.Tele != "" {
-		result.Tele = new.Tele
-	}
-
-	if new.Gneder != "" {
-		result.Gneder = new.Gneder
-	}
-
-	if new.Status != 0 {
-		result.Status = new.Status
-	}
-
-	if new.Validity != false {
-		result.Validity = new.Validity
-	}
-
-	if new.Vip != false {
-		result.Vip = new.Vip
+	if new.RoleID != "" {
+		result.RoleID = new.RoleID
 	}
 
 	if new.Buildin != false {
@@ -121,25 +92,25 @@ func newUserModel(new *user.UserModel, result user.UserModel) user.UserModel {
 	return result
 }
 
-func (r *userDBRepository) Update(id string, u *user.UserModel) error {
+func (r *distributeDBRepository) Update(id string, g *user.RoleDistributeModel) error {
 	r.mtx.Lock()
 	defer r.mtx.Unlock()
 	ds := db.NewSessionStore()
 	defer ds.Close()
 	con := ds.GetConnect(r.db, r.collection)
-	result := user.UserModel{}
+	result := user.RoleDistributeModel{}
 	err := con.Find(bson.M{"id": id}).One(&result)
 	if err != nil {
 		return user.ErrUnknown
 	}
-	result = newUserModel(u, result)
+	result = newRoleDistributeModel(g, result)
 	err = con.Update(bson.M{"id": id}, bson.M{"$set": result})
 	return err
 }
 
-// NewUserDBRepository returns a new instance of a in-memory cargo repository.
-func NewUserDBRepository(db string, collection string) user.Repository {
-	return &userDBRepository{
+// NewnewRoleDistributeDBRepository returns a new instance of a in-memory cargo repository.
+func NewnewRoleDistributeDBRepository(db string, collection string) user.RoleDistributeRepository {
+	return &distributeDBRepository{
 		db:         db,
 		collection: collection,
 	}

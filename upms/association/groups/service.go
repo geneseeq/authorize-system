@@ -34,6 +34,7 @@ type Groups struct {
 	UserID       []string  `json:"user_id"`
 	Buildin      bool      `json:"buildin"`
 	CreateUserID string    `json:"create_user_id"`
+	UpdateUserID string    `json:"update_user_id"`
 	CreateTime   time.Time `json:"create_time"`
 	UpdateTime   time.Time `json:"update_time"`
 }
@@ -144,6 +145,7 @@ func groupToGroupmodel(g Groups) *user.GroupRelationModel {
 		RoleID:       g.RoleID,
 		Buildin:      g.Buildin,
 		CreateUserID: g.CreateUserID,
+		UpdateUserID: g.UpdateUserID,
 		CreateTime:   g.CreateTime,
 		UpdateTime:   g.UpdateTime,
 	}
@@ -156,6 +158,7 @@ func groupmodelToGroup(g *user.GroupRelationModel) Groups {
 		RoleID:       g.RoleID,
 		Buildin:      g.Buildin,
 		CreateUserID: g.CreateUserID,
+		UpdateUserID: g.UpdateUserID,
 		CreateTime:   g.CreateTime,
 		UpdateTime:   g.UpdateTime,
 	}

@@ -84,6 +84,8 @@ func newLabelModel(new *data.LabelModel, result data.LabelModel) data.LabelModel
 	result.SampleID = appendListID(new.SampleID, result.SampleID)
 	result.OrderID = appendListID(new.OrderID, result.OrderID)
 	result.MedicalID = appendListID(new.MedicalID, result.MedicalID)
+	result.Action = appendListID(new.Action, result.Action)
+	result.SubLableID = appendListID(new.SubLableID, result.SubLableID)
 	result.UpdateTime = data.TimeUtcToCst(time.Now())
 	return result
 }

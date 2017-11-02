@@ -32,10 +32,13 @@ type Service interface {
 // BaseData is a basedata base info
 type BaseData struct {
 	ID           string    `json:"id"`
+	Type         string    `json:"type"`
 	SampleID     string    `json:"sample_id"`
 	OrderID      string    `json:"order_id"`
 	SaleID       string    `json:"sale_id"`
+	MdeicalID    string    `json:"mdeical_id"`
 	Doctor       string    `json:"doctor"`
+	PersonUser   string    `json:"personal_user"`
 	Hospital     string    `json:"hospital"`
 	HospitalDept string    `json:"hospital_dept"`
 	School       string    `json:"school"`
@@ -165,6 +168,9 @@ func baseDataToBaseDataModel(d BaseData) *data.BaseDataModel {
 	return &data.BaseDataModel{
 		UnionID:      d.ID,
 		ID:           d.ID,
+		Type:         d.Type,
+		MdeicalID:    d.MdeicalID,
+		PersonUser:   d.PersonUser,
 		SampleID:     d.SampleID,
 		OrderID:      d.OrderID,
 		SaleID:       d.SaleID,
@@ -184,6 +190,9 @@ func baseDataToBaseDataModel(d BaseData) *data.BaseDataModel {
 func baseDataModellToBaseData(d *data.BaseDataModel) BaseData {
 	return BaseData{
 		ID:           d.ID,
+		Type:         d.Type,
+		MdeicalID:    d.MdeicalID,
+		PersonUser:   d.PersonUser,
 		SampleID:     d.SampleID,
 		OrderID:      d.OrderID,
 		SaleID:       d.SaleID,
